@@ -39,10 +39,12 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  isLoading,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    isLoading?: boolean
   }) {
   const Comp = asChild ? Slot.Root : "button"
 
@@ -51,6 +53,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      disabled={isLoading || props.disabled}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
