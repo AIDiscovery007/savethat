@@ -8,6 +8,7 @@ import type {
   StorageAdapter,
   SearchQuery,
   StorageConfig,
+  StorageEventType,
 } from './types';
 
 /**

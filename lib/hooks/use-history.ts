@@ -156,7 +156,8 @@ export function useHistory() {
     const record = state.records.find(r => r.id === id);
     if (!record) return false;
 
-    return await updateRecord(id, { isFavorite: !record.isFavorite });
+    const result = await updateRecord(id, { isFavorite: !record.isFavorite });
+    return result !== null;
   }, [state.records, updateRecord]);
 
   /**

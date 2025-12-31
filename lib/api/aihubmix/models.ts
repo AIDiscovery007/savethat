@@ -1,6 +1,7 @@
 /**
  * 模型配置列表
  * 定义可用的 AI 模型及其配置信息
+ * 使用 Aihubmix SDK 支持的模型 ID 格式
  */
 
 /**
@@ -27,60 +28,11 @@ export interface ModelInfo {
 
 /**
  * 可用模型列表
+ * 模型 ID 使用 Aihubmix SDK 要求的格式
+ * 参考: https://docs.aihubmix.com/cn/api/AISDK
  */
 export const AVAILABLE_MODELS: ModelInfo[] = [
-  {
-    id: 'gemini-2-pro',
-    name: 'Gemini 2.0 Pro',
-    provider: 'Google',
-    description: 'Google 最新一代多模态大模型，支持超长上下文和复杂推理',
-    contextWindow: 2000000,
-    maxOutputTokens: 8192,
-    defaultTemperature: 0.7,
-    pricing: {
-      inputPer1M: 0,
-      outputPer1M: 0,
-    },
-  },
-  {
-    id: 'gemini-2-flash',
-    name: 'Gemini 2.0 Flash',
-    provider: 'Google',
-    description: 'Google 高效快速模型，适合高频调用和实时应用',
-    contextWindow: 1000000,
-    maxOutputTokens: 8192,
-    defaultTemperature: 0.7,
-    pricing: {
-      inputPer1M: 0,
-      outputPer1M: 0,
-    },
-  },
-  {
-    id: 'gemini-1.5-pro',
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google',
-    description: 'Google 多模态大模型，支持超长上下文窗口',
-    contextWindow: 2000000,
-    maxOutputTokens: 8192,
-    defaultTemperature: 0.7,
-    pricing: {
-      inputPer1M: 0,
-      outputPer1M: 0,
-    },
-  },
-  {
-    id: 'gemini-1.5-flash',
-    name: 'Gemini 1.5 Flash',
-    provider: 'Google',
-    description: 'Google 轻量级快速模型，适合高频调用',
-    contextWindow: 1000000,
-    maxOutputTokens: 8192,
-    defaultTemperature: 0.7,
-    pricing: {
-      inputPer1M: 0,
-      outputPer1M: 0,
-    },
-  },
+  // OpenAI
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
@@ -108,33 +60,21 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
     },
   },
   {
-    id: 'o1',
-    name: 'o1',
+    id: 'o4-mini',
+    name: 'o4-mini',
     provider: 'OpenAI',
-    description: 'OpenAI 推理模型，擅长复杂问题分析',
+    description: 'OpenAI 高效推理模型',
     contextWindow: 200000,
     maxOutputTokens: 100000,
-    defaultTemperature: 1,
-    pricing: {
-      inputPer1M: 15,
-      outputPer1M: 60,
-    },
-  },
-  {
-    id: 'o3-mini',
-    name: 'o3-mini',
-    provider: 'OpenAI',
-    description: 'OpenAI 轻量推理模型，平衡性能与成本',
-    contextWindow: 200000,
-    maxOutputTokens: 100000,
-    defaultTemperature: 1,
+    defaultTemperature: 0.7,
     pricing: {
       inputPer1M: 1.1,
       outputPer1M: 4.4,
     },
   },
+  // Anthropic - 需要使用带版本日期的格式
   {
-    id: 'claude-3-7-sonnet',
+    id: 'claude-3-7-sonnet-20250219',
     name: 'Claude 3.7 Sonnet',
     provider: 'Anthropic',
     description: 'Anthropic 平衡型模型，优秀的编程和写作能力',
@@ -147,7 +87,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
     },
   },
   {
-    id: 'claude-3-5-sonnet',
+    id: 'claude-3-5-sonnet-20241022',
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',
     description: 'Anthropic 高性能模型，优秀的指令遵循能力',
@@ -159,19 +99,47 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
       outputPer1M: 15,
     },
   },
+  // Google
   {
-    id: 'claude-3-5-haiku',
-    name: 'Claude 3.5 Haiku',
-    provider: 'Anthropic',
-    description: 'Anthropic 快速模型，适合简单任务',
-    contextWindow: 200000,
+    id: 'gemini-3-pro-preview',
+    name: 'Gemini 3 Pro',
+    provider: 'Google',
+    description: 'Google 最新一代旗舰模型，性能强大',
+    contextWindow: 1000000,
+    maxOutputTokens: 65536,
+    defaultTemperature: 0.7,
+    pricing: {
+      inputPer1M: 0,
+      outputPer1M: 0,
+    },
+  },
+  {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    provider: 'Google',
+    description: 'Google 高效快速模型，适合高频调用',
+    contextWindow: 1000000,
     maxOutputTokens: 8192,
     defaultTemperature: 0.7,
     pricing: {
-      inputPer1M: 0.25,
-      outputPer1M: 1.25,
+      inputPer1M: 0,
+      outputPer1M: 0,
     },
   },
+  {
+    id: 'gemini-2.0-flash-exp',
+    name: 'Gemini 2.0 Flash',
+    provider: 'Google',
+    description: 'Google 最新一代高效模型',
+    contextWindow: 1000000,
+    maxOutputTokens: 8192,
+    defaultTemperature: 0.7,
+    pricing: {
+      inputPer1M: 0,
+      outputPer1M: 0,
+    },
+  },
+  // DeepSeek
   {
     id: 'deepseek-chat',
     name: 'DeepSeek Chat',
@@ -198,6 +166,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
       outputPer1M: 2.19,
     },
   },
+  // Perplexity
   {
     id: 'sonar',
     name: 'Perplexity Sonar',

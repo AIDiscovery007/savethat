@@ -16,6 +16,7 @@ export interface OptimizationHistory {
   stages: OptimizationStage[];
   tags?: string[];
   isFavorite?: boolean;
+  totalDuration?: number; // 优化总耗时（毫秒）
   createdAt: string;
   updatedAt?: string;
 }
@@ -95,7 +96,7 @@ export interface SearchQuery {
 /**
  * 存储事件类型
  */
-export type StorageEventType = 'save' | 'delete' | 'clear' | 'update';
+export type StorageEventType = 'save' | 'delete' | 'clear' | 'update' | '*';
 
 /**
  * 存储事件监听器

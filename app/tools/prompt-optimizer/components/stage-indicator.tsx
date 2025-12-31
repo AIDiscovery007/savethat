@@ -7,11 +7,11 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { STAGES, OptimizationStage } from '@/lib/prompts/prompt-optimizer/system-prompts';
+import { STAGES, StageEnum } from '@/lib/prompts/prompt-optimizer/system-prompts';
 import { CheckCircle, Circle, CircleDashed } from '@phosphor-icons/react';
 
 interface StageIndicatorProps {
-  currentStage: OptimizationStage | null;
+  currentStage: StageEnum | null;
   stageProgress: number;
   className?: string;
 }

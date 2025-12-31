@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { DEFAULT_MODEL_ID, getModelById } from '@/lib/api/aihubmix/models';
 import { createHistoryRecord, generateId, useHistory } from '@/lib/hooks/use-history';
 import { useOptimization } from '@/lib/hooks/use-optimization';
-import { STAGES, OptimizationStage } from '@/lib/prompts/prompt-optimizer/system-prompts';
+import { STAGES, StageEnum } from '@/lib/prompts/prompt-optimizer/system-prompts';
 import { ModelSelector } from './components/model-selector';
 import { OptimizerForm } from './components/optimizer-form';
 import { StageIndicator, ProgressWithLabel } from './components/stage-indicator';
@@ -26,7 +26,8 @@ import {
   GearIcon,
   ArrowUUpLeftIcon,
 } from '@phosphor-icons/react';
-import type { OptimizationHistory, OptimizationResult as OptimizationResultType } from '@/lib/storage/types';
+import type { OptimizationHistory } from '@/lib/storage/types';
+import type { OptimizationResult as UseOptimizationResult } from '@/lib/hooks/use-optimization';
 
 export default function PromptOptimizerPage() {
   // 状态管理
@@ -98,10 +99,10 @@ export default function PromptOptimizerPage() {
   // 监听优化阶段变化
   React.useEffect(() => {
     if (currentStage) {
-      const progressMap: Record<OptimizationStage, number> = {
-        [OptimizationStage.INTENT_ANALYSIS]: 33,
-        [OptimizationStage.STRUCTURING]: 66,
-        [OptimizationStage.REFINEMENT]: 90,
+      const progressMap: Record<StageEnum, number> = {
+        [StageEnum.INTENT_ANALYSIS]: 33,
+        [StageEnum.STRUCTURING]: 66,
+        [StageEnum.REFINEMENT]: 90,
       };
       // 进度已在 useOptimization hook 中管理
     }
@@ -145,7 +146,7 @@ export default function PromptOptimizerPage() {
             <CardContent>
               <ModelSelector
                 value={selectedModel}
-                onValueChange={setSelectedModel}
+                onValueChange={(value) => value && setSelectedModel(value)}
               />
               {getModelById(selectedModel) && (
                 <p className="mt-2 text-xs text-muted-foreground">
@@ -222,16 +223,16 @@ export default function PromptOptimizerPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">优化结果</CardTitle>
                   <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
-                    <TabsList size="sm">
-                      <TabsTab value="result" size="sm">详情</TabsTab>
-                      <TabsTab value="comparison" size="sm">对比</TabsTab>
+                    <TabsList>
+                      <TabsTab value="result">详情</TabsTab>
+                      <TabsTab value="comparison">对比</TabsTab>
                     </TabsList>
                   </TabsRoot>
                 </div>
               </CardHeader>
               <CardContent>
                 {viewMode === 'result' ? (
-                  <OptimizationResult result={result} />
+                  <OptimizationResult result={result ?? undefined} />
                 ) : (
                   <ComparisonView
                     originalPrompt={result.originalPrompt}

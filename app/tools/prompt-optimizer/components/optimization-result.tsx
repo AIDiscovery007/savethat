@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TabsRoot, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import type { OptimizationResult, OptimizationStageResult } from '@/lib/storage/types';
+import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import { CopyButton } from '@/components/copy-button';
 import {
   CaretDownIcon,
@@ -21,11 +21,23 @@ import {
 } from '@phosphor-icons/react';
 
 interface OptimizationResultProps {
-  result: OptimizationResult;
+  result?: Partial<OptimizationHistory> & {
+    originalPrompt: string;
+    optimizedPrompt: string;
+    modelId: string;
+    modelName: string;
+    stages: OptimizationStage[];
+    totalDuration?: number;
+  };
   className?: string;
 }
 
 export function OptimizationResult({ result, className }: OptimizationResultProps) {
+  // 如果没有结果，返回空
+  if (!result) {
+    return null;
+  }
+
   const [expandedStages, setExpandedStages] = React.useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = React.useState<'split' | 'unified'>('unified');
 
@@ -55,7 +67,7 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
               <Badge variant="outline">{result.modelName}</Badge>
               <Badge variant="secondary">
                 <ClockIcon className="mr-1 h-3 w-3" />
-                {Math.round(result.totalDuration / 1000)}s
+                {result.totalDuration ? Math.round(result.totalDuration / 1000) : '-' }s
               </Badge>
             </div>
           </div>
@@ -142,7 +154,7 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
  * 单个阶段详情组件
  */
 interface StageDetailProps {
-  stage: OptimizationStageResult;
+  stage: OptimizationStage;
   index: number;
   isExpanded: boolean;
   onToggle: () => void;

@@ -6,17 +6,19 @@
 /**
  * 优化阶段枚举
  */
-export enum OptimizationStage {
-  INTENT_ANALYSIS = 'intent_analysis',
-  STRUCTURING = 'structuring',
-  REFINEMENT = 'refinement',
-}
+export const StageEnum = {
+  INTENT_ANALYSIS: 'intent_analysis',
+  STRUCTURING: 'structuring',
+  REFINEMENT: 'refinement',
+} as const;
+
+export type StageEnum = typeof StageEnum[keyof typeof StageEnum];
 
 /**
  * 阶段信息接口
  */
 export interface StageInfo {
-  id: OptimizationStage;
+  id: StageEnum;
   name: string;
   description: string;
 }
@@ -26,17 +28,17 @@ export interface StageInfo {
  */
 export const STAGES: StageInfo[] = [
   {
-    id: OptimizationStage.INTENT_ANALYSIS,
+    id: StageEnum.INTENT_ANALYSIS,
     name: '意图分析',
     description: '分析用户原始提示词的意图、目标和上下文',
   },
   {
-    id: OptimizationStage.STRUCTURING,
+    id: StageEnum.STRUCTURING,
     name: '结构化',
     description: '将提示词组织成清晰的结构',
   },
   {
-    id: OptimizationStage.REFINEMENT,
+    id: StageEnum.REFINEMENT,
     name: '细节优化',
     description: '优化措辞和可执行性',
   },
@@ -173,52 +175,28 @@ export const REFINEMENT = `你是一个专业的提示词优化专家。你的�
 - 确保边界条件明确
 - 考虑模型的输出特点
 
-## 输出格式
-
-请以 JSON 格式输出优化结果：
-
-\`\`\`json
-{
-  "optimizations_applied": [
-    {
-      "type": "优化类型",
-      "original": "原文",
-      "optimized": "优化后",
-      "reason": "优化原因"
-    }
-  ],
-  "final_prompt": "最终优化后的提示词（完整版本）",
-  "improvement_summary": "改进点总结",
-  "usage_tips": "使用建议",
-  "alternatives": [
-    {
-      "prompt": "备选版本1",
-      "description": "版本说明"
-    }
-  ]
-}
-\`\`\`
-
 ## 注意事项
 
 - 最终提示词应该是一个完整的、可直接使用的版本
 - 保留所有重要的结构标记
 - 确保优化后的提示词在各种场景下都能良好工作
+
+开始深入优化，然后直接输出最终优化后的提示词，不要输出任何其他内容。
 `;
 
 /**
  * 三阶段提示词配置对象
  */
-export const STAGE_PROMPTS: Record<OptimizationStage, string> = {
-  [OptimizationStage.INTENT_ANALYSIS]: INTENT_ANALYSIS,
-  [OptimizationStage.STRUCTURING]: STRUCTURING,
-  [OptimizationStage.REFINEMENT]: REFINEMENT,
+export const STAGE_PROMPTS: Record<StageEnum, string> = {
+  [StageEnum.INTENT_ANALYSIS]: INTENT_ANALYSIS,
+  [StageEnum.STRUCTURING]: STRUCTURING,
+  [StageEnum.REFINEMENT]: REFINEMENT,
 };
 
 /**
  * 获取阶段的系统提示词
  */
-export function getSystemPromptForStage(stage: OptimizationStage): string {
+export function getSystemPromptForStage(stage: StageEnum): string {
   return STAGE_PROMPTS[stage];
 }
 
@@ -226,23 +204,23 @@ export function getSystemPromptForStage(stage: OptimizationStage): string {
  * 构建三阶段优化的用户消息
  */
 export function buildStageUserMessage(
-  stage: OptimizationStage,
+  stage: StageEnum,
   originalPrompt: string,
   previousResult?: string
 ): string {
   let userMessage = '';
 
   switch (stage) {
-    case OptimizationStage.INTENT_ANALYSIS:
+    case StageEnum.INTENT_ANALYSIS:
       userMessage = `请分析以下提示词：\n\n${originalPrompt}`;
       break;
-    case OptimizationStage.STRUCTURING:
+    case StageEnum.STRUCTURING:
       userMessage = `基于以下意图分析结果，请将提示词结构化：\n\n${originalPrompt}`;
       if (previousResult) {
         userMessage = `意图分析结果：\n${previousResult}\n\n请基于以上分析，将原始提示词结构化。\n\n原始提示词：\n${originalPrompt}`;
       }
       break;
-    case OptimizationStage.REFINEMENT:
+    case StageEnum.REFINEMENT:
       userMessage = `请优化以下结构化提示词：\n\n${originalPrompt}`;
       if (previousResult) {
         userMessage = `结构化结果：\n${previousResult}\n\n请基于以上结构化结果，进行最终的细节优化。\n\n原始提示词：\n${originalPrompt}`;
@@ -268,9 +246,9 @@ export function extractFinalPrompt(jsonOutput: string): string {
            '';
   } catch {
     // 如果 JSON 解析失败，尝试从文本中提取
-    const match = jsonOutput.match(/"final_prompt":\s*"(.*?)"/s) ||
-                  jsonOutput.match(/"structured_prompt":\s*"(.*?)"/s) ||
-                  jsonOutput.match(/"optimized_prompt":\s*"(.*?)"/s);
+    const match = jsonOutput.match(/"final_prompt":\s*"([\s\S]*?)"/) ||
+                  jsonOutput.match(/"structured_prompt":\s*"([\s\S]*?)"/) ||
+                  jsonOutput.match(/"optimized_prompt":\s*"([\s\S]*?)"/);
     if (match) {
       return match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
     }

@@ -6,10 +6,10 @@
  */
 
 import { useState, useCallback } from 'react';
-import type { OptimizationHistory, OptimizationStageResult } from '@/lib/storage/types';
+import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import {
   STAGES,
-  OptimizationStage,
+  StageEnum,
   getSystemPromptForStage,
   buildStageUserMessage,
   extractFinalPrompt,
@@ -21,9 +21,9 @@ import type { AihubmixMessage } from '@/lib/api/aihubmix/types';
  */
 export interface OptimizationState {
   isOptimizing: boolean;
-  currentStage: OptimizationStage | null;
+  currentStage: StageEnum | null;
   stageProgress: number; // 0-100
-  stages: OptimizationStageResult[];
+  stages: OptimizationStage[];
   result: OptimizationResult | null;
   error: string | null;
 }
@@ -36,7 +36,7 @@ export interface OptimizationResult {
   optimizedPrompt: string;
   modelId: string;
   modelName: string;
-  stages: OptimizationStageResult[];
+  stages: OptimizationStage[];
   totalDuration: number;
 }
 
@@ -66,10 +66,10 @@ export function useOptimization() {
    * 调用 API 进行单阶段优化
    */
   const callStageApi = async (
-    stage: OptimizationStage,
+    stage: StageEnum,
     messages: AihubmixMessage[],
     options: ApiCallOptions
-  ): Promise<OptimizationStageResult> => {
+  ): Promise<OptimizationStage> => {
     const systemPrompt = getSystemPromptForStage(stage);
 
     const response = await fetch('/api/aihubmix', {
@@ -116,12 +116,12 @@ export function useOptimization() {
     originalPrompt: string,
     modelId: string,
     modelName: string,
-    onStageChange?: (stage: OptimizationStage, progress: number) => void
+    onStageChange?: (stage: StageEnum, progress: number) => void
   ): Promise<OptimizationResult | null> => {
     // 重置状态
     setState({
       isOptimizing: true,
-      currentStage: OptimizationStage.INTENT_ANALYSIS,
+      currentStage: StageEnum.INTENT_ANALYSIS,
       stageProgress: 0,
       stages: [],
       result: null,
@@ -129,16 +129,16 @@ export function useOptimization() {
     });
 
     const startTime = Date.now();
-    const stageResults: OptimizationStageResult[] = [];
+    const stageResults: OptimizationStage[] = [];
 
     try {
       // 阶段 1: 意图分析
-      setState(s => ({ ...s, currentStage: OptimizationStage.INTENT_ANALYSIS, stageProgress: 10 }));
-      onStageChange?.(OptimizationStage.INTENT_ANALYSIS, 10);
+      setState(s => ({ ...s, currentStage: StageEnum.INTENT_ANALYSIS, stageProgress: 10 }));
+      onStageChange?.(StageEnum.INTENT_ANALYSIS, 10);
 
-      const intentMessage = buildStageUserMessage(OptimizationStage.INTENT_ANALYSIS, originalPrompt);
+      const intentMessage = buildStageUserMessage(StageEnum.INTENT_ANALYSIS, originalPrompt);
       const intentResult = await callStageApi(
-        OptimizationStage.INTENT_ANALYSIS,
+        StageEnum.INTENT_ANALYSIS,
         [{ role: 'user', content: intentMessage }],
         { modelId }
       );
@@ -146,16 +146,16 @@ export function useOptimization() {
       setState(s => ({ ...s, stages: stageResults, stageProgress: 33 }));
 
       // 阶段 2: 结构化
-      setState(s => ({ ...s, currentStage: OptimizationStage.STRUCTURING, stageProgress: 33 }));
-      onStageChange?.(OptimizationStage.STRUCTURING, 33);
+      setState(s => ({ ...s, currentStage: StageEnum.STRUCTURING, stageProgress: 33 }));
+      onStageChange?.(StageEnum.STRUCTURING, 33);
 
       const structMessage = buildStageUserMessage(
-        OptimizationStage.STRUCTURING,
+        StageEnum.STRUCTURING,
         originalPrompt,
         intentResult.output
       );
       const structResult = await callStageApi(
-        OptimizationStage.STRUCTURING,
+        StageEnum.STRUCTURING,
         [{ role: 'user', content: structMessage }],
         { modelId }
       );
@@ -163,16 +163,16 @@ export function useOptimization() {
       setState(s => ({ ...s, stages: stageResults, stageProgress: 66 }));
 
       // 阶段 3: 细节优化
-      setState(s => ({ ...s, currentStage: OptimizationStage.REFINEMENT, stageProgress: 66 }));
-      onStageChange?.(OptimizationStage.REFINEMENT, 66);
+      setState(s => ({ ...s, currentStage: StageEnum.REFINEMENT, stageProgress: 66 }));
+      onStageChange?.(StageEnum.REFINEMENT, 66);
 
       const refineMessage = buildStageUserMessage(
-        OptimizationStage.REFINEMENT,
+        StageEnum.REFINEMENT,
         originalPrompt,
         structResult.output
       );
       const refineResult = await callStageApi(
-        OptimizationStage.REFINEMENT,
+        StageEnum.REFINEMENT,
         [{ role: 'user', content: refineMessage }],
         { modelId }
       );

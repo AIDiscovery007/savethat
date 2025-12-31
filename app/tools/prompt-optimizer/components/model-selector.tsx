@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 
 interface ModelSelectorProps {
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string | null) => void;
   className?: string;
   disabled?: boolean;
 }
@@ -41,38 +41,17 @@ export function ModelSelector({
     [value]
   );
 
-  // 搜索过滤
-  const [searchQuery, setSearchQuery] = React.useState('');
-
-  const filteredProviders = React.useMemo(() => {
-    if (!searchQuery) return modelsByProvider;
-
-    const filtered: Record<string, ModelInfo[]> = {};
-    for (const [provider, models] of Object.entries(modelsByProvider)) {
-      const matching = models.filter(
-        m =>
-          m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          m.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      if (matching.length > 0) {
-        filtered[provider] = matching;
-      }
-    }
-    return filtered;
-  }, [modelsByProvider, searchQuery]);
-
   return (
     <Combobox value={value} onValueChange={onValueChange} disabled={disabled}>
       <ComboboxInput
         placeholder="选择模型..."
         showClear={true}
         className={cn('w-full', className)}
-        onValueChange={(value) => setSearchQuery(value)}
       />
       <ComboboxContent className="w-[--anchor-width] min-w-[300px]">
         <ComboboxList>
           <ComboboxEmpty>没有找到匹配的模型</ComboboxEmpty>
-          {Object.entries(filteredProviders).map(([provider, models]) => (
+          {Object.entries(modelsByProvider).map(([provider, models]) => (
             <ComboboxGroup key={provider}>
               <ComboboxLabel>{provider}</ComboboxLabel>
               {models.map(model => (

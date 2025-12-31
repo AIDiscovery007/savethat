@@ -1,15 +1,17 @@
 /**
  * Aihubmix API 代理路由
- * 提供统一的 API 接口，支持同步和流式响应
+ * 使用 Vercel AI SDK 的 aihubmix provider
+ * 一个 API Key 支持多家模型（OpenAI、Claude、Gemini 等）
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { aihubmixClient } from '@/lib/api/aihubmix/client';
-import type { AihubmixChatRequest, AihubmixStreamChunk } from '@/lib/api/aihubmix/types';
+import { generateText } from 'ai';
+import { getModel, isConfigured } from '@/lib/api/aihubmix/sdk-client';
+import type { AihubmixChatRequest } from '@/lib/api/aihubmix/types';
 
 /**
  * POST 处理函数
- * 支持同步和流式聊天完成请求
+ * 支持同步聊天完成请求（流式暂不实现）
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -24,14 +26,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 检查是否需要流式响应
-    const wantsStream = body.stream ?? false;
-
-    if (wantsStream) {
-      return handleStreamRequest(body);
-    } else {
-      return handleSyncRequest(body);
+    // 检查 API Key 配置
+    if (!isConfigured()) {
+      return NextResponse.json(
+        { error: 'API key not configured. Please set AIHUBMIX_API_KEY in environment variables.' },
+        { status: 401 }
+      );
     }
+
+    return handleSyncRequest(body);
   } catch (error) {
     console.error('[Aihubmix API] Request error:', error);
     return NextResponse.json(
@@ -75,20 +78,62 @@ function validateRequest(body: AihubmixChatRequest): { message: string; status: 
 
 /**
  * 处理同步请求
+ * 使用 Vercel AI SDK 的 generateText
  */
 async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResponse> {
   try {
-    const response = await aihubmixClient.chat(request);
-    return NextResponse.json(response);
+    const model = getModel(request.model);
+
+    // 转换消息格式
+    const messages = request.messages.map(msg => ({
+      role: msg.role as 'system' | 'user' | 'assistant',
+      content: msg.content,
+    }));
+
+    // 调用 generateText
+    const { text, usage, response } = await generateText({
+      model,
+      messages,
+      temperature: request.temperature ?? 0.7,
+      maxOutputTokens: request.max_tokens ?? 4096,
+    });
+
+    // 转换为标准响应格式
+    const responseBody = {
+      id: response.id || `aihubmix-${Date.now()}`,
+      object: 'chat.completion',
+      created: response.timestamp || Math.floor(Date.now() / 1000),
+      model: request.model,
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: text,
+          },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: {
+        prompt_tokens: usage.inputTokens || 0,
+        completion_tokens: usage.outputTokens || 0,
+        total_tokens: (usage.inputTokens || 0) + (usage.outputTokens || 0),
+      },
+    };
+
+    return NextResponse.json(responseBody);
   } catch (error) {
     console.error('[Aihubmix API] Sync request error:', error);
 
-    if (error instanceof aihubmixClient.constructor.prototype?.__proto__?.constructor) {
-      const apiError = error as { message: string; statusCode: number };
-      return NextResponse.json(
-        { error: apiError.message },
-        { status: apiError.statusCode || 500 }
-      );
+    // 处理 API 错误
+    if (typeof error === 'object' && error !== null) {
+      const err = error as { status?: number; message?: string };
+      if (err.status || err.message) {
+        return NextResponse.json(
+          { error: err.message || 'API request failed' },
+          { status: err.status || 500 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -99,63 +144,15 @@ async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResp
 }
 
 /**
- * 处理流式请求
- */
-function handleStreamRequest(request: AihubmixChatRequest): NextResponse {
-  const encoder = new TextEncoder();
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      try {
-        const generator = aihubmixClient.chatStream(request, {
-          onStream: (chunk: AihubmixStreamChunk) => {
-            const data = `data: ${JSON.stringify(chunk)}\n\n`;
-            controller.enqueue(encoder.encode(data));
-          },
-        });
-
-        for await (const chunk of generator) {
-          // 已经在 onStream 中处理
-        }
-
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-        controller.close();
-      } catch (error) {
-        console.error('[Aihubmix API] Stream error:', error);
-        const errorData = JSON.stringify({
-          error: error instanceof Error ? error.message : 'Unknown error',
-        });
-        controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
-        controller.close();
-      }
-    },
-    cancel() {
-      // 处理流被取消的情况
-      console.log('[Aihubmix API] Stream cancelled');
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
-  });
-}
-
-/**
  * GET 处理函数
  * 健康检查端点
  */
 export async function GET(): Promise<NextResponse> {
-  const isHealthy = await aihubmixClient.healthCheck();
-
-  if (isHealthy) {
-    return NextResponse.json({ status: 'ok', service: 'aihubmix' });
+  if (isConfigured()) {
+    return NextResponse.json({ status: 'ok', service: 'aihubmix-sdk' });
   } else {
     return NextResponse.json(
-      { status: 'error', message: 'Service unavailable' },
+      { status: 'error', message: 'API key not configured' },
       { status: 503 }
     );
   }
