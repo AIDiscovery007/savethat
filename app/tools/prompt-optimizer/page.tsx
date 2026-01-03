@@ -15,7 +15,6 @@ import { DEFAULT_MODEL_ID, getModelById } from '@/lib/api/aihubmix/models';
 import { createHistoryRecord, generateId, useHistory } from '@/lib/hooks/use-history';
 import { useOptimization } from '@/lib/hooks/use-optimization';
 import { STAGES, StageEnum } from '@/lib/prompts/prompt-optimizer/system-prompts';
-import { ModelSelector } from './components/model-selector';
 import { OptimizerForm } from './components/optimizer-form';
 import { StageIndicator, ProgressWithLabel } from './components/stage-indicator';
 import { OptimizationResult } from './components/optimization-result';
@@ -125,26 +124,8 @@ export default function PromptOptimizerPage() {
 
       {/* 主内容区 */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* 左侧：模型选择和历史记录 */}
+        {/* 左侧：历史记录 */}
         <div className="space-y-6">
-          {/* 模型选择器 */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">选择模型</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ModelSelector
-                value={selectedModel}
-                onValueChange={(value) => value && setSelectedModel(value)}
-              />
-              {getModelById(selectedModel) && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {getModelById(selectedModel)?.description}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
           {/* 历史记录面板 */}
           <HistoryPanel
             records={records}
@@ -160,23 +141,15 @@ export default function PromptOptimizerPage() {
         {/* 中间：表单和结果 */}
         <div className="lg:col-span-2 space-y-6">
           {/* 优化表单 */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <MagicWandIcon className="h-5 w-5" />
-                输入提示词
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OptimizerForm
-                value={prompt}
-                onChange={setPrompt}
-                onSubmit={handleOptimize}
-                isOptimizing={isOptimizing}
-                disabled={!selectedModel}
-              />
-            </CardContent>
-          </Card>
+          <OptimizerForm
+            value={prompt}
+            onChange={setPrompt}
+            onSubmit={handleOptimize}
+            isOptimizing={isOptimizing}
+            disabled={!selectedModel}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+          />
 
           {/* 优化进度指示器 */}
           {isOptimizing && (

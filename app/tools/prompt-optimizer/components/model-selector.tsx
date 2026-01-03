@@ -16,8 +16,18 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from '@/components/ui/combobox';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { AVAILABLE_MODELS, getModelsGroupedByProvider, type ModelInfo } from '@/lib/api/aihubmix/models';
 import { cn } from '@/lib/utils';
+import { CaretDownIcon } from '@phosphor-icons/react';
 
 interface ModelSelectorProps {
   value: string;
@@ -27,7 +37,7 @@ interface ModelSelectorProps {
 }
 
 /**
- * 模型选择器组件
+ * 模型选择器组件 - 完整输入框版本
  */
 export function ModelSelector({
   value,
@@ -69,6 +79,80 @@ export function ModelSelector({
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+  );
+}
+
+/**
+ * 模型选择触发器组件 - 简化版本，用于内联布局
+ */
+interface ModelSelectorTriggerProps {
+  value: string;
+  onValueChange: (value: string | null) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+export function ModelSelectorTrigger({
+  value,
+  onValueChange,
+  disabled = false,
+  className,
+}: ModelSelectorTriggerProps) {
+  const modelsByProvider = React.useMemo(() => getModelsGroupedByProvider(), []);
+  const selectedModel = React.useMemo(
+    () => AVAILABLE_MODELS.find(m => m.id === value),
+    [value]
+  );
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild disabled={disabled}>
+        <button
+          className={cn(
+            'flex items-center gap-1 px-2 py-1 rounded-md',
+            'text-sm font-medium text-foreground',
+            'hover:bg-accent hover:text-accent-foreground',
+            'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+            'disabled:opacity-50 disabled:cursor-not-allowed',
+            'transition-colors',
+            className
+          )}
+        >
+          <span>{selectedModel?.name || '选择模型'}</span>
+          <CaretDownIcon className="h-3 w-3 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        side="bottom"
+        className="w-[--radix-dropdown-menu-trigger-width] min-w-[280px]"
+      >
+        {Object.entries(modelsByProvider).map(([provider, models], index) => (
+          <React.Fragment key={provider}>
+            {index > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuLabel className="flex items-center gap-2">
+              <span className={cn('w-2 h-2 rounded-full', getProviderColor(provider))} />
+              {provider}
+            </DropdownMenuLabel>
+            {models.map(model => (
+              <DropdownMenuItem
+                key={model.id}
+                onSelect={() => onValueChange(model.id)}
+                className={cn(
+                  'flex flex-col items-start gap-1 py-2 cursor-pointer',
+                  value === model.id && 'bg-accent'
+                )}
+              >
+                <span className="font-medium">{model.name}</span>
+                <span className="text-xs text-muted-foreground line-clamp-1">
+                  {model.description}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </React.Fragment>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

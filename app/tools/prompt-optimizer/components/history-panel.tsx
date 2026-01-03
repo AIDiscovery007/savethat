@@ -56,30 +56,31 @@ export function HistoryPanel({
             历史记录
           </CardTitle>
           {records.length > 0 && (
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={cn(showFavoritesOnly && 'bg-muted')}
-            >
-              <StarIcon className="h-3 w-3 fill-yellow-500" />
-            </Button>
-          )}
-        </div>
-        {records.length > 0 && (
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{filteredRecords.length} 条记录</span>
-            {records.length > 1 && (
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="xs"
-                onClick={onClearAll}
-                className="h-auto p-0 text-destructive hover:text-destructive"
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={cn(showFavoritesOnly && 'bg-muted')}
               >
-                <TrashIcon className="mr-1 h-3 w-3" />
-                清空
+                <StarIcon className="h-3 w-3 fill-yellow-500" />
               </Button>
-            )}
+              {records.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={onClearAll}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <TrashIcon className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+        {records.length > 0 && (
+          <div className="text-xs text-muted-foreground">
+            {filteredRecords.length} 条记录
           </div>
         )}
       </CardHeader>

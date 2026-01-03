@@ -62,9 +62,6 @@ export default function RootLayout({
         <footer className="border-t py-6">
           <div className="container mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
             <p>AI 工具聚合站 - 基于 AI 的提示词优化工具</p>
-            <p className="mt-1">
-              Powered by Aihubmix API
-            </p>
           </div>
         </footer>
       </body>
