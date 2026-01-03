@@ -2,7 +2,6 @@
   "Navigation": {
     "title": "AI 工具聚合站",
     "description": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能",
-    "promptOptimizer": "提示词优化",
     "about": "关于"
   },
   "Footer": {
@@ -22,7 +21,7 @@
   },
   "Tools": {
     "prompt-optimizer": {
-      "name": "提示词优化",
+      "name": "一键优化提示词",
       "description": "基于 AI 的三阶段提示词优化工具，帮助你写出更好的提示词"
     },
     "code-generator": {
@@ -43,8 +42,8 @@
     }
   },
   "PromptOptimizer": {
-    "title": "提示词优化工具",
-    "subtitle": "基于 AI 的三阶段提示词优化流程",
+    "title": "一键优化提示词",
+    "subtitle": "用更好的提示词获取更好的答案",
     "optimizing": "正在{stage}...",
     "preparing": "准备中",
     "error": "错误: {error}",
@@ -58,7 +57,8 @@
   },
   "OptimizerForm": {
     "placeholder": "输入你想要优化的提示词...",
-    "charsWords": "{chars} 字符 • {words} 词"
+    "charsWords": "{chars} 字符 • {words} 词",
+    "thinkingModeTooltip": "为复杂推理任务启用扩展思考模式"
   },
   "HistoryPanel": {
     "title": "提示词记录",

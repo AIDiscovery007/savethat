@@ -35,6 +35,7 @@ export default function PromptOptimizerPage() {
   // 状态管理
   const [prompt, setPrompt] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState(DEFAULT_MODEL_ID);
+  const [thinkingEnabled, setThinkingEnabled] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'result' | 'comparison'>('result');
   const [selectedHistoryRecord, setSelectedHistoryRecord] = React.useState<OptimizationHistory | null>(null);
 
@@ -86,7 +87,7 @@ export default function PromptOptimizerPage() {
     const modelInfo = getModelById(selectedModel);
     if (!modelInfo) return;
 
-    const optimizationResult = await optimize(prompt, selectedModel, modelInfo.name);
+    const optimizationResult = await optimize(prompt, selectedModel, modelInfo.name, undefined, thinkingEnabled);
 
     if (optimizationResult) {
       // 保存到历史记录
@@ -163,6 +164,8 @@ export default function PromptOptimizerPage() {
             disabled={!selectedModel}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
+            thinkingEnabled={thinkingEnabled}
+            onThinkingChange={setThinkingEnabled}
           />
 
           {/* 优化进度指示器 */}

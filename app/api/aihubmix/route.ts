@@ -96,6 +96,9 @@ async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResp
       messages,
       temperature: request.temperature ?? 0.7,
       maxOutputTokens: request.max_tokens ?? 4096,
+      ...(request.thinking === true && {
+        thinking: { type: 'enabled' },
+      }),
     });
 
     // 转换为标准响应格式

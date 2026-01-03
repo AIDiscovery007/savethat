@@ -80,6 +80,7 @@ interface ApiCallOptions {
   modelId: string;
   temperature?: number;
   maxTokens?: number;
+  thinking?: boolean;
 }
 
 /**
@@ -131,6 +132,7 @@ export function useOptimization() {
         ],
         temperature: options.temperature ?? 0.7,
         max_tokens: options.maxTokens ?? 4096,
+        ...(options.thinking && { thinking: true }),
       }),
     });
 
@@ -164,7 +166,8 @@ export function useOptimization() {
     originalPrompt: string,
     modelId: string,
     modelName: string,
-    onStageChange?: (stage: StageEnum, progress: number) => void
+    onStageChange?: (stage: StageEnum, progress: number) => void,
+    thinkingEnabled?: boolean
   ): Promise<OptimizationResult | null> => {
     // 重置状态
     setState({
@@ -179,6 +182,8 @@ export function useOptimization() {
     const startTime = Date.now();
     const stageResults: OptimizationStage[] = [];
 
+    const apiOptions = { modelId, thinking: thinkingEnabled };
+
     try {
       // 阶段 1: 意图分析
       setState(s => ({ ...s, currentStage: StageEnum.INTENT_ANALYSIS, stageProgress: 10 }));
@@ -188,7 +193,7 @@ export function useOptimization() {
       const intentResult = await callStageApi(
         StageEnum.INTENT_ANALYSIS,
         [{ role: 'user', content: intentMessage }],
-        { modelId }
+        apiOptions
       );
       stageResults.push(intentResult);
       setState(s => ({ ...s, stages: stageResults, stageProgress: 33 }));
@@ -205,7 +210,7 @@ export function useOptimization() {
       const structResult = await callStageApi(
         StageEnum.STRUCTURING,
         [{ role: 'user', content: structMessage }],
-        { modelId }
+        apiOptions
       );
       stageResults.push(structResult);
       setState(s => ({ ...s, stages: stageResults, stageProgress: 66 }));
@@ -222,7 +227,7 @@ export function useOptimization() {
       const refineResult = await callStageApi(
         StageEnum.REFINEMENT,
         [{ role: 'user', content: refineMessage }],
-        { modelId }
+        apiOptions
       );
       stageResults.push(refineResult);
 

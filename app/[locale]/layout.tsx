@@ -24,12 +24,6 @@ export default async function LocaleLayout({
             <span className="text-lg">{t('title')}</span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
-            <Link
-              href="/tools/prompt-optimizer"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              {t('promptOptimizer')}
-            </Link>
             <a
               href="#"
               className="transition-colors hover:text-foreground/80 text-foreground/60"

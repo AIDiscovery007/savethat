@@ -2,7 +2,6 @@
   "Navigation": {
     "title": "AI Tools Hub",
     "description": "Powered by AI - Prompt optimization, code generation, smart translation, and more to help you work more efficiently.",
-    "promptOptimizer": "Prompt Optimizer",
     "about": "About"
   },
   "Footer": {
@@ -22,7 +21,7 @@
   },
   "Tools": {
     "prompt-optimizer": {
-      "name": "Prompt Optimizer",
+      "name": "One-Click Prompt Optimizer",
       "description": "Three-stage AI-powered prompt optimization tool to help you write better prompts"
     },
     "code-generator": {
@@ -43,8 +42,8 @@
     }
   },
   "PromptOptimizer": {
-    "title": "Prompt Optimizer",
-    "subtitle": "Three-stage AI-powered prompt optimization",
+    "title": "One-Click Prompt Optimizer",
+    "subtitle": "Better prompts for better answers",
     "optimizing": "{stage}...",
     "preparing": "Preparing...",
     "error": "Error: {error}",
@@ -58,7 +57,8 @@
   },
   "OptimizerForm": {
     "placeholder": "Enter the prompt you want to optimize...",
-    "charsWords": "{chars} chars • {words} words"
+    "charsWords": "{chars} chars • {words} words",
+    "thinkingModeTooltip": "Enable extended thinking for complex reasoning tasks"
   },
   "HistoryPanel": {
     "title": "Prompt Records",

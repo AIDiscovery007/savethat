@@ -24,6 +24,8 @@ export interface ModelInfo {
     inputPer1M: number;
     outputPer1M: number;
   };
+  /** 是否支持 thinking 模式（扩展思考） */
+  supportsThinking?: boolean;
 }
 
 /**
@@ -71,6 +73,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
       inputPer1M: 1.1,
       outputPer1M: 4.4,
     },
+    supportsThinking: true,
   },
   // Anthropic - 需要使用带版本日期的格式
   {
@@ -112,6 +115,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
       inputPer1M: 0,
       outputPer1M: 0,
     },
+    supportsThinking: true,
   },
   {
     id: 'gemini-2.5-flash',
@@ -233,4 +237,12 @@ export function getModelsGroupedByProvider(): Record<ModelProvider, ModelInfo[]>
     acc[model.provider].push(model);
     return acc;
   }, {} as Record<ModelProvider, ModelInfo[]>);
+}
+
+/**
+ * 检查模型是否支持 thinking 模式
+ */
+export function supportsThinkingMode(modelId: string): boolean {
+  const model = AVAILABLE_MODELS.find(m => m.id === modelId);
+  return model?.supportsThinking ?? false;
 }
