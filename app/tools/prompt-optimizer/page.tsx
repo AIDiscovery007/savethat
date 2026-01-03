@@ -8,6 +8,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { DEFAULT_MODEL_ID, getModelById } from '@/lib/api/aihubmix/models';
@@ -25,6 +26,7 @@ import {
   MagicWandIcon,
   GearIcon,
   ArrowUUpLeftIcon,
+  InfoIcon,
 } from '@phosphor-icons/react';
 import type { OptimizationHistory } from '@/lib/storage/types';
 import type { OptimizationResult as UseOptimizationResult } from '@/lib/hooks/use-optimization';
@@ -35,6 +37,7 @@ export default function PromptOptimizerPage() {
   const [selectedModel, setSelectedModel] = React.useState(DEFAULT_MODEL_ID);
   const [showSettings, setShowSettings] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'result' | 'comparison'>('result');
+  const [selectedHistoryRecord, setSelectedHistoryRecord] = React.useState<OptimizationHistory | null>(null);
 
   // Hooks
   const {
@@ -58,6 +61,21 @@ export default function PromptOptimizerPage() {
     toggleFavorite,
   } = useHistory();
 
+  // 加载历史记录后自动选中第一条
+  React.useEffect(() => {
+    if (records.length > 0 && !selectedHistoryRecord && !prompt) {
+      const firstRecord = records[0];
+      // 确保有 totalDuration 字段（旧记录可能没有）
+      const recordWithDuration: OptimizationHistory = {
+        ...firstRecord,
+        totalDuration: firstRecord.totalDuration ?? 0,
+      };
+      setSelectedHistoryRecord(recordWithDuration);
+      setPrompt(firstRecord.originalPrompt);
+      setSelectedModel(firstRecord.modelId);
+    }
+  }, [records, selectedHistoryRecord, prompt]);
+
   // 处理优化
   const handleOptimize = async () => {
     if (!prompt.trim()) return;
@@ -74,7 +92,8 @@ export default function PromptOptimizerPage() {
         optimizationResult.optimizedPrompt,
         selectedModel,
         modelInfo.name,
-        optimizationResult.stages
+        optimizationResult.stages,
+        optimizationResult.totalDuration
       );
       await saveRecord(historyRecord);
 
@@ -87,26 +106,22 @@ export default function PromptOptimizerPage() {
   const handleSelectHistory = (record: OptimizationHistory) => {
     setPrompt(record.originalPrompt);
     setSelectedModel(record.modelId);
+    // 确保有 totalDuration 字段（旧记录可能没有）
+    const recordWithDuration: OptimizationHistory = {
+      ...record,
+      totalDuration: record.totalDuration ?? 0,
+    };
+    setSelectedHistoryRecord(recordWithDuration);
+    setViewMode('result');
   };
 
   // 重置所有状态
   const handleReset = () => {
     setPrompt('');
     setSelectedModel(DEFAULT_MODEL_ID);
+    setSelectedHistoryRecord(null);
     resetOptimization();
   };
-
-  // 监听优化阶段变化
-  React.useEffect(() => {
-    if (currentStage) {
-      const progressMap: Record<StageEnum, number> = {
-        [StageEnum.INTENT_ANALYSIS]: 33,
-        [StageEnum.STRUCTURING]: 66,
-        [StageEnum.REFINEMENT]: 90,
-      };
-      // 进度已在 useOptimization hook 中管理
-    }
-  }, [currentStage]);
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-6">
@@ -160,6 +175,7 @@ export default function PromptOptimizerPage() {
           <HistoryPanel
             records={records}
             isLoading={isLoading}
+            selectedId={selectedHistoryRecord?.id}
             onSelect={handleSelectHistory}
             onDelete={deleteRecord}
             onToggleFavorite={toggleFavorite}
@@ -217,28 +233,67 @@ export default function PromptOptimizerPage() {
           )}
 
           {/* 优化结果 */}
-          {result && (
+          {selectedHistoryRecord || result ? (
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">优化结果</CardTitle>
-                  <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
-                    <TabsList>
-                      <TabsTab value="result">详情</TabsTab>
-                      <TabsTab value="comparison">对比</TabsTab>
-                    </TabsList>
-                  </TabsRoot>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MagicWandIcon className="h-5 w-5 text-green-500" />
+                    优化结果
+                  </CardTitle>
+                  <div className="flex items-center gap-3">
+                    {selectedHistoryRecord && (
+                      <Badge variant="outline">
+                        {new Date(selectedHistoryRecord.createdAt).toLocaleString('zh-CN')}
+                      </Badge>
+                    )}
+                    <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
+                      <TabsList>
+                        <TabsTab value="result">详情</TabsTab>
+                        <TabsTab value="comparison">对比</TabsTab>
+                      </TabsList>
+                    </TabsRoot>
+                  </div>
+                </div>
+                {/* 模型和耗时信息 */}
+                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="font-medium">
+                    {(selectedHistoryRecord ?? result)?.modelName}
+                  </span>
+                  <span>·</span>
+                  <span>
+                    耗时: {(selectedHistoryRecord ?? result)?.totalDuration ? Math.round((selectedHistoryRecord ?? result)!.totalDuration! / 1000) : 0 }s
+                  </span>
+                  {selectedHistoryRecord && (
+                    <>
+                      <span>·</span>
+                      <span>历史记录</span>
+                    </>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
                 {viewMode === 'result' ? (
-                  <OptimizationResult result={result ?? undefined} />
+                  <OptimizationResult result={selectedHistoryRecord ?? result ?? undefined} />
                 ) : (
                   <ComparisonView
-                    originalPrompt={result.originalPrompt}
-                    optimizedPrompt={result.optimizedPrompt}
+                    originalPrompt={selectedHistoryRecord?.originalPrompt || result?.originalPrompt || ''}
+                    optimizedPrompt={selectedHistoryRecord?.optimizedPrompt || result?.optimizedPrompt || ''}
                   />
                 )}
+              </CardContent>
+            </Card>
+          ) : (
+            // 没有结果时显示提示
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <InfoIcon className="h-12 w-12 text-muted-foreground/30" />
+                <p className="mt-4 text-sm text-muted-foreground">
+                  暂无优化记录
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground/70">
+                  在上方输入提示词并点击"开始优化"来生成优化结果
+                </p>
               </CardContent>
             </Card>
           )}

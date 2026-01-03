@@ -55,97 +55,77 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
 
   return (
     <div className={cn('space-y-4', className)}>
-      {/* 优化结果头部 */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <SparkleIcon className="h-5 w-5 text-green-500" />
-              优化结果
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">{result.modelName}</Badge>
-              <Badge variant="secondary">
-                <ClockIcon className="mr-1 h-3 w-3" />
-                {result.totalDuration ? Math.round(result.totalDuration / 1000) : '-' }s
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* 优化后的提示词 */}
-          <div className="rounded-none border bg-muted/30 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">优化后的提示词</span>
-              <CopyButton value={result.optimizedPrompt} />
-            </div>
-            <pre className="whitespace-pre-wrap text-sm font-mono">
-              {result.optimizedPrompt}
-            </pre>
-          </div>
+      {/* 优化后的提示词 */}
+      <div className="rounded-none border bg-muted/30 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium">优化后的提示词</span>
+          <CopyButton value={result.optimizedPrompt} />
+        </div>
+        <pre className="whitespace-pre-wrap text-sm font-mono">
+          {result.optimizedPrompt}
+        </pre>
+      </div>
 
-          {/* 查看方式切换 */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === 'unified' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('unified')}
-            >
-              统一视图
-            </Button>
-            <Button
-              variant={viewMode === 'split' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('split')}
-            >
-              分阶段查看
-            </Button>
+      {/* 查看方式切换 */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant={viewMode === 'unified' ? 'secondary' : 'ghost'}
+          size="sm"
+          onClick={() => setViewMode('unified')}
+        >
+          统一视图
+        </Button>
+        <Button
+          variant={viewMode === 'split' ? 'secondary' : 'ghost'}
+          size="sm"
+          onClick={() => setViewMode('split')}
+        >
+          分阶段查看
+        </Button>
+      </div>
+
+      {viewMode === 'split' && (
+        <>
+          {/* 阶段列表 */}
+          <div className="space-y-2">
+            {result.stages.map((stage, index) => (
+              <StageDetail
+                key={stage.id}
+                stage={stage}
+                index={index}
+                isExpanded={expandedStages.has(stage.id)}
+                onToggle={() => toggleStage(stage.id)}
+              />
+            ))}
           </div>
 
-          {viewMode === 'split' && (
-            <>
-              {/* 阶段列表 */}
-              <div className="space-y-2">
-                {result.stages.map((stage, index) => (
-                  <StageDetail
-                    key={stage.id}
-                    stage={stage}
-                    index={index}
-                    isExpanded={expandedStages.has(stage.id)}
-                    onToggle={() => toggleStage(stage.id)}
-                  />
-                ))}
-              </div>
-
-              {/* 展开/收起全部 */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (allExpanded) {
-                    setExpandedStages(new Set());
-                  } else {
-                    setExpandedStages(new Set(result.stages.map(s => s.id)));
-                  }
-                }}
-                className="w-full"
-              >
-                {allExpanded ? (
-                  <>
-                    <CaretUpIcon className="mr-2 h-4 w-4" />
-                    收起全部
-                  </>
-                ) : (
-                  <>
-                    <CaretDownIcon className="mr-2 h-4 w-4" />
-                    展开全部
-                  </>
-                )}
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
+          {/* 展开/收起全部 */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (allExpanded) {
+                setExpandedStages(new Set());
+              } else {
+                setExpandedStages(new Set(result.stages.map(s => s.id)));
+              }
+            }}
+            className="w-full"
+          >
+            {allExpanded ? (
+              <>
+                <CaretUpIcon className="mr-2 h-4 w-4" />
+                收起全部
+              </>
+            ) : (
+              <>
+                <CaretDownIcon className="mr-2 h-4 w-4" />
+                展开全部
+              </>
+            )}
+          </Button>
+        </>
+      )}
     </div>
   );
 }

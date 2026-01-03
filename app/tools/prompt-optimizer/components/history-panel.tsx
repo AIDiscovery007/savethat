@@ -22,6 +22,7 @@ import {
 interface HistoryPanelProps {
   records: OptimizationHistory[];
   isLoading: boolean;
+  selectedId?: string | null;
   onSelect: (record: OptimizationHistory) => void;
   onDelete: (id: string) => void;
   onToggleFavorite: (id: string) => void;
@@ -32,6 +33,7 @@ interface HistoryPanelProps {
 export function HistoryPanel({
   records,
   isLoading,
+  selectedId,
   onSelect,
   onDelete,
   onToggleFavorite,
@@ -101,6 +103,7 @@ export function HistoryPanel({
               <HistoryItem
                 key={record.id}
                 record={record}
+                isSelected={selectedId === record.id}
                 onSelect={() => onSelect(record)}
                 onDelete={() => onDelete(record.id)}
                 onToggleFavorite={() => onToggleFavorite(record.id)}
@@ -118,6 +121,7 @@ export function HistoryPanel({
  */
 interface HistoryItemProps {
   record: OptimizationHistory;
+  isSelected?: boolean;
   onSelect: () => void;
   onDelete: () => void;
   onToggleFavorite: () => void;
@@ -125,6 +129,7 @@ interface HistoryItemProps {
 
 function HistoryItem({
   record,
+  isSelected,
   onSelect,
   onDelete,
   onToggleFavorite,
@@ -148,7 +153,12 @@ function HistoryItem({
 
   return (
     <div
-      className="group relative rounded-none border p-3 transition-colors hover:bg-muted/50"
+      className={cn(
+        'group relative rounded-none border p-3 transition-colors cursor-pointer',
+        isSelected
+          ? 'border-primary bg-primary/5'
+          : 'hover:bg-muted/50'
+      )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >

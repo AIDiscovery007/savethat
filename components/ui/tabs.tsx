@@ -20,7 +20,7 @@ function TabsList({
     <Tabs.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-none p-0.5 *:data-[selected]:bg-background *:data-[selected]:shadow-sm *:data-[selected]:text-foreground",
+        "bg-muted/50 text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-md p-0.5",
         className
       )}
       {...props}
@@ -36,7 +36,7 @@ function TabsTab({
     <Tabs.Tab
       data-slot="tabs-trigger"
       className={cn(
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:focus-visible:ring-offset-background/20 dark:focus-visible:ring-offset-background/10 aria-disabled:pointer-events-none aria-disabled:opacity-50 text-foreground shadow-xs inline-flex h-full items-center justify-center whitespace-nowrap rounded-none px-3 text-xs font-medium transition-[color,box-shadow] focus-visible:ring-1 focus-visible:outline-1 data-[selected]:shadow-sm disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-[selected]:bg-foreground data-[selected]:text-background data-[selected]:shadow-sm inline-flex h-full items-center justify-center whitespace-nowrap rounded-sm px-3 text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 hover:bg-muted [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

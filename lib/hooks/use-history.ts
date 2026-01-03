@@ -200,7 +200,8 @@ export function createHistoryRecord(
   optimizedPrompt: string,
   modelId: string,
   modelName: string,
-  stages: OptimizationHistory['stages']
+  stages: OptimizationHistory['stages'],
+  totalDuration?: number
 ): OptimizationHistory {
   return {
     id: generateId(),
@@ -209,6 +210,7 @@ export function createHistoryRecord(
     modelId,
     modelName,
     stages,
+    totalDuration,
     createdAt: new Date().toISOString(),
   };
 }

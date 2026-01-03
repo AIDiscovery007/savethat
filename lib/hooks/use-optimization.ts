@@ -5,7 +5,7 @@
  * 实现三阶段顺序优化逻辑
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import {
   STAGES,
@@ -15,6 +15,39 @@ import {
   extractFinalPrompt,
 } from '@/lib/prompts/prompt-optimizer/system-prompts';
 import type { AihubmixMessage } from '@/lib/api/aihubmix/types';
+
+/**
+ * 存储键名
+ */
+const DRAFT_RESULT_KEY = 'prompt_optimizer_draft_result';
+
+/**
+ * 从 localStorage 恢复草稿结果
+ */
+function restoreDraftResult(): OptimizationResult | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const saved = localStorage.getItem(DRAFT_RESULT_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch {
+    console.warn('[useOptimization] Failed to restore draft result');
+  }
+  return null;
+}
+
+/**
+ * 保存草稿结果到 localStorage
+ */
+function saveDraftResult(result: OptimizationResult | null): void {
+  if (typeof window === 'undefined') return;
+  if (result) {
+    localStorage.setItem(DRAFT_RESULT_KEY, JSON.stringify(result));
+  } else {
+    localStorage.removeItem(DRAFT_RESULT_KEY);
+  }
+}
 
 /**
  * 优化状态接口
@@ -61,6 +94,21 @@ export function useOptimization() {
     result: null,
     error: null,
   });
+
+  // 在客户端渲染后恢复草稿结果（避免水合问题）
+  useEffect(() => {
+    const draft = restoreDraftResult();
+    if (draft) {
+      setState({
+        isOptimizing: false,
+        currentStage: null,
+        stageProgress: 100,
+        stages: draft.stages,
+        result: draft,
+        error: null,
+      });
+    }
+  }, []);
 
   /**
    * 调用 API 进行单阶段优化
@@ -201,6 +249,9 @@ export function useOptimization() {
         error: null,
       });
 
+      // 保存到 localStorage
+      saveDraftResult(result);
+
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -209,6 +260,8 @@ export function useOptimization() {
         isOptimizing: false,
         error: errorMessage,
       }));
+      // 清除保存的草稿
+      saveDraftResult(null);
       return null;
     }
   }, []);
@@ -217,6 +270,8 @@ export function useOptimization() {
    * 重置状态
    */
   const reset = useCallback(() => {
+    // 清除保存的草稿
+    saveDraftResult(null);
     setState({
       isOptimizing: false,
       currentStage: null,
