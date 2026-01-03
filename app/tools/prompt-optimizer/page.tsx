@@ -24,8 +24,6 @@ import { HistoryPanel } from './components/history-panel';
 import { TabsRoot, TabsList, TabsTab } from '@/components/ui/tabs';
 import {
   MagicWandIcon,
-  GearIcon,
-  ArrowUUpLeftIcon,
   InfoIcon,
 } from '@phosphor-icons/react';
 import type { OptimizationHistory } from '@/lib/storage/types';
@@ -35,7 +33,6 @@ export default function PromptOptimizerPage() {
   // 状态管理
   const [prompt, setPrompt] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState(DEFAULT_MODEL_ID);
-  const [showSettings, setShowSettings] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'result' | 'comparison'>('result');
   const [selectedHistoryRecord, setSelectedHistoryRecord] = React.useState<OptimizationHistory | null>(null);
 
@@ -48,7 +45,6 @@ export default function PromptOptimizerPage() {
     result,
     error,
     optimize,
-    reset: resetOptimization,
   } = useOptimization();
 
   const {
@@ -115,14 +111,6 @@ export default function PromptOptimizerPage() {
     setViewMode('result');
   };
 
-  // 重置所有状态
-  const handleReset = () => {
-    setPrompt('');
-    setSelectedModel(DEFAULT_MODEL_ID);
-    setSelectedHistoryRecord(null);
-    resetOptimization();
-  };
-
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-6">
       {/* 页面标题 */}
@@ -132,20 +120,6 @@ export default function PromptOptimizerPage() {
           <p className="text-muted-foreground">
             基于 AI 的三阶段提示词优化流程
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <GearIcon className="mr-2 h-4 w-4" />
-            模型设置
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleReset}>
-            <ArrowUUpLeftIcon className="mr-2 h-4 w-4" />
-            重置
-          </Button>
         </div>
       </div>
 
