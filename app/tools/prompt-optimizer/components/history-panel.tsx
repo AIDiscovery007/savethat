@@ -15,9 +15,19 @@ import {
   TrashIcon,
   ClockIcon,
   StarIcon,
-  ArrowUUpLeftIcon,
   ListIcon,
 } from '@phosphor-icons/react';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 
 interface HistoryPanelProps {
   records: OptimizationHistory[];
@@ -53,7 +63,7 @@ export function HistoryPanel({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <ListIcon className="h-5 w-5" />
-            历史记录
+            提示词记录
           </CardTitle>
           {records.length > 0 && (
             <div className="flex items-center gap-1">
@@ -95,7 +105,7 @@ export function HistoryPanel({
             <p className="mt-2 text-sm text-muted-foreground">
               {showFavoritesOnly
                 ? '暂无收藏的记录'
-                : '暂无历史记录'}
+                : '暂无提示词记录'}
             </p>
           </div>
         ) : (
@@ -169,9 +179,8 @@ function HistoryItem({
           onClick={onSelect}
           className="flex-1 text-left"
         >
-          <div className="mb-1 line-clamp-2 text-xs">
-            {record.originalPrompt.slice(0, 100)}
-            {record.originalPrompt.length > 100 && '...'}
+          <div className="mb-1 line-clamp-2 text-xs break-words">
+            {record.originalPrompt}
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-[10px]">
@@ -203,26 +212,34 @@ function HistoryItem({
               <StarIcon className="h-3 w-3" />
             )}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect();
-            }}
-          >
-            <ArrowUUpLeftIcon className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            <TrashIcon className="h-3 w-3 text-destructive" />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <TrashIcon className="h-3 w-3 text-destructive" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>确认删除</AlertDialogTitle>
+                <AlertDialogDescription>
+                  确定要删除这条提示词记录吗？此操作无法撤销。
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>取消</AlertDialogCancel>
+                <AlertDialogAction onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}>
+                  删除
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

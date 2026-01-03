@@ -124,9 +124,9 @@ export default function PromptOptimizerPage() {
 
       {/* 主内容区 */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* 左侧：历史记录 */}
+        {/* 左侧：提示词记录 */}
         <div className="space-y-6">
-          {/* 历史记录面板 */}
+          {/* 提示词记录面板 */}
           <HistoryPanel
             records={records}
             isLoading={isLoading}
@@ -214,7 +214,7 @@ export default function PromptOptimizerPage() {
                   {selectedHistoryRecord && (
                     <>
                       <span>·</span>
-                      <span>历史记录</span>
+                      <span>历史</span>
                     </>
                   )}
                 </div>
