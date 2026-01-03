@@ -1,0 +1,110 @@
+{
+  "Navigation": {
+    "title": "AI Tools Hub",
+    "description": "Powered by AI - Prompt optimization, code generation, smart translation, and more to help you work more efficiently.",
+    "promptOptimizer": "Prompt Optimizer",
+    "about": "About"
+  },
+  "Footer": {
+    "text": "AI Tools Hub - AI-powered prompt optimization tool"
+  },
+  "HomePage": {
+    "badge": "AI Tools Hub",
+    "title": "Discover Powerful AI Tools",
+    "subtitle": "Empower your workflow with AI-driven prompt optimization, code generation, smart translation, and more.",
+    "available": "Available",
+    "availableTools": "Available Tools",
+    "beta": "Beta",
+    "betaTools": "In Testing",
+    "experimental": "Experimental",
+    "experimentalTools": "In Development",
+    "useNow": "Use Now"
+  },
+  "Tools": {
+    "prompt-optimizer": {
+      "name": "Prompt Optimizer",
+      "description": "Three-stage AI-powered prompt optimization tool to help you write better prompts"
+    },
+    "code-generator": {
+      "name": "Code Generator",
+      "description": "Generate code from natural language descriptions, supporting multiple programming languages"
+    },
+    "text-translator": {
+      "name": "Smart Translator",
+      "description": "Intelligent translation between multiple languages while preserving the original style"
+    },
+    "image-generator": {
+      "name": "Image Generator",
+      "description": "Generate images from descriptions, supporting multiple styles"
+    },
+    "text-summarizer": {
+      "name": "Text Summarizer",
+      "description": "Quickly generate summaries of articles and documents"
+    }
+  },
+  "PromptOptimizer": {
+    "title": "Prompt Optimizer",
+    "subtitle": "Three-stage AI-powered prompt optimization",
+    "optimizing": "{stage}...",
+    "preparing": "Preparing...",
+    "error": "Error: {error}",
+    "optimizedResult": "Optimization Result",
+    "detail": "Detail",
+    "comparison": "Comparison",
+    "duration": "Duration: {seconds}s",
+    "history": "History",
+    "noRecords": "No optimization records yet",
+    "instruction": "Enter a prompt above and click \"Start Optimization\" to generate results"
+  },
+  "OptimizerForm": {
+    "placeholder": "Enter the prompt you want to optimize...",
+    "charsWords": "{chars} chars • {words} words"
+  },
+  "HistoryPanel": {
+    "title": "Prompt Records",
+    "recordsCount": "{count} records",
+    "noFavorites": "No favorite records",
+    "noRecords": "No prompt records",
+    "justNow": "Just now",
+    "minsAgo": "{mins} min ago",
+    "hoursAgo": "{hours} hr ago",
+    "daysAgo": "{days} days ago",
+    "confirmDelete": "Confirm Delete",
+    "deleteDescription": "Are you sure you want to delete this prompt record? This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "OptimizationResult": {
+    "optimizedPrompt": "Optimized Prompt",
+    "unifiedView": "Unified View",
+    "splitView": "Stage View",
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All",
+    "stageInput": "Input",
+    "stageOutput": "Output",
+    "tokensPrompt": "Input: {count} tokens",
+    "tokensCompletion": "Output: {count} tokens",
+    "tokensTotal": "Total: {count} tokens"
+  },
+  "ComparisonView": {
+    "title": "Comparison View",
+    "sideBySide": "Side by Side",
+    "stacked": "Stacked",
+    "originalPrompt": "Original Prompt",
+    "optimizedPrompt": "Optimized Prompt",
+    "chars": "{chars} chars"
+  },
+  "ModelSelector": {
+    "placeholder": "Select model...",
+    "noMatch": "No matching models found"
+  },
+  "LocaleSwitcher": {
+    "language": "Language",
+    "english": "English",
+    "chinese": "中文"
+  },
+  "CopyButton": {
+    "copy": "Copy",
+    "copied": "Copied"
+  }
+}

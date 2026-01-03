@@ -1,0 +1,110 @@
+{
+  "Navigation": {
+    "title": "AI 工具聚合站",
+    "description": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能",
+    "promptOptimizer": "提示词优化",
+    "about": "关于"
+  },
+  "Footer": {
+    "text": "AI 工具聚合站 - 基于 AI 的提示词优化工具"
+  },
+  "HomePage": {
+    "badge": "AI 工具聚合站",
+    "title": "发现强大的 AI 工具",
+    "subtitle": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能，帮助你更高效地完成工作。",
+    "available": "可用",
+    "availableTools": "可用工具",
+    "beta": "Beta",
+    "betaTools": "测试中",
+    "experimental": "实验性",
+    "experimentalTools": "开发中",
+    "useNow": "立即使用"
+  },
+  "Tools": {
+    "prompt-optimizer": {
+      "name": "提示词优化",
+      "description": "基于 AI 的三阶段提示词优化工具，帮助你写出更好的提示词"
+    },
+    "code-generator": {
+      "name": "代码生成",
+      "description": "根据自然语言描述生成代码，支持多种编程语言"
+    },
+    "text-translator": {
+      "name": "智能翻译",
+      "description": "支持多种语言之间的智能翻译，保持原文风格"
+    },
+    "image-generator": {
+      "name": "图像生成",
+      "description": "根据描述生成图像，支持多种风格"
+    },
+    "text-summarizer": {
+      "name": "文本摘要",
+      "description": "快速生成文章、文档的摘要"
+    }
+  },
+  "PromptOptimizer": {
+    "title": "提示词优化工具",
+    "subtitle": "基于 AI 的三阶段提示词优化流程",
+    "optimizing": "正在{stage}...",
+    "preparing": "准备中",
+    "error": "错误: {error}",
+    "optimizedResult": "优化结果",
+    "detail": "详情",
+    "comparison": "对比",
+    "duration": "耗时: {seconds}s",
+    "history": "历史",
+    "noRecords": "暂无优化记录",
+    "instruction": "在上方输入提示词并点击\"开始优化\"来生成优化结果"
+  },
+  "OptimizerForm": {
+    "placeholder": "输入你想要优化的提示词...",
+    "charsWords": "{chars} 字符 • {words} 词"
+  },
+  "HistoryPanel": {
+    "title": "提示词记录",
+    "recordsCount": "{count} 条记录",
+    "noFavorites": "暂无收藏的记录",
+    "noRecords": "暂无提示词记录",
+    "justNow": "刚刚",
+    "minsAgo": "{mins} 分钟前",
+    "hoursAgo": "{hours} 小时前",
+    "daysAgo": "{days} 天前",
+    "confirmDelete": "确认删除",
+    "deleteDescription": "确定要删除这条提示词记录吗？此操作无法撤销。",
+    "cancel": "取消",
+    "delete": "删除"
+  },
+  "OptimizationResult": {
+    "optimizedPrompt": "优化后的提示词",
+    "unifiedView": "统一视图",
+    "splitView": "分阶段查看",
+    "expandAll": "展开全部",
+    "collapseAll": "收起全部",
+    "stageInput": "输入",
+    "stageOutput": "输出",
+    "tokensPrompt": "输入: {count} tokens",
+    "tokensCompletion": "输出: {count} tokens",
+    "tokensTotal": "总计: {count} tokens"
+  },
+  "ComparisonView": {
+    "title": "对比视图",
+    "sideBySide": "并排",
+    "stacked": "上下",
+    "originalPrompt": "原始提示词",
+    "optimizedPrompt": "优化后提示词",
+    "chars": "{chars} 字符"
+  },
+  "ModelSelector": {
+    "placeholder": "选择模型...",
+    "noMatch": "没有找到匹配的模型"
+  },
+  "LocaleSwitcher": {
+    "language": "Language",
+    "english": "English",
+    "chinese": "中文"
+  },
+  "CopyButton": {
+    "copy": "复制",
+    "copied": "已复制"
+  }
+}

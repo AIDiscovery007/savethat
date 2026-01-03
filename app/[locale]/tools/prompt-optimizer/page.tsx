@@ -6,6 +6,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,8 @@ import type { OptimizationHistory } from '@/lib/storage/types';
 import type { OptimizationResult as UseOptimizationResult } from '@/lib/hooks/use-optimization';
 
 export default function PromptOptimizerPage() {
+  const t = useTranslations('PromptOptimizer');
+
   // 状态管理
   const [prompt, setPrompt] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState(DEFAULT_MODEL_ID);
@@ -55,6 +58,11 @@ export default function PromptOptimizerPage() {
     clearHistory,
     toggleFavorite,
   } = useHistory();
+
+  // 获取当前阶段名称
+  const currentStageName = currentStage
+    ? STAGES.find(s => s.id === currentStage)?.name
+    : null;
 
   // 加载历史记录后自动选中第一条
   React.useEffect(() => {
@@ -110,14 +118,20 @@ export default function PromptOptimizerPage() {
     setViewMode('result');
   };
 
+  // 格式化耗时
+  const formatDuration = (ms: number | undefined) => {
+    if (!ms) return '0s';
+    return t('duration', { seconds: Math.round(ms / 1000) });
+  };
+
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">提示词优化工具</h1>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            基于 AI 的三阶段提示词优化流程
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -163,16 +177,16 @@ export default function PromptOptimizerPage() {
                   <ProgressWithLabel
                     progress={stageProgress}
                     label={
-                      currentStage
-                        ? `正在${STAGES.find(s => s.id === currentStage)?.name}...`
-                        : '准备中'
+                      currentStage && currentStageName
+                        ? t('optimizing', { stage: currentStageName })
+                        : t('preparing')
                     }
-                    subLabel={error || '请稍候...'}
+                    subLabel={error || t('preparing')}
                   />
                 </div>
                 {error && (
                   <div className="mt-2 text-sm text-destructive">
-                    错误: {error}
+                    {t('error', { error })}
                   </div>
                 )}
               </CardContent>
@@ -186,18 +200,18 @@ export default function PromptOptimizerPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <MagicWandIcon className="h-5 w-5 text-green-500" />
-                    优化结果
+                    {t('optimizedResult')}
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     {selectedHistoryRecord && (
                       <Badge variant="outline">
-                        {new Date(selectedHistoryRecord.createdAt).toLocaleString('zh-CN')}
+                        {new Date(selectedHistoryRecord.createdAt).toLocaleString()}
                       </Badge>
                     )}
                     <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
                       <TabsList>
-                        <TabsTab value="result">详情</TabsTab>
-                        <TabsTab value="comparison">对比</TabsTab>
+                        <TabsTab value="result">{t('detail')}</TabsTab>
+                        <TabsTab value="comparison">{t('comparison')}</TabsTab>
                       </TabsList>
                     </TabsRoot>
                   </div>
@@ -209,12 +223,12 @@ export default function PromptOptimizerPage() {
                   </span>
                   <span>·</span>
                   <span>
-                    耗时: {(selectedHistoryRecord ?? result)?.totalDuration ? Math.round((selectedHistoryRecord ?? result)!.totalDuration! / 1000) : 0 }s
+                    {formatDuration((selectedHistoryRecord ?? result)?.totalDuration)}
                   </span>
                   {selectedHistoryRecord && (
                     <>
                       <span>·</span>
-                      <span>历史</span>
+                      <span>{t('history')}</span>
                     </>
                   )}
                 </div>
@@ -236,10 +250,10 @@ export default function PromptOptimizerPage() {
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <InfoIcon className="h-12 w-12 text-muted-foreground/30" />
                 <p className="mt-4 text-sm text-muted-foreground">
-                  暂无优化记录
+                  {t('noRecords')}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
-                  在上方输入提示词并点击"开始优化"来生成优化结果
+                  {t('instruction')}
                 </p>
               </CardContent>
             </Card>

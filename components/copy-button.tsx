@@ -5,6 +5,7 @@
  */
 
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CheckIcon, CopyIcon } from '@phosphor-icons/react';
@@ -22,6 +23,7 @@ export function CopyButton({
   variant = 'ghost',
   size = 'icon-xs',
 }: CopyButtonProps) {
+  const t = useTranslations('CopyButton');
   const [copied, setCopied] = React.useState(false);
 
   const onCopy = React.useCallback(async () => {
@@ -40,7 +42,7 @@ export function CopyButton({
       size={size}
       onClick={onCopy}
       className={cn('h-6 w-6', className)}
-      title={copied ? '已复制' : '复制'}
+      title={copied ? t('copied') : t('copy')}
     >
       {copied ? (
         <CheckIcon className="h-3 w-3 text-green-500" />
