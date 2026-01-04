@@ -110,5 +110,10 @@
   "CopyButton": {
     "copy": "Copy",
     "copied": "Copied"
+  },
+  "AIClientSender": {
+    "title": "Send to AI Client",
+    "sending": "Sending...",
+    "instruction": "Copied! Press Cmd+V / Ctrl+V to paste in the new chat"
   }
 }

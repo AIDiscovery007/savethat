@@ -110,5 +110,10 @@
   "CopyButton": {
     "copy": "复制",
     "copied": "已复制"
+  },
+  "AIClientSender": {
+    "title": "发送到 AI 客户端",
+    "sending": "发送中...",
+    "instruction": "已复制！在新对话中按 Cmd+V / Ctrl+V 粘贴"
   }
 }

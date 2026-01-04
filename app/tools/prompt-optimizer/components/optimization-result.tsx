@@ -14,6 +14,7 @@ import { TabsRoot, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import { CopyButton } from '@/components/copy-button';
+import { AIClientSender } from './ai-client-sender';
 import {
   CaretDownIcon,
   CaretUpIcon,
@@ -69,15 +70,11 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
         </pre>
       </div>
 
+      {/* 发送到AI客户端 */}
+      <AIClientSender prompt={result.optimizedPrompt} />
+
       {/* 查看方式切换 */}
       <div className="flex items-center gap-2">
-        <Button
-          variant={viewMode === 'unified' ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => setViewMode('unified')}
-        >
-          {t('unifiedView')}
-        </Button>
         <Button
           variant={viewMode === 'split' ? 'secondary' : 'ghost'}
           size="sm"
