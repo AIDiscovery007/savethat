@@ -78,14 +78,31 @@ export function HistoryPanel({
                 <StarIcon className="h-3 w-3 fill-yellow-500" />
               </Button>
               {records.length > 1 && (
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={onClearAll}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <TrashIcon className="h-3 w-3" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <TrashIcon className="h-3 w-3" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('confirmClear')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('clearDescription', { count: records.length })}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={onClearAll}>
+                        {t('clear')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           )}
