@@ -60,7 +60,7 @@ export function HistoryPanel({
   }, [records, showFavoritesOnly]);
 
   return (
-    <Card className={cn('h-full', className)}>
+    <Card className={cn('h-full rounded-[var(--radius)]', className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -170,10 +170,10 @@ function HistoryItem({
   return (
     <div
       className={cn(
-        'group relative rounded-none border p-3 transition-colors cursor-pointer',
+        'group relative rounded-[var(--radius)] border p-3 transition-all duration-200 cursor-pointer',
         isSelected
           ? 'border-primary bg-primary/5'
-          : 'hover:bg-muted/50'
+          : 'hover:bg-muted/50 hover:border-primary/30'
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}

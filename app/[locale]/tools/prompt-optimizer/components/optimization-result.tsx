@@ -59,7 +59,7 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
   return (
     <div className={cn('space-y-4', className)}>
       {/* 优化后的提示词 */}
-      <div className="rounded-none border bg-muted/30 p-4">
+      <div className="rounded-[var(--radius)] border bg-muted/30 p-4 transition-all duration-200">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium">{t('optimizedPrompt')}</span>
           <CopyButton value={result.optimizedPrompt} />
@@ -147,11 +147,11 @@ interface StageDetailProps {
 
 function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps) {
   return (
-    <div className="rounded-none border">
+    <div className="rounded-[var(--radius)] border overflow-hidden transition-all duration-200">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between p-3 text-left hover:bg-muted/50"
+        className="flex w-full items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{index + 1}</Badge>
@@ -171,7 +171,7 @@ function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps
           {/* 输入 */}
           <div>
             <span className="text-xs font-medium text-muted-foreground">{t('stageInput')}</span>
-            <pre className="mt-1 whitespace-pre-wrap rounded-none bg-muted/30 p-2 text-xs font-mono">
+            <pre className="mt-1 whitespace-pre-wrap rounded-[var(--radius)] bg-muted/30 p-2 text-xs font-mono">
               {stage.input}
             </pre>
           </div>
@@ -179,7 +179,7 @@ function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps
           {/* 输出 */}
           <div>
             <span className="text-xs font-medium text-muted-foreground">{t('stageOutput')}</span>
-            <pre className="mt-1 whitespace-pre-wrap rounded-none bg-muted/30 p-2 text-xs font-mono max-h-[300px] overflow-auto">
+            <pre className="mt-1 whitespace-pre-wrap rounded-[var(--radius)] bg-muted/30 p-2 text-xs font-mono max-h-[300px] overflow-auto">
               {stage.output}
             </pre>
           </div>

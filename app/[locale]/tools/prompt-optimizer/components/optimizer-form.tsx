@@ -86,7 +86,7 @@ export function OptimizerForm({
     <form onSubmit={handleSubmit} className={cn('flex flex-col gap-3', className)}>
       <div
         className={cn(
-          'relative rounded-md border bg-background transition-colors',
+          'relative rounded-[var(--radius)] border bg-background transition-all duration-200',
           isFocused ? 'border-ring ring-1 ring-ring/10' : 'border-input',
           disabled && 'opacity-50 cursor-not-allowed'
         )}

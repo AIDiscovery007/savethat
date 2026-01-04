@@ -19,6 +19,7 @@ export function MobileNav() {
   const tTools = useTranslations('Tools');
   const tools = getAllTools();
   const [mounted, setMounted] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   // Use client-only rendering to avoid hydration mismatch
   React.useEffect(() => {
@@ -40,14 +41,14 @@ export function MobileNav() {
   }
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden transition-opacity hover:opacity-70">
           <ListIcon className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72">
+      <SheetContent side="left" className="w-80 transition-all duration-200">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2 text-base">
             <SparkleIcon className="h-5 w-5" />
@@ -62,7 +63,8 @@ export function MobileNav() {
             <Link
               key={tool.id}
               href={tool.path}
-              className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-[var(--radius)] hover:bg-accent hover:text-accent-foreground transition-all duration-200"
             >
               <span>{getToolName(tool.id)}</span>
             </Link>
@@ -70,7 +72,8 @@ export function MobileNav() {
           <div className="border-t my-2" />
           <a
             href="#"
-            className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-[var(--radius)] hover:bg-accent hover:text-accent-foreground transition-all duration-200"
           >
             <InfoIcon className="h-4 w-4" />
             <span>{t('about')}</span>

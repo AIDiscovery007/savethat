@@ -31,10 +31,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 py-8 md:space-y-8 md:py-12">
+    <div className="space-y-8 md:space-y-10">
       {/* Hero 区域 */}
       <div className="text-center space-y-3 md:space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-none bg-primary/10 px-3 py-1 text-xs font-medium text-primary md:px-4 md:py-1.5 md:text-sm">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary md:px-4 md:py-1.5 md:text-sm">
           <SparkleIcon className="h-3.5 w-3.5 md:h-4 md:w-4" />
           {t('badge')}
         </div>
@@ -49,7 +49,7 @@ export default function HomePage() {
       {/* 可用工具 */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Badge variant="default" className="rounded-none">{t('available')}</Badge>
+          <Badge variant="default" className="rounded-full">{t('available')}</Badge>
           {t('availableTools')}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -70,7 +70,7 @@ export default function HomePage() {
       {betaTools.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-none">{t('beta')}</Badge>
+            <Badge variant="secondary" className="rounded-full">{t('beta')}</Badge>
             {t('betaTools')}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -92,7 +92,7 @@ export default function HomePage() {
       {experimentalTools.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Badge variant="outline" className="rounded-none">{t('experimental')}</Badge>
+            <Badge variant="outline" className="rounded-full">{t('experimental')}</Badge>
             {t('experimentalTools')}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -158,7 +158,7 @@ function ToolCard({
 
   return (
     <Link href={tool.path} className="block group">
-      <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md">
+      <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md rounded-[var(--radius)]">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2 text-primary">
@@ -166,20 +166,20 @@ function ToolCard({
             </div>
             <Badge
               variant="outline"
-              className={cn('rounded-none', statusColors[tool.status])}
+              className={cn('rounded-[var(--radius)]', statusColors[tool.status])}
             >
               {statusLabels[tool.status]}
             </Badge>
           </div>
-          <CardTitle className="text-lg group-hover:text-primary transition-colors">
+          <CardTitle className="text-lg group-hover:text-primary transition-colors duration-200">
             {name}
           </CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center text-sm text-muted-foreground group-hover:text-primary transition-colors">
+          <div className="flex items-center text-sm text-muted-foreground group-hover:text-primary transition-colors duration-200">
             {useNow}
-            <ArrowRightIcon className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRightIcon className="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </div>
         </CardContent>
       </Card>

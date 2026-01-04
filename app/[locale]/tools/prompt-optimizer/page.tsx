@@ -135,7 +135,7 @@ export default function PromptOptimizerPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 py-6">
+    <div className="space-y-6">
       {/* 页面标题 */}
       <div className="flex items-center justify-between">
         <div>
@@ -166,19 +166,19 @@ export default function PromptOptimizerPage() {
           {mounted ? (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="w-full gap-2">
+                <Button variant="outline" className="w-full gap-2 rounded-[var(--radius)]">
                   <ListIcon className="h-4 w-4" />
                   {t('history')}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[70vh]">
+              <SheetContent side="bottom" className="h-[60vh] transition-all duration-200">
                 <SheetHeader className="pb-4 border-b">
                   <SheetTitle className="flex items-center gap-2">
                     <ListIcon className="h-5 w-5" />
                     {t('history')}
                   </SheetTitle>
                 </SheetHeader>
-                <div className="mt-4 overflow-y-auto h-[calc(70vh-4rem)]">
+                <div className="mt-4 overflow-y-auto h-[calc(60vh-4rem)]">
                   <HistoryPanel
                     records={records}
                     isLoading={isLoading}
@@ -195,7 +195,7 @@ export default function PromptOptimizerPage() {
               </SheetContent>
             </Sheet>
           ) : (
-            <Button variant="outline" className="w-full gap-2" disabled>
+            <Button variant="outline" className="w-full gap-2 rounded-[var(--radius)]" disabled>
               <ListIcon className="h-4 w-4" />
               {t('history')}
             </Button>
@@ -219,7 +219,7 @@ export default function PromptOptimizerPage() {
 
           {/* 优化进度指示器 */}
           {isOptimizing && (
-            <Card>
+            <Card className="rounded-[var(--radius)]">
               <CardContent className="pt-6">
                 <StageIndicator
                   currentStage={currentStage}
@@ -247,7 +247,7 @@ export default function PromptOptimizerPage() {
 
           {/* 优化结果 */}
           {selectedHistoryRecord || result ? (
-            <Card>
+            <Card className="rounded-[var(--radius)]">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -298,7 +298,7 @@ export default function PromptOptimizerPage() {
             </Card>
           ) : (
             // 没有结果时显示提示
-            <Card>
+            <Card className="rounded-[var(--radius)]">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <InfoIcon className="h-12 w-12 text-muted-foreground/30" />
                 <p className="mt-4 text-sm text-muted-foreground">

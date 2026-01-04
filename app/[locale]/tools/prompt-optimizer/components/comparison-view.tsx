@@ -29,7 +29,7 @@ export function ComparisonView({
   const charDiff = optimizedPrompt.length - originalPrompt.length;
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('rounded-[var(--radius)]', className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -99,7 +99,7 @@ function SplitView({
           </span>
           <CopyButton value={originalPrompt} />
         </div>
-        <div className="h-[200px] overflow-auto rounded-none border bg-muted/30 p-3">
+        <div className="h-[200px] overflow-auto rounded-[var(--radius)] border bg-muted/30 p-3 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {originalPrompt}
           </pre>
@@ -117,7 +117,7 @@ function SplitView({
           </span>
           <CopyButton value={optimizedPrompt} />
         </div>
-        <div className="h-[200px] overflow-auto rounded-none border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10">
+        <div className="h-[200px] overflow-auto rounded-[var(--radius)] border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {optimizedPrompt}
           </pre>
@@ -157,7 +157,7 @@ function StackedView({
           </span>
           <CopyButton value={originalPrompt} />
         </div>
-        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-none border bg-muted/30 p-3">
+        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-[var(--radius)] border bg-muted/30 p-3 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {originalPrompt}
           </pre>
@@ -172,7 +172,7 @@ function StackedView({
           </span>
           <CopyButton value={optimizedPrompt} />
         </div>
-        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-none border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10">
+        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-[var(--radius)] border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {optimizedPrompt}
           </pre>
