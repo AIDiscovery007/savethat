@@ -20,6 +20,7 @@
     "useNow": "Use Now"
   },
   "Tools": {
+    "tools": "All Tools",
     "prompt-optimizer": {
       "name": "One-Click Prompt Optimizer",
       "description": "Three-stage AI-powered prompt optimization tool to help you write better prompts"

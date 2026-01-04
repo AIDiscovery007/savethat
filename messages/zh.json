@@ -20,6 +20,7 @@
     "useNow": "立即使用"
   },
   "Tools": {
+    "tools": "所有工具",
     "prompt-optimizer": {
       "name": "一键优化提示词",
       "description": "基于 AI 的三阶段提示词优化工具，帮助你写出更好的提示词"

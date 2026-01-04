@@ -8,26 +8,31 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 import { DEFAULT_MODEL_ID, getModelById } from '@/lib/api/aihubmix/models';
-import { createHistoryRecord, generateId, useHistory } from '@/lib/hooks/use-history';
+import { createHistoryRecord, useHistory } from '@/lib/hooks/use-history';
 import { useOptimization } from '@/lib/hooks/use-optimization';
-import { STAGES, StageEnum } from '@/lib/prompts/prompt-optimizer/system-prompts';
+import { STAGES } from '@/lib/prompts/prompt-optimizer/system-prompts';
 import { OptimizerForm } from './components/optimizer-form';
 import { StageIndicator, ProgressWithLabel } from './components/stage-indicator';
 import { OptimizationResult } from './components/optimization-result';
 import { ComparisonView } from './components/comparison-view';
 import { HistoryPanel } from './components/history-panel';
 import { TabsRoot, TabsList, TabsTab } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import {
   MagicWandIcon,
   InfoIcon,
+  ListIcon,
 } from '@phosphor-icons/react';
 import type { OptimizationHistory } from '@/lib/storage/types';
-import type { OptimizationResult as UseOptimizationResult } from '@/lib/hooks/use-optimization';
 
 export default function PromptOptimizerPage() {
   const t = useTranslations('PromptOptimizer');
@@ -38,13 +43,18 @@ export default function PromptOptimizerPage() {
   const [thinkingEnabled, setThinkingEnabled] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<'result' | 'comparison'>('result');
   const [selectedHistoryRecord, setSelectedHistoryRecord] = React.useState<OptimizationHistory | null>(null);
+  const [mounted, setMounted] = React.useState(false);
+
+  // 确保 Hydration 匹配
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Hooks
   const {
     isOptimizing,
     currentStage,
     stageProgress,
-    stages,
     result,
     error,
     optimize,
@@ -55,7 +65,6 @@ export default function PromptOptimizerPage() {
     isLoading,
     saveRecord,
     deleteRecord,
-    updateRecord,
     clearHistory,
     toggleFavorite,
   } = useHistory();
@@ -139,9 +148,8 @@ export default function PromptOptimizerPage() {
 
       {/* 主内容区 */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* 左侧：提示词记录 */}
-        <div className="space-y-6">
-          {/* 提示词记录面板 */}
+        {/* 左侧：提示词记录（桌面端显示） */}
+        <div className="hidden lg:block space-y-6">
           <HistoryPanel
             records={records}
             isLoading={isLoading}
@@ -151,6 +159,47 @@ export default function PromptOptimizerPage() {
             onToggleFavorite={toggleFavorite}
             onClearAll={clearHistory}
           />
+        </div>
+
+        {/* 移动端：历史记录抽屉触发按钮 */}
+        <div className="lg:hidden">
+          {mounted ? (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full gap-2">
+                  <ListIcon className="h-4 w-4" />
+                  {t('history')}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[70vh]">
+                <SheetHeader className="pb-4 border-b">
+                  <SheetTitle className="flex items-center gap-2">
+                    <ListIcon className="h-5 w-5" />
+                    {t('history')}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 overflow-y-auto h-[calc(70vh-4rem)]">
+                  <HistoryPanel
+                    records={records}
+                    isLoading={isLoading}
+                    selectedId={selectedHistoryRecord?.id}
+                    onSelect={(record) => {
+                      handleSelectHistory(record);
+                    }}
+                    onDelete={deleteRecord}
+                    onToggleFavorite={toggleFavorite}
+                    onClearAll={clearHistory}
+                    className="border-0 shadow-none"
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Button variant="outline" className="w-full gap-2" disabled>
+              <ListIcon className="h-4 w-4" />
+              {t('history')}
+            </Button>
+          )}
         </div>
 
         {/* 中间：表单和结果 */}

@@ -31,17 +31,17 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-8 py-12">
+    <div className="container mx-auto max-w-6xl space-y-6 py-8 md:space-y-8 md:py-12">
       {/* Hero 区域 */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-none bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-          <SparkleIcon className="h-4 w-4" />
+      <div className="text-center space-y-3 md:space-y-4">
+        <div className="inline-flex items-center gap-2 rounded-none bg-primary/10 px-3 py-1 text-xs font-medium text-primary md:px-4 md:py-1.5 md:text-sm">
+          <SparkleIcon className="h-3.5 w-3.5 md:h-4 md:w-4" />
           {t('badge')}
         </div>
-        <h1 className="text-4xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl">
           {t('title')}
         </h1>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
+        <p className="mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
           {t('subtitle')}
         </p>
       </div>
