@@ -7,10 +7,9 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TabsRoot, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import { CopyButton } from '@/components/copy-button';
@@ -18,8 +17,6 @@ import { AIClientSender } from './ai-client-sender';
 import {
   CaretDownIcon,
   CaretUpIcon,
-  ClockIcon,
-  SparkleIcon,
 } from '@phosphor-icons/react';
 
 interface OptimizationResultProps {
@@ -60,7 +57,7 @@ export function OptimizationResult({ result, className }: OptimizationResultProp
   return (
     <div className={cn('space-y-4', className)}>
       {/* 优化后的提示词 */}
-      <div className="rounded-[var(--radius)] border bg-muted/30 p-4 transition-all duration-200">
+      <div className="rounded-(--radius) border bg-muted/30 p-4 transition-all duration-200">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium">{t('optimizedPrompt')}</span>
           <CopyButton value={result.optimizedPrompt} />
@@ -144,7 +141,7 @@ interface StageDetailProps {
 
 function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps) {
   return (
-    <div className="rounded-[var(--radius)] border overflow-hidden transition-all duration-200">
+    <div className="rounded-(--radius) border overflow-hidden transition-all duration-200">
       <button
         type="button"
         onClick={onToggle}
@@ -168,7 +165,7 @@ function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps
           {/* 输入 */}
           <div>
             <span className="text-xs font-medium text-muted-foreground">{t('stageInput')}</span>
-            <pre className="mt-1 whitespace-pre-wrap rounded-[var(--radius)] bg-muted/30 p-2 text-xs font-mono">
+            <pre className="mt-1 whitespace-pre-wrap rounded-(--radius) bg-muted/30 p-2 text-xs font-mono">
               {stage.input}
             </pre>
           </div>
@@ -176,7 +173,7 @@ function StageDetail({ stage, index, isExpanded, onToggle, t }: StageDetailProps
           {/* 输出 */}
           <div>
             <span className="text-xs font-medium text-muted-foreground">{t('stageOutput')}</span>
-            <pre className="mt-1 whitespace-pre-wrap rounded-[var(--radius)] bg-muted/30 p-2 text-xs font-mono max-h-[300px] overflow-auto">
+            <pre className="mt-1 whitespace-pre-wrap rounded-(--radius) bg-muted/30 p-2 text-xs font-mono max-h-[300px] overflow-auto">
               {stage.output}
             </pre>
           </div>

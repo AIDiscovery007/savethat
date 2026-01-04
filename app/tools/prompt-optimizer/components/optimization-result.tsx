@@ -7,10 +7,9 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { TabsRoot, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
 import { CopyButton } from '@/components/copy-button';
@@ -18,8 +17,6 @@ import { AIClientSender } from './ai-client-sender';
 import {
   CaretDownIcon,
   CaretUpIcon,
-  ClockIcon,
-  SparkleIcon,
 } from '@phosphor-icons/react';
 
 interface OptimizationResultProps {

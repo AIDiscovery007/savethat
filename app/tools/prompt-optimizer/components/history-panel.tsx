@@ -184,7 +184,7 @@ function HistoryItem({
           onClick={onSelect}
           className="flex-1 text-left"
         >
-          <div className="mb-1 line-clamp-2 text-xs break-words">
+          <div className="mb-1 line-clamp-2 text-xs wrap-break-word">
             {record.originalPrompt}
           </div>
           <div className="flex items-center gap-2">

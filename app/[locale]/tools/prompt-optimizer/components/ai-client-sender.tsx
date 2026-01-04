@@ -11,22 +11,15 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AI_CLIENTS } from '@/lib/config/ai-clients';
 import { sendPromptToAI } from '@/lib/utils/clipboard';
-import {
-  RobotIcon,
-  ChatCircleIcon,
-  SparkleIcon,
-  BrainIcon,
-  ArrowSquareOutIcon,
-  CheckCircleIcon,
-  WarningCircleIcon,
-} from '@phosphor-icons/react';
+import { Claude, Gemini, DeepSeek, OpenAI } from '@lobehub/icons';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 // 图标映射
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Robot: RobotIcon,
-  ChatCircle: ChatCircleIcon,
-  Sparkle: SparkleIcon,
-  Brain: BrainIcon,
+  Claude,
+  OpenAI,
+  Gemini,
+  DeepSeek,
 };
 
 interface AIClientSenderProps {
@@ -64,9 +57,9 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
             )}
           >
             {result.success ? (
-              <CheckCircleIcon className="h-3 w-3" />
+              <CheckCircle className="h-3 w-3" />
             ) : (
-              <WarningCircleIcon className="h-3 w-3" />
+              <XCircle className="h-3 w-3" />
             )}
             {result.message}
           </span>
@@ -76,7 +69,7 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
       {/* 客户端列表 */}
       <div className="grid grid-cols-2 gap-2">
         {AI_CLIENTS.map((client) => {
-          const Icon = ICON_MAP[client.iconName] || RobotIcon;
+          const Icon = ICON_MAP[client.iconName] || Claude;
           const isSending = sendingId === client.id;
 
           return (
@@ -91,9 +84,7 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
               <span className="flex-1 text-left">{client.name}</span>
               {isSending ? (
                 <span className="text-xs animate-pulse">{t('sending')}</span>
-              ) : (
-                <ArrowSquareOutIcon className="h-3 w-3 text-muted-foreground" />
-              )}
+              ) : null}
             </Button>
           );
         })}

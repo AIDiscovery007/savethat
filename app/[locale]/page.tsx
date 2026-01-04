@@ -158,7 +158,7 @@ function ToolCard({
 
   return (
     <Link href={tool.path} className="block group">
-      <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md rounded-[var(--radius)]">
+      <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md rounded-(--radius)">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2 text-primary">
@@ -166,7 +166,7 @@ function ToolCard({
             </div>
             <Badge
               variant="outline"
-              className={cn('rounded-[var(--radius)]', statusColors[tool.status])}
+              className={cn('rounded-(--radius)', statusColors[tool.status])}
             >
               {statusLabels[tool.status]}
             </Badge>

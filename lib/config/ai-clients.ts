@@ -15,24 +15,24 @@ export const AI_CLIENTS: AIClient[] = [
     id: 'claude',
     name: 'Claude',
     url: 'https://claude.ai/new',
-    iconName: 'Robot',
+    iconName: 'Claude',
   },
   {
     id: 'chatgpt',
     name: 'ChatGPT',
     url: 'https://chatgpt.com/',
-    iconName: 'ChatCircle',
+    iconName: 'OpenAI',
   },
   {
     id: 'gemini',
     name: 'Gemini',
     url: 'https://gemini.google.com/app',
-    iconName: 'Sparkle',
+    iconName: 'Gemini',
   },
   {
     id: 'deepseek',
     name: 'DeepSeek',
     url: 'https://chat.deepseek.com/',
-    iconName: 'Brain',
+    iconName: 'DeepSeek',
   },
 ];
