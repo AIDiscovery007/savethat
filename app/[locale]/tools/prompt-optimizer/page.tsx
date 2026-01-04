@@ -58,6 +58,7 @@ export default function PromptOptimizerPage() {
     result,
     error,
     optimize,
+    reset,
   } = useOptimization();
 
   const {
@@ -86,6 +87,10 @@ export default function PromptOptimizerPage() {
       setSelectedHistoryRecord(recordWithDuration);
       setPrompt(firstRecord.originalPrompt);
       setSelectedModel(firstRecord.modelId);
+    } else if (records.length === 0) {
+      // 历史记录被清空时，清除选中状态和优化结果
+      setSelectedHistoryRecord(null);
+      reset();
     }
   }, [records, selectedHistoryRecord, prompt]);
 
@@ -109,6 +114,9 @@ export default function PromptOptimizerPage() {
         optimizationResult.totalDuration
       );
       await saveRecord(historyRecord);
+
+      // 自动选中刚保存的记录
+      setSelectedHistoryRecord(historyRecord);
 
       // 清空输入
       setPrompt('');

@@ -54,7 +54,7 @@
     "duration": "Duration: {seconds}s",
     "history": "History",
     "noRecords": "No optimization records yet",
-    "instruction": "Enter a prompt above and click \"Start Optimization\" to generate results"
+    "instruction": "Enter a prompt above and click ↗ icon to generate results"
   },
   "OptimizerForm": {
     "placeholder": "Enter the prompt you want to optimize...",

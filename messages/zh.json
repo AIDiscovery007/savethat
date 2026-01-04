@@ -54,7 +54,7 @@
     "duration": "耗时: {seconds}s",
     "history": "历史",
     "noRecords": "暂无优化记录",
-    "instruction": "在上方输入提示词并点击\"开始优化\"来生成优化结果"
+    "instruction": "在上方输入提示词并点击 ↗ 图标来生成优化结果"
   },
   "OptimizerForm": {
     "placeholder": "输入你想要优化的提示词...",
