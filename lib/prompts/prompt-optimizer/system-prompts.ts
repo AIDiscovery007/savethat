@@ -180,8 +180,6 @@ export const REFINEMENT = `你是一个专业的提示词优化专家。你的�
 - 最终提示词应该是一个完整的、可直接使用的版本
 - 保留所有重要的结构标记
 - 确保优化后的提示词在各种场景下都能良好工作
-
-开始深入优化，然后直接输出最终优化后的提示词，不要输出任何其他内容。
 `;
 
 /**
@@ -212,18 +210,18 @@ export function buildStageUserMessage(
 
   switch (stage) {
     case StageEnum.INTENT_ANALYSIS:
-      userMessage = `请分析以下提示词：\n\n${originalPrompt}`;
+      userMessage = `请分析以下提示词的核心用户意图：\n\n${originalPrompt}`;
       break;
     case StageEnum.STRUCTURING:
-      userMessage = `基于以下意图分析结果，请将提示词结构化：\n\n${originalPrompt}`;
+      userMessage = `基于以下意图分析结果，将提示词结构化输出：\n\n${originalPrompt}`;
       if (previousResult) {
-        userMessage = `意图分析结果：\n${previousResult}\n\n请基于以上分析，将原始提示词结构化。\n\n原始提示词：\n${originalPrompt}`;
+        userMessage = `意图分析结果：\n${previousResult}\n\n原始提示词：\n${originalPrompt}\n\n请基于以上分析，将原始提示词结构化。`;
       }
       break;
     case StageEnum.REFINEMENT:
       userMessage = `请优化以下结构化提示词：\n\n${originalPrompt}`;
       if (previousResult) {
-        userMessage = `结构化结果：\n${previousResult}\n\n请基于以上结构化结果，进行最终的细节优化。\n\n原始提示词：\n${originalPrompt}`;
+        userMessage = `结构化结果：\n${previousResult}\n\n原始提示词：\n${originalPrompt}\n\n请基于以上结构化结果和原始提示词，进行最终的细节优化，并用 markdown 格式直接输出最终的优化结果。\n\nIMPORTANT：不要输出任何其他内容或解释性文字，直接输出最终的提示词优化结果。`;
       }
       break;
   }
@@ -233,10 +231,18 @@ export function buildStageUserMessage(
 
 /**
  * 从结构化输出中提取最终提示词
+ * 支持处理 thinking 模式下的 thinking 标记
  */
 export function extractFinalPrompt(jsonOutput: string): string {
+  // 1. 先清理 thinking 标记（如果存在）
+  let cleaned = jsonOutput
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .trim();
+
+  // 2. 尝试解析 JSON
   try {
-    const parsed = JSON.parse(jsonOutput);
+    const parsed = JSON.parse(cleaned);
     // 尝试不同的字段名
     return parsed.final_prompt ||
            parsed.structured_prompt ||
@@ -245,13 +251,14 @@ export function extractFinalPrompt(jsonOutput: string): string {
            parsed.result ||
            '';
   } catch {
-    // 如果 JSON 解析失败，尝试从文本中提取
-    const match = jsonOutput.match(/"final_prompt":\s*"([\s\S]*?)"/) ||
-                  jsonOutput.match(/"structured_prompt":\s*"([\s\S]*?)"/) ||
-                  jsonOutput.match(/"optimized_prompt":\s*"([\s\S]*?)"/);
+    // 3. JSON 解析失败，尝试从文本中提取
+    const match = cleaned.match(/"final_prompt":\s*"([\s\S]*?)"/) ||
+                  cleaned.match(/"structured_prompt":\s*"([\s\S]*?)"/) ||
+                  cleaned.match(/"optimized_prompt":\s*"([\s\S]*?)"/);
     if (match) {
       return match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
     }
-    return jsonOutput;
+    // 4. 兜底返回清理后的内容
+    return cleaned;
   }
 }

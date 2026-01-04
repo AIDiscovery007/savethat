@@ -47,3 +47,4 @@ This script identifies common issues and outputs a report.
 
 - **[NEXTJS-BUGS.md](references/nextjs-bugs.md)**: Common Next.js 16 bugs and fixes
 - **[TYPESCRIPT-FIXES.md](references/typescript-fixes.md)**: TypeScript error solutions
+- **[NEXT-SERVER-MODULE-RESOLUTION.md](references/next-server-module-resolution.md)**: `next/server` module resolution SOP (7016 error)

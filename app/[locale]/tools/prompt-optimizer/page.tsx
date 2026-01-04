@@ -44,6 +44,7 @@ export default function PromptOptimizerPage() {
   const [viewMode, setViewMode] = React.useState<'result' | 'comparison'>('result');
   const [selectedHistoryRecord, setSelectedHistoryRecord] = React.useState<OptimizationHistory | null>(null);
   const [mounted, setMounted] = React.useState(false);
+  const isRestoringResult = React.useRef(false);
 
   // 确保 Hydration 匹配
   React.useEffect(() => {
@@ -87,8 +88,9 @@ export default function PromptOptimizerPage() {
       setSelectedHistoryRecord(recordWithDuration);
       setPrompt(firstRecord.originalPrompt);
       setSelectedModel(firstRecord.modelId);
-    } else if (records.length === 0) {
+    } else if (records.length === 0 && !isRestoringResult.current) {
       // 历史记录被清空时，清除选中状态和优化结果
+      // 但在保存新记录期间不执行 reset，避免清除刚完成的优化结果
       setSelectedHistoryRecord(null);
       reset();
     }
@@ -104,6 +106,9 @@ export default function PromptOptimizerPage() {
     const optimizationResult = await optimize(prompt, selectedModel, modelInfo.name, undefined, thinkingEnabled);
 
     if (optimizationResult) {
+      // 标记正在恢复结果，避免 loadHistory 事件触发时误执行 reset
+      isRestoringResult.current = true;
+
       // 保存到历史记录
       const historyRecord = createHistoryRecord(
         prompt,
@@ -120,6 +125,9 @@ export default function PromptOptimizerPage() {
 
       // 清空输入
       setPrompt('');
+
+      // 清除恢复标记
+      isRestoringResult.current = false;
     }
   };
 

@@ -91,7 +91,7 @@ async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResp
     }));
 
     // 调用 generateText
-    const { text, usage, response } = await generateText({
+    const result = await generateText({
       model,
       messages,
       temperature: request.temperature ?? 0.7,
@@ -100,6 +100,10 @@ async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResp
         thinking: { type: 'enabled' },
       }),
     });
+
+    // 区分提取 reasoningText 字段（当前不使用，但保留以便未来扩展）
+    const { text, usage, response } = result;
+    void result.reasoningText; // 保留字段以便未来使用
 
     // 转换为标准响应格式
     const responseBody = {
