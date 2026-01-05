@@ -32,6 +32,17 @@
             "description": "Generate component template on new file"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/update-claude-md.sh",
+            "description": "Auto-update CLAUDE.md on relevant changes",
+            "timeout": 30
+          }
+        ]
       }
     ],
     "Stop": [

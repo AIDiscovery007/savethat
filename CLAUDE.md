@@ -23,6 +23,17 @@ npm run lint     # Run ESLint
 - Each tool lives in `app/[locale]/tools/[tool-id]/` as a self-contained feature
 - Tools use a consistent pattern: page component + hooks + API routes
 
+### Claude Code Hooks
+
+Hooks are configured in `.claude/settings.json` and scripts reside in `.claude/hooks/`:
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| `code-review-trigger.sh` | Stop (task completion) | Auto-run code review for modified TS files |
+| `component-gen.sh` | PostToolUse (Glob new file) | Auto-generate component template |
+| `i18n-check.sh` | PostToolUse (Edit/Write) | Check i18n translation sync after edits |
+| `tsc-check.sh` | PreToolUse (git commit) | TypeScript type checking before commit |
+| `update-claude-md.sh` | PostToolUse (Write/Edit) | Auto-update CLAUDE.md when codebase changes |
 ### AI Integration
 
 - Vercel AI SDK with aihubmix provider (`lib/api/aihubmix/`)
@@ -131,6 +142,20 @@ export async function POST(request: NextRequest) {
 }
 ```
 
+### Video Processing API Pattern
+
+For large file uploads (video processing):
+
+```typescript
+export const runtime = 'nodejs';
+export const maxDuration = 300; // 5 minutes for video processing
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest) {
+  // Handle file upload, spawn Python processes for analysis
+}
+```
+
 ### Server Actions
 
 ```typescript
@@ -141,3 +166,14 @@ export async function createUser(formData: FormData) {
   await db.user.create({ data: { name } })
 }
 ```
+
+## Tools Registry
+
+| Tool | Category | Status | Description |
+|------|----------|--------|-------------|
+| `prompt-optimizer` | prompt | available | Optimize prompts with AI |
+| `code-generator` | code | beta | 代码生成 tool |
+| `text-translator` | translation | experimental | 智能翻译 tool |
+| `image-generator` | image | experimental | 图像生成 tool |
+| `text-summarizer` | text | experimental | 文本摘要 tool |
+| `ski-analysis` | video | available | Ski technique analysis with pose detection |
