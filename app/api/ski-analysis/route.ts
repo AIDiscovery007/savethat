@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
     const jacketColor = formData.get('jacketColor') as string | null;
     const pantsColor = formData.get('pantsColor') as string | null;
     const helmetColor = formData.get('helmetColor') as string | null;
+    const roastLevel = formData.get('roastLevel') as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -109,7 +110,8 @@ export async function POST(request: NextRequest) {
       level ?? undefined,
       jacketColor ?? undefined,
       pantsColor ?? undefined,
-      helmetColor ?? undefined
+      helmetColor ?? undefined,
+      (roastLevel as 'mild' | 'medium' | 'spicy') ?? undefined
     );
 
     console.log(`[Ski Analysis] Uploading video: ${file.name} (${file.size} bytes)`);
@@ -302,7 +304,11 @@ export async function GET() {
     fields: {
       video: 'Video file (MP4, WebM, MOV, AVI, max 2GB)',
       level: 'Optional: beginner, intermediate, advanced',
+      roastLevel: 'Optional: mild, medium, spicy (default: medium)',
       prompt: 'Optional: custom analysis prompt',
+      jacketColor: 'Optional: jacket color for skier identification',
+      pantsColor: 'Optional: pants color for skier identification',
+      helmetColor: 'Optional: helmet color for skier identification',
     },
     note: 'Large files are uploaded via Gemini Files API for optimal performance',
   });

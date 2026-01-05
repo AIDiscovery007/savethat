@@ -10,9 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { VideoUploader } from './components/video-uploader';
 import { SkillSelector } from './components/skill-selector';
+import { RoastSelector } from './components/roast-selector';
 import { ColorSelector } from './components/color-selector';
 import { SkiAnalysisResult } from './components/analysis-result';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { RoastLevel } from '@/lib/prompts/ski-analysis/system-prompts';
 import {
   ActivityIcon,
   InfoIcon,
@@ -20,7 +22,7 @@ import {
   Spinner,
 } from '@phosphor-icons/react';
 
-type AnalysisState = 'idle' | 'uploading' | 'analyzing' | 'completed' | 'error';
+type AnalysisState = 'idle' | 'ready' | 'uploading' | 'analyzing' | 'completed' | 'error';
 
 interface AnalysisResult {
   overallAssessment?: {
@@ -69,6 +71,7 @@ export default function SkiAnalysisPage() {
   const [jacketColor, setJacketColor] = React.useState<string>('');
   const [pantsColor, setPantsColor] = React.useState<string>('');
   const [helmetColor, setHelmetColor] = React.useState<string>('');
+  const [roastLevel, setRoastLevel] = React.useState<RoastLevel>('medium');
   const [state, setState] = React.useState<AnalysisState>('idle');
   const [result, setResult] = React.useState<AnalysisResult | null>(null);
   const [error, setError] = React.useState<string | null>(null);
@@ -78,11 +81,14 @@ export default function SkiAnalysisPage() {
   const handleVideoSelect = async (file: File, url: string) => {
     setVideoFile(file);
     setPreviewUrl(url);
-    setState('uploading');
+    setState('ready');
     setError(null);
+  };
 
-    // 自动开始分析
-    await analyzeVideo(file, url);
+  // 开始分析
+  const handleStartAnalysis = async () => {
+    if (!videoFile || !previewUrl) return;
+    await analyzeVideo(videoFile, previewUrl);
   };
 
   // 处理视频移除
@@ -103,6 +109,7 @@ export default function SkiAnalysisPage() {
       const formData = new FormData();
       formData.append('video', file);
       formData.append('level', skillLevel);
+      formData.append('roastLevel', roastLevel);
       if (jacketColor) formData.append('jacketColor', jacketColor);
       if (pantsColor) formData.append('pantsColor', pantsColor);
       if (helmetColor) formData.append('helmetColor', helmetColor);
@@ -186,6 +193,13 @@ export default function SkiAnalysisPage() {
                 onChange={setSkillLevel}
                 disabled={state === 'analyzing'}
               />
+              <div className="mt-6">
+                <RoastSelector
+                  value={roastLevel}
+                  onChange={setRoastLevel}
+                  disabled={state === 'analyzing'}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -236,6 +250,50 @@ export default function SkiAnalysisPage() {
                 <p className="text-sm text-muted-foreground max-w-sm">
                   {t('readyDescription')}
                 </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 视频已上传，等待开始分析 */}
+          {state === 'ready' && (
+            <Card className="rounded-[var(--radius)]">
+              <CardContent className="pt-6">
+                {/* 视频预览 */}
+                {previewUrl && (
+                  <div className="relative aspect-video bg-black rounded-lg overflow-hidden mb-6">
+                    <video
+                      src={previewUrl}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* 开始分析按钮 */}
+                <div className="flex flex-col items-center text-center mb-6">
+                  <div className="p-3 bg-primary/10 rounded-full mb-4">
+                    <SparkleIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{t('readyToAnalyzeTitle')}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t('readyToAnalyzeTip')}
+                  </p>
+                  <Button
+                    onClick={handleStartAnalysis}
+                    size="lg"
+                    className="w-full sm:w-auto"
+                  >
+                    <SparkleIcon className="h-5 w-5 mr-2" />
+                    {t('startAnalysis')}
+                  </Button>
+                </div>
+
+                {/* 配置提示 */}
+                <div className="border-t pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t('confirmSettingsTip')}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           )}

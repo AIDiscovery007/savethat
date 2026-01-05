@@ -57,6 +57,13 @@
     "skillIntermediateDesc": "蓝道/中高级道",
     "skillAdvanced": "高级",
     "skillAdvancedDesc": "黑道/野雪",
+    "selectRoastLevel": "选择毒舌程度",
+    "roastMild": "轻度",
+    "roastMildDesc": "温和鼓励，适合新手",
+    "roastMedium": "中度",
+    "roastMediumDesc": "损得恰到好处",
+    "roastSpicy": "重度",
+    "roastSpicyDesc": "往死里损，专治各种不服",
     "dragDrop": "将视频拖放到此处",
     "orClick": "或点击选择文件",
     "maxSize": "最大 2GB",
@@ -92,7 +99,11 @@
     "jacketColor": "雪服颜色",
     "pantsColor": "雪裤颜色",
     "helmetColor": "头盔颜色",
-    "customColor": "自定义"
+    "customColor": "自定义",
+    "readyToAnalyzeTitle": "视频已就绪",
+    "readyToAnalyzeTip": "视频已上传完成，点击下方按钮开始分析。",
+    "startAnalysis": "开始分析",
+    "confirmSettingsTip": "开始分析前，你可以调整技能水平和装备颜色。"
   },
   "PromptOptimizer": {
     "title": "一键优化提示词",

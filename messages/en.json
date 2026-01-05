@@ -15,6 +15,13 @@
     "skillIntermediateDesc": "Blue/Black runs",
     "skillAdvanced": "Advanced",
     "skillAdvancedDesc": "Black/Double Black",
+    "selectRoastLevel": "Select roast level",
+    "roastMild": "Mild",
+    "roastMildDesc": "Gentle feedback for beginners",
+    "roastMedium": "Medium",
+    "roastMediumDesc": "Balanced critique",
+    "roastSpicy": "Spicy",
+    "roastSpicyDesc": "No mercy for experts",
     "dragDrop": "Drag and drop video here",
     "orClick": "or click to browse",
     "maxSize": "Max 2GB",
@@ -50,7 +57,11 @@
     "jacketColor": "Jacket Color",
     "pantsColor": "Pants Color",
     "helmetColor": "Helmet Color",
-    "customColor": "Custom"
+    "customColor": "Custom",
+    "readyToAnalyzeTitle": "Video Ready",
+    "readyToAnalyzeTip": "Your video is ready. Click the button below to start the analysis.",
+    "startAnalysis": "Start Analysis",
+    "confirmSettingsTip": "You can adjust skill level and equipment colors before starting."
   },
   "Footer": {
     "text": "AI Tools Hub - AI-powered prompt optimization tool"
