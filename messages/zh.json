@@ -4,23 +4,12 @@
     "description": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能",
     "about": "关于"
   },
-  "Footer": {
-    "text": "AI 工具聚合站 - 基于 AI 的提示词优化工具"
-  },
-  "HomePage": {
-    "badge": "AI 工具聚合站",
-    "title": "发现强大的 AI 工具",
-    "subtitle": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能，帮助你更高效地完成工作。",
-    "available": "可用",
-    "availableTools": "可用工具",
-    "beta": "Beta",
-    "betaTools": "测试中",
-    "experimental": "实验性",
-    "experimentalTools": "开发中",
-    "useNow": "立即使用"
-  },
   "Tools": {
     "tools": "所有工具",
+    "ski-analysis": {
+      "name": "滑雪动作分析",
+      "description": "上传滑雪视频，AI 将从专业滑手角度分析动作问题并提供改进建议"
+    },
     "prompt-optimizer": {
       "name": "一键优化提示词",
       "description": "基于 AI 的三阶段提示词优化工具，帮助你写出更好的提示词"
@@ -41,6 +30,69 @@
       "name": "文本摘要",
       "description": "快速生成文章、文档的摘要"
     }
+  },
+  "Footer": {
+    "text": "AI 工具聚合站 - 基于 AI 的提示词优化工具"
+  },
+  "HomePage": {
+    "badge": "AI 工具聚合站",
+    "title": "发现强大的 AI 工具",
+    "subtitle": "聚合多种 AI 能力，提供提示词优化、代码生成、智能翻译等功能，帮助你更高效地完成工作。",
+    "available": "可用",
+    "availableTools": "可用工具",
+    "beta": "Beta",
+    "betaTools": "测试中",
+    "experimental": "实验性",
+    "experimentalTools": "开发中",
+    "useNow": "立即使用"
+  },
+  "SkiAnalysis": {
+    "title": "滑雪动作分析",
+    "subtitle": "AI 驱动的专业滑雪技术分析",
+    "settings": "技能水平",
+    "selectSkillLevel": "选择你的滑雪技能水平",
+    "skillBeginner": "初级",
+    "skillBeginnerDesc": "绿道/初级道",
+    "skillIntermediate": "中级",
+    "skillIntermediateDesc": "蓝道/中高级道",
+    "skillAdvanced": "高级",
+    "skillAdvancedDesc": "黑道/野雪",
+    "dragDrop": "将视频拖放到此处",
+    "orClick": "或点击选择文件",
+    "maxSize": "最大 2GB",
+    "invalidFormat": "不支持的视频格式，请上传 MP4、WebM 或 MOV。",
+    "fileTooLarge": "文件过大，最大支持 2GB。",
+    "remove": "移除",
+    "analyzing": "正在分析视频...",
+    "uploading": "正在上传...",
+    "uploadingTip": "视频上传中",
+    "analyzingTip": "AI 正在分析你的技术动作",
+    "readyTitle": "准备开始分析",
+    "readyDescription": "上传你的滑雪视频，获取专业教练级别的动作分析和建议",
+    "tips1": "建议从侧面或跟拍角度拍摄。",
+    "tips2": "视频时长建议 30 秒到 3 分钟。",
+    "completed": "分析完成",
+    "completedTip": "处理耗时 {duration}",
+    "error": "分析失败",
+    "tryAgain": "重试",
+    "analyzeAgain": "重新分析",
+    "overallAssessment": "整体评估",
+    "level": "水平",
+    "style": "风格",
+    "score": "评分",
+    "summary": "总结",
+    "strengths": "优势",
+    "areasForImprovement": "待改进",
+    "timestampedIssues": "问题时间戳",
+    "priorityImprovements": "优先级改进",
+    "drillRecommendations": "训练建议",
+    "safetyNotes": "安全提示",
+    "colorSettings": "装备颜色（可选）",
+    "colorSettingsDesc": "帮助 AI 在视频中识别你",
+    "jacketColor": "雪服颜色",
+    "pantsColor": "雪裤颜色",
+    "helmetColor": "头盔颜色",
+    "customColor": "自定义"
   },
   "PromptOptimizer": {
     "title": "一键优化提示词",

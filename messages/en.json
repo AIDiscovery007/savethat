@@ -4,6 +4,54 @@
     "description": "Powered by AI - Prompt optimization, code generation, smart translation, and more to help you work more efficiently.",
     "about": "About"
   },
+  "SkiAnalysis": {
+    "title": "Ski Technique Analysis",
+    "subtitle": "Professional AI-powered skiing technique analysis",
+    "settings": "Skill Level",
+    "selectSkillLevel": "Select your skiing skill level",
+    "skillBeginner": "Beginner",
+    "skillBeginnerDesc": "Green/Blue runs",
+    "skillIntermediate": "Intermediate",
+    "skillIntermediateDesc": "Blue/Black runs",
+    "skillAdvanced": "Advanced",
+    "skillAdvancedDesc": "Black/Double Black",
+    "dragDrop": "Drag and drop video here",
+    "orClick": "or click to browse",
+    "maxSize": "Max 2GB",
+    "invalidFormat": "Invalid video format. Please upload MP4, WebM, or MOV.",
+    "fileTooLarge": "File too large. Maximum size is 2GB.",
+    "remove": "Remove",
+    "analyzing": "Analyzing video...",
+    "uploading": "Uploading...",
+    "uploadingTip": "Your video is being uploaded",
+    "analyzingTip": "AI is analyzing your technique",
+    "readyTitle": "Ready to Analyze",
+    "readyDescription": "Upload a video of your skiing and get professional feedback on your technique",
+    "tips1": "For best results, film from the side or following angle.",
+    "tips2": "The video should be 30 seconds to 3 minutes long.",
+    "completed": "Analysis Complete",
+    "completedTip": "Processed in {duration}",
+    "error": "Analysis Failed",
+    "tryAgain": "Try Again",
+    "analyzeAgain": "Analyze Another Video",
+    "overallAssessment": "Overall Assessment",
+    "level": "Level",
+    "style": "Style",
+    "score": "Score",
+    "summary": "Summary",
+    "strengths": "Strengths",
+    "areasForImprovement": "Areas for Improvement",
+    "timestampedIssues": "Issues by Timestamp",
+    "priorityImprovements": "Priority Improvements",
+    "drillRecommendations": "Training Drills",
+    "safetyNotes": "Safety Notes",
+    "colorSettings": "Equipment Colors (Optional)",
+    "colorSettingsDesc": "Help AI identify you in the video",
+    "jacketColor": "Jacket Color",
+    "pantsColor": "Pants Color",
+    "helmetColor": "Helmet Color",
+    "customColor": "Custom"
+  },
   "Footer": {
     "text": "AI Tools Hub - AI-powered prompt optimization tool"
   },
@@ -40,6 +88,10 @@
     "text-summarizer": {
       "name": "Text Summarizer",
       "description": "Quickly generate summaries of articles and documents"
+    },
+    "ski-analysis": {
+      "name": "Ski Technique Analysis",
+      "description": "Upload your skiing video and get professional analysis with improvement suggestions"
     }
   },
   "PromptOptimizer": {

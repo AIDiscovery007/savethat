@@ -11,7 +11,8 @@ export type ToolIconName =
   | 'code'
   | 'translate'
   | 'image'
-  | 'file-text';
+  | 'file-text'
+  | 'video';
 
 /**
  * 工具信息接口
@@ -36,7 +37,8 @@ export type ToolCategory =
   | 'image'
   | 'text'
   | 'translation'
-  | 'analysis';
+  | 'analysis'
+  | 'video';
 
 /**
  * 工具状态
@@ -96,6 +98,16 @@ export const TOOL_REGISTRY: ToolInfo[] = [
     category: 'text',
     status: 'experimental',
     tags: ['AI', '摘要', '文本'],
+  },
+  {
+    id: 'ski-analysis',
+    name: '滑雪动作分析',
+    description: '上传滑雪视频，AI 将从专业滑手角度分析动作问题并提供改进建议',
+    path: '/tools/ski-analysis',
+    icon: 'video',
+    category: 'video',
+    status: 'available',
+    tags: ['AI', '滑雪', '动作分析', '运动'],
   },
 ];
 
