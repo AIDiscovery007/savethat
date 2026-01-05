@@ -291,3 +291,72 @@ export function getSelfDeprecatingPhrase(): string {
   const dayOfYear = Math.floor((Date.now() % 86400000) / 86400000 * SELF_DEprecATING_PHRASES.length);
   return SELF_DEprecATING_PHRASES[dayOfYear % SELF_DEprecATING_PHRASES.length];
 }
+
+// ============================================================================
+// 姿态数据提示词 - 结构化特征提取
+// ============================================================================
+
+/**
+ * 姿态数据提示词模板 - 当使用 MediaPipe 进行姿态分析时追加
+ */
+export const SKI_POSE_DATA_PROMPT = `
+=== 姿态分析数据 (POSE DATA) ===
+{pose_data_text}
+
+=== 额外分析要求 ===
+基于上述结构化姿态数据，结合视频画面，给出专业滑雪教练级分析。
+请特别关注以下量化指标：
+
+1. **重心高度变化趋势**
+   - 观察重心高度是否与转弯阶段匹配
+   - 入弯前是否适当降低重心
+   - 弯中是否保持稳定重心
+   - 重心是否有过度上下起伏
+
+2. **身体倾斜角分析**
+   - 身体倾斜是否与转弯方向一致
+   - 内倾角度是否足够（建议15-30°）
+   - 是否有过度倾斜导致失控风险
+   - 上下身分离是否清晰
+
+3. **膝盖折叠度评估**
+   - 左右膝折叠度差异是否在5°以内
+   - 弯中膝盖折叠是否充分（建议90-120°）
+   - 是否有单腿承重过多的问题
+
+4. **左右对称性分析**
+   - 统计左右侧指标差异
+   - 识别弱势侧和强势侧
+   - 给出平衡训练建议
+
+请在分析中引用具体的时间戳和数值，例如：
+- "在第3.2秒，身体倾斜达到+18°，内倾角度合适"
+- "左膝折叠度持续比右膝小5-8°，建议加强左腿力量训练"
+
+结合姿态数据和视频画面，给出最精准的技术评估和改进建议！`;
+
+/**
+ * 获取包含姿态数据的完整分析提示词
+ */
+export function getSkiAnalysisWithPoseData(
+  level?: string,
+  jacketColor?: string,
+  pantsColor?: string,
+  helmetColor?: string,
+  roastLevel: RoastLevel = 'medium',
+  poseDataText?: string
+): string {
+  // 获取基础提示词
+  const basePrompt = getSkiAnalysisPrompt(level, jacketColor, pantsColor, helmetColor, roastLevel);
+
+  // 如果没有姿态数据，返回基础提示词
+  if (!poseDataText) {
+    return basePrompt;
+  }
+
+  // 拼接姿态数据提示词
+  const posePrompt = SKI_POSE_DATA_PROMPT.replace('{pose_data_text}', poseDataText);
+
+  // 将姿态数据提示词追加到基础提示词末尾
+  return basePrompt + '\n\n' + posePrompt;
+}

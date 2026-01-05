@@ -16,6 +16,7 @@ import { STAGES } from '@/lib/prompts/prompt-optimizer/system-prompts';
 import { OptimizerForm } from './components/optimizer-form';
 import { StageIndicator, ProgressWithLabel } from './components/stage-indicator';
 import { OptimizationResult } from './components/optimization-result';
+import { AIClientSender } from './components/ai-client-sender';
 import { ComparisonView } from './components/comparison-view';
 import { HistoryPanel } from './components/history-panel';
 import { TabsRoot, TabsList, TabsTab } from '@/components/ui/tabs';
@@ -263,55 +264,60 @@ export default function PromptOptimizerPage() {
 
           {/* 优化结果 */}
           {selectedHistoryRecord || result ? (
-            <Card className="rounded-[var(--radius)]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <MagicWandIcon className="h-5 w-5 text-green-500" />
-                    {t('optimizedResult')}
-                  </CardTitle>
-                  <div className="flex items-center gap-3">
-                    {selectedHistoryRecord && (
-                      <Badge variant="outline">
-                        {new Date(selectedHistoryRecord.createdAt).toLocaleString()}
-                      </Badge>
-                    )}
-                    <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
-                      <TabsList>
-                        <TabsTab value="result">{t('detail')}</TabsTab>
-                        <TabsTab value="comparison">{t('comparison')}</TabsTab>
-                      </TabsList>
-                    </TabsRoot>
+            <>
+              {/* 发送到AI客户端 - 固定显示在 Card 外部 */}
+              <AIClientSender prompt={(selectedHistoryRecord ?? result)?.optimizedPrompt || ''} />
+
+              <Card className="rounded-[var(--radius)]">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MagicWandIcon className="h-5 w-5 text-green-500" />
+                      {t('optimizedResult')}
+                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                      {selectedHistoryRecord && (
+                        <Badge variant="outline">
+                          {new Date(selectedHistoryRecord.createdAt).toLocaleString()}
+                        </Badge>
+                      )}
+                      <TabsRoot value={viewMode} onValueChange={(v) => setViewMode(v as 'result' | 'comparison')}>
+                        <TabsList>
+                          <TabsTab value="result">{t('detail')}</TabsTab>
+                          <TabsTab value="comparison">{t('comparison')}</TabsTab>
+                        </TabsList>
+                      </TabsRoot>
+                    </div>
                   </div>
-                </div>
-                {/* 模型和耗时信息 */}
-                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium">
-                    {(selectedHistoryRecord ?? result)?.modelName}
-                  </span>
-                  <span>·</span>
-                  <span>
-                    {formatDuration((selectedHistoryRecord ?? result)?.totalDuration)}
-                  </span>
-                  {selectedHistoryRecord && (
-                    <>
-                      <span>·</span>
-                      <span>{t('history')}</span>
-                    </>
+                  {/* 模型和耗时信息 */}
+                  <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-medium">
+                      {(selectedHistoryRecord ?? result)?.modelName}
+                    </span>
+                    <span>·</span>
+                    <span>
+                      {formatDuration((selectedHistoryRecord ?? result)?.totalDuration)}
+                    </span>
+                    {selectedHistoryRecord && (
+                      <>
+                        <span>·</span>
+                        <span>{t('history')}</span>
+                      </>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {viewMode === 'result' ? (
+                    <OptimizationResult result={selectedHistoryRecord ?? result ?? undefined} />
+                  ) : (
+                    <ComparisonView
+                      originalPrompt={selectedHistoryRecord?.originalPrompt || result?.originalPrompt || ''}
+                      optimizedPrompt={selectedHistoryRecord?.optimizedPrompt || result?.optimizedPrompt || ''}
+                    />
                   )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {viewMode === 'result' ? (
-                  <OptimizationResult result={selectedHistoryRecord ?? result ?? undefined} />
-                ) : (
-                  <ComparisonView
-                    originalPrompt={selectedHistoryRecord?.originalPrompt || result?.originalPrompt || ''}
-                    optimizedPrompt={selectedHistoryRecord?.optimizedPrompt || result?.optimizedPrompt || ''}
-                  />
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </>
           ) : (
             // 没有结果时显示提示
             <Card className="rounded-[var(--radius)]">

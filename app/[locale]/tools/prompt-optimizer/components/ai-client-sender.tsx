@@ -3,6 +3,7 @@
 /**
  * AI客户端发送面板组件
  * 允许用户将优化后的提示词发送到其他AI客户端
+ * 设计为扁平化面板，直接显示所有客户端选项
  */
 
 import * as React from 'react';
@@ -12,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { AI_CLIENTS } from '@/lib/config/ai-clients';
 import { sendPromptToAI } from '@/lib/utils/clipboard';
 import { Claude, Gemini, DeepSeek, OpenAI } from '@lobehub/icons';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ShareNetwork } from '@phosphor-icons/react';
 
 // 图标映射
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -45,14 +46,15 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
   };
 
   return (
-    <div className={cn('space-y-3', className)}>
-      {/* 标题 */}
-      <div className="flex items-center justify-between">
+    <div className={cn('flex flex-col gap-3', className)}>
+      {/* 标题栏 */}
+      <div className="flex items-center gap-2">
+        <ShareNetwork className="h-4 w-4 text-primary" />
         <span className="text-sm font-medium">{t('title')}</span>
         {result && (
           <span
             className={cn(
-              'text-xs flex items-center gap-1',
+              'text-xs flex items-center gap-1 animate-fade-in',
               result.success ? 'text-green-600' : 'text-destructive'
             )}
           >
@@ -66,8 +68,8 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
         )}
       </div>
 
-      {/* 客户端列表 */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* 客户端按钮行 - 单行显示所有选项 */}
+      <div className="flex flex-wrap gap-2">
         {AI_CLIENTS.map((client) => {
           const Icon = ICON_MAP[client.iconName] || Claude;
           const isSending = sendingId === client.id;
@@ -75,22 +77,25 @@ export function AIClientSender({ prompt, className }: AIClientSenderProps) {
           return (
             <Button
               key={client.id}
-              variant="outline"
+              variant="default"
+              size="sm"
               disabled={isSending}
               onClick={() => handleSend(client)}
-              className="justify-start gap-2 h-9"
+              className={cn(
+                'gap-1.5 h-8 px-3 transition-all duration-200',
+                'hover:scale-[1.02] active:scale-[0.98]',
+                isSending && 'animate-pulse'
+              )}
             >
-              <Icon className="h-4 w-4" />
-              <span className="flex-1 text-left">{client.name}</span>
-              {isSending ? (
-                <span className="text-xs animate-pulse">{t('sending')}</span>
-              ) : null}
+              <Icon className="h-3.5 w-3.5" />
+              <span>{client.name}</span>
+              {isSending && (
+                <span className="text-xs opacity-70">{t('sending')}</span>
+              )}
             </Button>
           );
         })}
       </div>
-
-      <p className="text-xs text-muted-foreground">{t('instruction')}</p>
     </div>
   );
 }

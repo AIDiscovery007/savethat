@@ -1,11 +1,18 @@
 /**
  * 滑雪动作分析 API 路由
  * 使用 Gemini Files API 处理大视频文件
+ * 集成 MediaPipe 姿态分析增强准确性
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, createPartFromUri, createUserContent, ThinkingLevel } from '@google/genai';
-import { getSkiAnalysisPrompt } from '@/lib/prompts/ski-analysis/system-prompts';
+import { getSkiAnalysisWithPoseData } from '@/lib/prompts/ski-analysis/system-prompts';
+import { formatPoseDataForLLM, isValidPoseData, getPoseQualityMetrics } from '@/lib/ski-analysis/pose-utils';
+import type { PoseAnalysisResult } from '@/lib/ski-analysis/types';
+import { spawn } from 'child_process';
+import { writeFileSync, unlinkSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 // Next.js API 路由配置：支持大文件上传和长时间运行
 export const runtime = 'nodejs';
@@ -21,6 +28,142 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024;
 
 // 允许的视频 MIME 类型
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+
+// Python 脚本路径
+const PYTHON_SCRIPT_PATH = join(process.cwd(), 'scripts', 'analyze_ski_pose.py');
+
+/**
+ * 根据文件扩展名获取 MIME 类型
+ */
+function getMimeTypeFromExtension(filename: string): string | null {
+  if (filename.endsWith('.mp4')) return 'video/mp4';
+  if (filename.endsWith('.webm')) return 'video/webm';
+  if (filename.endsWith('.mov')) return 'video/quicktime';
+  if (filename.endsWith('.avi')) return 'video/x-msvideo';
+  return null;
+}
+
+/**
+ * 运行 Python 姿态分析脚本
+ */
+async function runPoseAnalysis(videoPath: string): Promise<{
+  success: boolean;
+  data?: Record<string, unknown>;
+  error?: string;
+  quality?: {
+    frameCount: number;
+    coverage: number;
+    confidence: string;
+  };
+}> {
+  return new Promise((resolve) => {
+    const outputPath = join(tmpdir(), `pose_${Date.now()}.json`);
+
+    // 使用 Python 脚本分析视频
+    const pythonProcess = spawn('python3', [
+      PYTHON_SCRIPT_PATH,
+      '-i', videoPath,
+      '-o', outputPath,
+      '-t', '0.5', // 0.5秒采样间隔
+    ], {
+      cwd: process.cwd(),
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+      console.log(`[Pose Analysis] ${data.toString().trim()}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.warn(`[Pose Analysis Warning] ${data.toString().trim()}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`[Pose Analysis] Python script failed with code ${code}`);
+        console.error(`[Pose Analysis] stderr: ${stderr}`);
+        // 清理输出文件
+        if (existsSync(outputPath)) {
+          try {
+            unlinkSync(outputPath);
+          } catch {}
+        }
+        resolve({ success: false, error: stderr || 'Pose analysis failed' });
+        return;
+      }
+
+      // 解析输出文件（先读取，再清理）
+      if (existsSync(outputPath)) {
+        try {
+          const fs = require('fs');
+          const content = fs.readFileSync(outputPath, 'utf-8');
+          const data = JSON.parse(content);
+
+          // 清理输出文件
+          try {
+            unlinkSync(outputPath);
+          } catch {}
+
+          resolve({ success: true, data });
+        } catch (parseError) {
+          // 清理输出文件
+          if (existsSync(outputPath)) {
+            try {
+              unlinkSync(outputPath);
+            } catch {}
+          }
+          resolve({ success: false, error: 'Failed to parse pose analysis result' });
+        }
+      } else {
+        resolve({ success: false, error: 'Output file not generated' });
+      }
+    });
+
+    // 超时保护（2分钟）
+    setTimeout(() => {
+      pythonProcess.kill();
+      if (existsSync(outputPath)) {
+        try {
+          unlinkSync(outputPath);
+        } catch {}
+      }
+      resolve({ success: false, error: 'Pose analysis timeout' });
+    }, 120000);
+  });
+}
+
+/**
+ * 保存临时视频文件 (异步方式)
+ */
+async function saveTempVideo(file: File): Promise<{ path: string; cleanup: () => void }> {
+  const tempDir = join(tmpdir(), 'ski-analysis');
+  if (!existsSync(tempDir)) {
+    mkdirSync(tempDir, { recursive: true });
+  }
+
+  const tempPath = join(tempDir, `video_${Date.now()}_${file.name}`);
+
+  // 异步写入文件
+  const arrayBuffer = await file.arrayBuffer();
+  const uint8Array = new Uint8Array(arrayBuffer);
+  writeFileSync(tempPath, Buffer.from(uint8Array));
+
+  const cleanup = () => {
+    try {
+      if (existsSync(tempPath)) {
+        unlinkSync(tempPath);
+      }
+    } catch {
+      // 忽略删除错误
+    }
+  };
+
+  return { path: tempPath, cleanup };
+}
 
 // 等待文件变为 ACTIVE 状态
 async function waitForFileActive(
@@ -42,8 +185,7 @@ async function waitForFileActive(
       }
       console.log(`[Ski Analysis] File state: ${file.state} (attempt ${attempt + 1}/${maxAttempts})`);
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
-    } catch (error) {
-      // 如果获取失败，尝试继续（可能 aihubmix 不完全支持此操作）
+    } catch {
       console.warn(`[Ski Analysis] Failed to get file state, attempt ${attempt + 1}/${maxAttempts}`);
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
@@ -52,6 +194,9 @@ async function waitForFileActive(
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  let tempVideoPath: string | null = null;
+
   try {
     // 验证 API Key
     if (!API_KEY) {
@@ -70,6 +215,7 @@ export async function POST(request: NextRequest) {
     const pantsColor = formData.get('pantsColor') as string | null;
     const helmetColor = formData.get('helmetColor') as string | null;
     const roastLevel = formData.get('roastLevel') as string | null;
+    const enablePoseAnalysis = formData.get('enablePoseAnalysis') !== 'false'; // 默认启用
 
     if (!file) {
       return NextResponse.json(
@@ -79,13 +225,33 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证文件类型
-    const mimeType = file.type ?? 'video/mp4';
-    if (!ALLOWED_VIDEO_TYPES.includes(mimeType)) {
+    const mimeType = (file.type || '').toLowerCase();
+    const fileName = file.name.toLowerCase();
+
+    // 尝试获取有效的 MIME 类型
+    let detectedType: string | null = null;
+
+    // 如果 MIME 类型已识别且有效，直接使用
+    if (mimeType && ALLOWED_VIDEO_TYPES.includes(mimeType)) {
+      detectedType = mimeType;
+    }
+    // 如果是通用二进制类型，根据扩展名判断
+    else if (mimeType === 'application/octet-stream' || mimeType === 'application/json' || !mimeType) {
+      detectedType = getMimeTypeFromExtension(fileName);
+    }
+    // 否则尝试从扩展名获取
+    else {
+      detectedType = getMimeTypeFromExtension(fileName);
+    }
+
+    if (!detectedType || !ALLOWED_VIDEO_TYPES.includes(detectedType)) {
       return NextResponse.json(
-        { error: 'Invalid video format. Supported: MP4, WebM, MOV, AVI' },
+        { error: `Invalid video format: ${file.type || 'unknown'}. Supported: MP4, WebM, MOV, AVI` },
         { status: 400 }
       );
     }
+
+    console.log(`[Ski Analysis] Detected file type: ${detectedType}`);
 
     // 验证文件大小
     if (file.size > MAX_FILE_SIZE) {
@@ -95,85 +261,103 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 创建 GenAI 客户端，配置超时和重试
+    // 保存临时视频文件用于姿态分析
+    let poseDataText: string | undefined;
+    let poseAnalysisQuality: { frameCount: number; coverage: number; confidence: string } | undefined;
+
+    if (enablePoseAnalysis) {
+      console.log(`[Ski Analysis] Saving temp video for pose analysis...`);
+      const { path, cleanup } = await saveTempVideo(file);
+      tempVideoPath = path;
+
+      console.log(`[Ski Analysis] Running pose analysis...`);
+      const poseResult = await runPoseAnalysis(path);
+
+      if (poseResult.success && poseResult.data) {
+        console.log(`[Ski Analysis] Pose analysis successful`);
+
+        // 转换为 LLM 可读的文本格式
+        poseDataText = formatPoseDataForLLM(poseResult.data as unknown as PoseAnalysisResult);
+
+        // 获取质量指标
+        const quality = getPoseQualityMetrics(poseResult.data as unknown as PoseAnalysisResult);
+        poseAnalysisQuality = {
+          frameCount: quality.frameCount,
+          coverage: Math.round(quality.coverage * 100) / 100,
+          confidence: quality.confidence,
+        };
+
+        console.log(`[Ski Analysis] Pose quality: ${JSON.stringify(poseAnalysisQuality)}`);
+      } else {
+        console.warn(`[Ski Analysis] Pose analysis failed: ${poseResult.error}, continuing without pose data`);
+      }
+
+      // 清理临时文件
+      cleanup();
+      tempVideoPath = null;
+    }
+
+    // 创建 GenAI 客户端
     const client = new GoogleGenAI({
       apiKey: API_KEY,
-      httpOptions: { 
+      httpOptions: {
         baseUrl: GEMINI_ENDPOINT,
-        // 增加超时时间以支持大文件上传
-        timeout: 300000, // 5分钟
+        timeout: 300000,
       },
     });
 
-    // 准备分析提示词
-    const analysisPrompt = prompt ?? getSkiAnalysisPrompt(
+    // 准备分析提示词（包含姿态数据）
+    const analysisPrompt = prompt ?? getSkiAnalysisWithPoseData(
       level ?? undefined,
       jacketColor ?? undefined,
       pantsColor ?? undefined,
       helmetColor ?? undefined,
-      (roastLevel as 'mild' | 'medium' | 'spicy') ?? undefined
+      (roastLevel as 'mild' | 'medium' | 'spicy') ?? undefined,
+      poseDataText
     );
 
     console.log(`[Ski Analysis] Uploading video: ${file.name} (${file.size} bytes)`);
-    const startTime = Date.now();
 
     // 将文件转换为 Blob 上传
-    const fileBlob = new Blob([await file.arrayBuffer()], { type: mimeType });
+    const fileBlob = new Blob([await file.arrayBuffer()], { type: detectedType });
 
-    // 上传到 Gemini Files API（支持大文件）
+    // 上传到 Gemini Files API
     const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
     console.log(`[Ski Analysis] Starting file upload (${fileSizeMB} MB)...`);
-    console.log(`[Ski Analysis] Endpoint: ${GEMINI_ENDPOINT}, MIME type: ${mimeType}`);
-    
+
     let uploadedFile;
     try {
-      // 使用 Promise.race 添加超时保护
       const uploadPromise = client.files.upload({
         file: fileBlob,
-        config: { mimeType, displayName: file.name },
+        config: { mimeType: detectedType, displayName: file.name },
       });
-      
+
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Upload timeout after 4 minutes')), 4 * 60 * 1000);
       });
-      
+
       uploadedFile = await Promise.race([uploadPromise, timeoutPromise]);
       console.log(`[Ski Analysis] File upload successful: ${uploadedFile.uri}, name: ${uploadedFile.name}`);
     } catch (uploadError) {
-      console.error('[Ski Analysis] File upload error details:', {
-        error: uploadError,
-        message: uploadError instanceof Error ? uploadError.message : String(uploadError),
-        stack: uploadError instanceof Error ? uploadError.stack : undefined,
-        fileSize: file.size,
-        fileName: file.name,
-        mimeType,
-      });
-      
-      // 提供更详细的错误信息
+      console.error('[Ski Analysis] File upload error:', uploadError);
+
       if (uploadError instanceof Error) {
         const errorMessage = uploadError.message.toLowerCase();
-        if (errorMessage.includes('fetch failed') || errorMessage.includes('network') || errorMessage.includes('econnreset')) {
-          throw new Error(`File upload failed due to network error. The file (${fileSizeMB} MB) may be too large for the current connection. Please try again or use a smaller file.`);
+        if (errorMessage.includes('fetch failed') || errorMessage.includes('network')) {
+          throw new Error(`File upload failed due to network error. Please try again or use a smaller file.`);
         }
         if (errorMessage.includes('timeout')) {
-          throw new Error(`File upload timed out. The file (${fileSizeMB} MB) is taking too long to upload. Please try a smaller file or check your network connection.`);
-        }
-        if (errorMessage.includes('413') || errorMessage.includes('payload too large')) {
-          throw new Error('File is too large for upload. Maximum size is 2GB.');
+          throw new Error(`File upload timed out. Please try a smaller file.`);
         }
       }
       throw new Error(`File upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
     }
-    
-    // 确保 uploadedFile 已定义
+
     if (!uploadedFile) {
       throw new Error('File upload failed: no file returned');
     }
 
-    console.log(`[Ski Analysis] File uploaded: ${uploadedFile.uri}, name: ${uploadedFile.name}`);
-
     // 尝试等待文件变为 ACTIVE 状态
-    // 注意：aihubmix 可能不完全支持 files.get()，如果失败则使用延迟
     let isReady = false;
     try {
       isReady = await waitForFileActive(client, uploadedFile.name!);
@@ -182,7 +366,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isReady) {
-      // 如果无法检查状态，使用固定延迟等待文件处理
       console.log(`[Ski Analysis] Using fallback delay for file processing...`);
       await new Promise((resolve) => setTimeout(resolve, 10000));
     }
@@ -192,16 +375,18 @@ export async function POST(request: NextRequest) {
     if (!fileUri) {
       throw new Error('File upload failed: no URI returned');
     }
+
+    console.log(`[Ski Analysis] Calling Gemini API...`);
     const response = await client.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: createUserContent([
-        createPartFromUri(fileUri, mimeType),
+        createPartFromUri(fileUri, detectedType),
         analysisPrompt,
       ]),
       config: {
         thinkingConfig: {
-          includeThoughts: true, // 包含思考过程
-          thinkingLevel: ThinkingLevel.HIGH, // 使用高级思考模式以获得更深入的分析
+          includeThoughts: true,
+          thinkingLevel: ThinkingLevel.HIGH,
         },
       },
     });
@@ -213,20 +398,18 @@ export async function POST(request: NextRequest) {
     try {
       await client.files.delete({ name: uploadedFile.name! });
     } catch {
-      // 忽略删除错误（48小时后自动删除）
+      // 忽略删除错误
     }
 
-    // 处理 thinking 模式响应：区分思考内容和正式结果
+    // 处理 thinking 模式响应
     let resultText = '';
     let thinkingText = '';
 
-    // 遍历响应中的 parts，区分思考内容和正式响应
     const candidate = response.candidates?.[0];
     if (candidate?.content?.parts) {
       for (const part of candidate.content.parts) {
         if (!part.text) continue;
-        
-        // 检查是否是思考内容
+
         if (part.thought === true) {
           thinkingText += part.text + '\n';
         } else {
@@ -235,12 +418,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 如果没有通过 parts 获取到内容，使用 response.text 作为后备
     if (!resultText && response.text) {
       resultText = response.text;
     }
 
-    // 记录思考过程（用于调试）
     if (thinkingText) {
       console.log(`[Ski Analysis] Thinking process captured (${thinkingText.length} chars)`);
     }
@@ -252,7 +433,6 @@ export async function POST(request: NextRequest) {
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[1]);
       } else {
-        // 尝试直接解析整个文本为 JSON
         try {
           analysisResult = JSON.parse(resultText);
         } catch {
@@ -269,9 +449,16 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // 如果存在思考内容，添加到结果中（可选，用于调试或展示）
     if (thinkingText) {
       analysisResult._thinking = thinkingText.trim();
+    }
+
+    // 添加姿态分析元数据
+    if (poseAnalysisQuality) {
+      analysisResult._poseAnalysis = {
+        enabled: true,
+        quality: poseAnalysisQuality,
+      };
     }
 
     return NextResponse.json({
@@ -283,6 +470,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Ski Analysis] Error:', error);
+
+    // 清理临时文件
+    if (tempVideoPath && existsSync(tempVideoPath)) {
+      try {
+        unlinkSync(tempVideoPath);
+      } catch {}
+    }
 
     return NextResponse.json(
       {
@@ -297,7 +491,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     name: 'Ski Analysis API',
-    description: 'AI-powered skiing technique analysis using Gemini Files API',
+    description: 'AI-powered skiing technique analysis with MediaPipe pose enhancement',
     endpoint: '/api/ski-analysis',
     method: 'POST',
     contentType: 'multipart/form-data',
@@ -309,6 +503,12 @@ export async function GET() {
       jacketColor: 'Optional: jacket color for skier identification',
       pantsColor: 'Optional: pants color for skier identification',
       helmetColor: 'Optional: helmet color for skier identification',
+      enablePoseAnalysis: 'Optional: true/false, enable MediaPipe pose analysis (default: true)',
+    },
+    features: {
+      poseAnalysis: 'MediaPipe pose detection for accurate biomechanical metrics',
+      structuredData: '重心高度、身体倾斜角、膝盖折叠度量化分析',
+      roastPersonality: 'Toxic ski coach personality with configurable intensity',
     },
     note: 'Large files are uploaded via Gemini Files API for optimal performance',
   });
