@@ -8,6 +8,7 @@ Usage:
     python scripts/analyze_ski_pose.py -i video.mp4 -o pose_data.json
     python scripts/analyze_ski_pose.py -i video.mp4 --interval 0.3
     python scripts/analyze_ski_pose.py -i video.mp4 -o pose_data.json --verbose
+    python scripts/analyze_ski_pose.py -i video.mp4 -k 3.5,8.2 -ko /tmp/keyframes
 """
 
 import argparse
@@ -33,6 +34,7 @@ def load_pose_analyzer():
 
 pose_analyzer = load_pose_analyzer()
 analyze_video = pose_analyzer.analyze_video
+extract_keyframes = pose_analyzer.extract_keyframes
 
 
 def format_pose_for_llm(result: dict) -> str:
@@ -133,6 +135,17 @@ def main():
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable verbose output"
     )
+    parser.add_argument(
+        "-k",
+        "--keyframes",
+        type=str,
+        help="Comma-separated timestamps for keyframe extraction (e.g., '3.5,8.2,12.0')",
+    )
+    parser.add_argument(
+        "-ko",
+        "--keyframes-output",
+        help="Output directory for keyframe screenshots (optional, defaults to temp)",
+    )
 
     args = parser.parse_args()
 
@@ -147,14 +160,29 @@ def main():
         print(f"Interval: {args.interval}s")
 
     try:
-        # Run analysis
+        # Run analysis (don't save output yet if we need to add keyframes)
         result = analyze_video(
             str(input_path),
             sampling_interval=args.interval,
-            output_path=args.output
-            if args.output and args.format in ["json", "both"]
-            else None,
+            output_path=None,  # Don't save inside analyze_video
         )
+
+        # Extract keyframes if requested
+        keyframes_result = []
+        if args.keyframes:
+            timestamps = [float(t.strip()) for t in args.keyframes.split(',')]
+            print(f"\nExtracting {len(timestamps)} keyframes at timestamps: {args.keyframes}")
+            keyframes_result = extract_keyframes(str(input_path), timestamps, args.keyframes_output)
+            result['keyframes'] = keyframes_result
+            successful = sum(1 for k in keyframes_result if k.get('success'))
+            print(f"Successfully extracted {successful}/{len(timestamps)} keyframes")
+
+        # Save output files (after keyframes are added)
+        if args.output and args.format in ["json", "both"]:
+            import json
+            with open(args.output, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=2, ensure_ascii=False)
+            print(f"Results saved to: {args.output}")
 
         if args.format in ["text", "both"]:
             text_output = format_pose_for_llm(result)

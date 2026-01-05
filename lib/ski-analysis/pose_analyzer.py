@@ -5,11 +5,12 @@ Uses MediaPipe Tasks API (0.10.x) to extract human pose landmarks from ski video
 and compute biomechanical metrics for AI analysis.
 """
 
+import base64
 import json
 import math
 import sys
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 import cv2
 import numpy as np
@@ -411,6 +412,125 @@ def analyze_video(
     return result
 
 
+def extract_frame_at_timestamp(
+    video_path: str,
+    timestamp_seconds: float,
+    output_path: Optional[str] = None,
+    width: int = 640
+) -> Dict[str, Any]:
+    """
+    Extract a single frame at the specified timestamp.
+
+    Args:
+        video_path: Path to video file
+        timestamp_seconds: Time in seconds to extract frame
+        output_path: Optional path to save the frame
+        width: Output frame width (maintain aspect ratio)
+
+    Returns:
+        Dictionary with frame info and image data
+    """
+    video_capture = cv2.VideoCapture(video_path)
+
+    if not video_capture.isOpened():
+        return {
+            "success": False,
+            "timestamp": timestamp_seconds,
+            "error": f"Could not open video file: {video_path}"
+        }
+
+    fps = video_capture.get(cv2.CAP_PROP_FPS)
+    total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    video_duration = total_frames / fps if fps > 0 else 0
+
+    # Validate timestamp
+    if timestamp_seconds < 0 or timestamp_seconds >= video_duration:
+        video_capture.release()
+        return {
+            "success": False,
+            "timestamp": timestamp_seconds,
+            "error": f"Timestamp {timestamp_seconds}s is out of video range (0-{video_duration:.2f}s)"
+        }
+
+    frame_number = int(timestamp_seconds * fps)
+    video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+
+    success, image = video_capture.read()
+    video_capture.release()
+
+    if not success:
+        return {
+            "success": False,
+            "timestamp": timestamp_seconds,
+            "error": "Failed to extract frame from video"
+        }
+
+    # Resize for consistent display
+    aspect_ratio = image.shape[0] / image.shape[1]
+    height = int(width * aspect_ratio)
+    image_resized = cv2.resize(image, (width, height))
+
+    # Encode as base64 for easy transport
+    _, buffer = cv2.imencode('.jpg', image_resized, [cv2.IMWRITE_JPEG_QUALITY, 85])
+    base64_image = base64.b64encode(buffer).decode('utf-8')
+
+    result: Dict[str, Any] = {
+        "success": True,
+        "timestamp": timestamp_seconds,
+        "width": width,
+        "height": height,
+        "imageBase64": f"data:image/jpeg;base64,{base64_image}",
+        "imageSize": len(base64_image)
+    }
+
+    if output_path:
+        cv2.imwrite(output_path, image_resized)
+        result["savedPath"] = output_path
+
+    return result
+
+
+def extract_keyframes(
+    video_path: str,
+    timestamps: List[float],
+    output_dir: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Extract multiple keyframes at specified timestamps.
+
+    Args:
+        video_path: Path to video file
+        timestamps: List of timestamps in seconds
+        output_dir: Optional directory to save frames
+
+    Returns:
+        List of keyframe dictionaries
+    """
+    keyframes: List[Dict[str, Any]] = []
+
+    for i, ts in enumerate(timestamps):
+        output_path = None
+        if output_dir:
+            output_path = str(Path(output_dir) / f"keyframe_{i:03d}_{ts:.2f}.jpg")
+
+        frame = extract_frame_at_timestamp(video_path, ts, output_path)
+        keyframes.append(frame)
+
+        if frame["success"]:
+            print(f"Extracted keyframe at {ts:.2f}s -> {output_path or 'base64'}")
+        else:
+            print(f"Failed to extract keyframe at {ts:.2f}s: {frame.get('error')}")
+
+    return keyframes
+
+
+def format_timestamp(seconds: float) -> str:
+    """Format seconds to MM:SS format."""
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes:02d}:{secs:02d}"
+
+
 def main():
     """CLI entry point."""
     import argparse
@@ -420,6 +540,10 @@ def main():
     parser.add_argument('--output', '-o', help='Output JSON file path')
     parser.add_argument('--interval', '-t', type=float, default=0.5,
                         help='Sampling interval in seconds (default: 0.5)')
+    parser.add_argument('--keyframes', '-k', type=str,
+                        help='Comma-separated timestamps for keyframe extraction (e.g., "3.5,8.2,12.0")')
+    parser.add_argument('--keyframes-output', '-ko',
+                        help='Output directory for keyframe screenshots')
 
     args = parser.parse_args()
 
@@ -431,6 +555,25 @@ def main():
         print(f"  Max body tilt: {result['summary']['maxBodyTilt']}°")
         print(f"  Avg knee flexion: {result['summary']['avgKneeFlexion']}°")
         print(f"  Left/right asymmetry: {result['summary']['leftRightAsymmetry']}°")
+
+        # Extract keyframes if requested
+        if args.keyframes:
+            timestamps = [float(t.strip()) for t in args.keyframes.split(',')]
+            print(f"\nExtracting {len(timestamps)} keyframes...")
+            keyframes = extract_keyframes(args.input, timestamps, args.keyframes_output)
+
+            # Add keyframes to result
+            result['keyframes'] = keyframes
+
+            # Save keyframe metadata
+            if args.output:
+                keyframe_meta_path = Path(args.output).with_suffix('.keyframes.json')
+                with open(keyframe_meta_path, 'w', encoding='utf-8') as f:
+                    json.dump(keyframes, f, indent=2, ensure_ascii=False)
+                print(f"Keyframe metadata saved to: {keyframe_meta_path}")
+
+            successful = sum(1 for k in keyframes if k.get('success'))
+            print(f"Successfully extracted {successful}/{len(timestamps)} keyframes")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

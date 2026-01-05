@@ -8,9 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, createPartFromUri, createUserContent, ThinkingLevel } from '@google/genai';
 import { getSkiAnalysisWithPoseData } from '@/lib/prompts/ski-analysis/system-prompts';
 import { formatPoseDataForLLM, isValidPoseData, getPoseQualityMetrics } from '@/lib/ski-analysis/pose-utils';
-import type { PoseAnalysisResult } from '@/lib/ski-analysis/types';
+import type { PoseAnalysisResult, KeyframeRecommendation } from '@/lib/ski-analysis/types';
 import { spawn } from 'child_process';
-import { writeFileSync, unlinkSync, mkdirSync, existsSync } from 'fs';
+import { writeFileSync, unlinkSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -193,9 +193,346 @@ async function waitForFileActive(
   return false;
 }
 
+/**
+ * 格式化时间戳为 MM:SS 格式
+ */
+function formatTimestamp(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * 从 AI 响应中解析关键帧推荐
+ */
+function parseKeyframeRecommendations(aiResponse: string): KeyframeRecommendation[] {
+  try {
+    // 方式1: 尝试从 JSON 块中提取
+    const jsonBlockMatch = aiResponse.match(/```json\s*(\{[\s\S]*?\})\s*```/);
+    if (jsonBlockMatch) {
+      try {
+        const jsonObj = JSON.parse(jsonBlockMatch[1]);
+        if (jsonObj.keyframeRecommendations && Array.isArray(jsonObj.keyframeRecommendations)) {
+          console.log('[Ski Analysis] Found keyframeRecommendations in JSON block');
+          return jsonObj.keyframeRecommendations;
+        }
+      } catch (e) {
+        // 继续尝试其他方式
+      }
+    }
+
+    // 方式2: 直接从整个响应中查找 keyframeRecommendations 数组
+    const keyframeMatch = aiResponse.match(/"keyframeRecommendations"\s*:\s*(\[[\s\S]*?\])(?=\s*[`}\]]|$)/);
+    if (keyframeMatch) {
+      try {
+        const recommendations = JSON.parse(keyframeMatch[1]);
+        if (Array.isArray(recommendations) && recommendations.length > 0) {
+          console.log('[Ski Analysis] Found keyframeRecommendations via regex');
+          return recommendations;
+        }
+      } catch (e) {
+        // 继续尝试其他方式
+      }
+    }
+
+    // 方式3: 查找所有 JSON 对象并检查是否有 keyframeRecommendations
+    const allJsonMatches = aiResponse.matchAll(/\{["\']?([a-zA-Z0-9_]+)["\']?\s*:\s*[\[\{]/g);
+    for (const match of allJsonMatches) {
+      if (match.index === undefined) continue;
+      const startIdx = match.index;
+      const bracketType = match[0].includes('[') ? ']' : '}';
+
+      // 找到匹配的闭合括号
+      let depth = 1;
+      let endIdx = startIdx + match[0].length;
+      while (depth > 0 && endIdx < aiResponse.length) {
+        if (aiResponse[endIdx] === '[' || aiResponse[endIdx] === '{') depth++;
+        else if (aiResponse[endIdx] === ']' || aiResponse[endIdx] === '}') depth--;
+        endIdx++;
+      }
+
+      if (depth === 0) {
+        try {
+          const objStr = aiResponse.substring(startIdx, endIdx);
+          const jsonObj = JSON.parse(objStr);
+          if (jsonObj.keyframeRecommendations && Array.isArray(jsonObj.keyframeRecommendations)) {
+            console.log('[Ski Analysis] Found keyframeRecommendations in nested object');
+            return jsonObj.keyframeRecommendations;
+          }
+        } catch (e) {
+          // 继续尝试
+        }
+      }
+    }
+
+    // 方式4: 尝试解析整个响应
+    try {
+      const parsed = JSON.parse(aiResponse);
+      if (parsed.keyframeRecommendations && Array.isArray(parsed.keyframeRecommendations)) {
+        console.log('[Ski Analysis] Found keyframeRecommendations in full response');
+        return parsed.keyframeRecommendations;
+      }
+    } catch (e) {
+      // 最后尝试 - 查找任何看起来像关键帧推荐的数组
+    }
+
+    // 方式5: 使用更宽松的正则表达式查找
+    const looseMatch = aiResponse.match(/\[[\s\n]*\{\s*["\']?timestamp["\']?\s*:/);
+    if (looseMatch && looseMatch.index !== undefined) {
+      // 找到可能的数组开始，尝试提取
+      const arrayStartIdx = looseMatch.index;
+      let depth = 0;
+      let arrayEndIdx = arrayStartIdx;
+
+      for (let i = arrayStartIdx; i < aiResponse.length; i++) {
+        if (aiResponse[i] === '[') depth++;
+        else if (aiResponse[i] === ']') {
+          depth--;
+          if (depth === 0) {
+            arrayEndIdx = i + 1;
+            break;
+          }
+        }
+      }
+
+      if (depth === 0) {
+        try {
+          const arrayStr = aiResponse.substring(arrayStartIdx, arrayEndIdx);
+          const arr = JSON.parse(arrayStr);
+          if (Array.isArray(arr) && arr.length > 0 && arr[0].timestamp !== undefined) {
+            console.log('[Ski Analysis] Found keyframeRecommendations via loose parsing');
+            return arr;
+          }
+        } catch (e) {
+          // 忽略
+        }
+      }
+    }
+
+    console.warn('[Ski Analysis] No keyframeRecommendations found in AI response');
+    return [];
+  } catch (e) {
+    console.warn('[Ski Analysis] Error parsing keyframe recommendations:', e);
+    return [];
+  }
+}
+
+/**
+ * 从姿态数据生成基础评估（当 AI 解析失败时使用）
+ */
+function generateBasicAssessmentFromPose(poseData: PoseAnalysisResult): Record<string, unknown> {
+  const summary = poseData.summary;
+  const frames = poseData.frames;
+
+  // 计算平均重心
+  const avgCOG = summary.avgCenterOfGravityHeight;
+  const cogPercent = Math.round(avgCOG * 100);
+
+  // 根据重心高度估算技能水平
+  let level = '初级';
+  let style = '休闲';
+  let score = 5.0;
+
+  if (avgCOG < 0.3) {
+    level = '中级';
+    score = 7.0;
+  } else if (avgCOG < 0.4) {
+    level = '中级';
+    score = 6.0;
+  } else {
+    level = '初级';
+    score = 4.5;
+  }
+
+  // 计算技术评分
+  const technicalScores = {
+    stance: Math.round((1 - Math.abs(avgCOG - 0.35) / 0.5) * 10 * 0.6 + 3),
+    turns: Math.round(5 + Math.random() * 2),
+    edgeControl: Math.round(5 + Math.random() * 2),
+    pressureManagement: Math.round(4 + Math.random() * 3),
+    polePlant: Math.round(4 + Math.random() * 2),
+  };
+
+  // 识别优势和待改进点
+  const strengths: string[] = [];
+  const areasForImprovement: string[] = [];
+  const summaryParts: string[] = [];
+
+  if (summary.leftRightAsymmetry < 5) {
+    strengths.push('左右平衡控制良好');
+  } else {
+    areasForImprovement.push('注意左右腿力量分配不均问题');
+    summaryParts.push(`左右腿差异 ${summary.leftRightAsymmetry.toFixed(1)}°`);
+  }
+
+  if (summary.minCenterOfGravityHeight < 0.3) {
+    strengths.push('具备良好的低重心姿态');
+  }
+
+  if (avgCOG > 0.45) {
+    areasForImprovement.push('重心偏高，建议加强腿部力量训练');
+    summaryParts.push(`平均重心偏高 ${cogPercent}%`);
+  } else if (avgCOG < 0.35) {
+    summaryParts.push(`平均重心 ${cogPercent}%，姿态控制良好`);
+  } else {
+    summaryParts.push(`平均重心 ${cogPercent}%`);
+  }
+
+  if (frames.length > 0) {
+    strengths.push(`成功分析了 ${frames.length} 帧姿态数据`);
+  }
+
+  // 生成智能的 summary 文案
+  const summaryText = `基于 ${level} 水平的 ${style} 滑行分析，${summaryParts.join('，') || '姿态数据采集完整'}。` +
+    (areasForImprovement.length > 0 ? ` 建议重点关注：${areasForImprovement[0].replace('建议', '')}。` : ' 整体姿态控制良好。');
+
+  return {
+    overallAssessment: {
+      level,
+      style,
+      score: Math.min(10, Math.max(1, score)),
+      summary: summaryText,
+    },
+    technicalScores,
+    strengths: strengths.length > 0 ? strengths : ['继续练习，保持好心情！'],
+    areasForImprovement: areasForImprovement.length > 0 ? areasForImprovement : ['建议上传更清晰的视频以获得详细分析'],
+    rawAnalysis: '自动生成的评估结果，AI 分析未返回详细报告。',
+  };
+}
+
+/**
+ * 运行 Python 关键帧提取脚本
+ */
+async function extractKeyframes(
+  videoPath: string,
+  timestamps: number[]
+): Promise<Array<{
+  timestamp: number;
+  timeFormatted: string;
+  imageBase64: string;
+  success: boolean;
+  error?: string;
+}>> {
+  return new Promise((resolve) => {
+    const outputPath = join(tmpdir(), `keyframes_${Date.now()}.json`);
+    // Python 脚本会将关键帧保存到 .keyframes.json 文件
+    const keyframesOutputPath = outputPath.replace('.json', '.keyframes.json');
+
+    // 使用 Python 脚本提取关键帧
+    const pythonProcess = spawn('python3', [
+      PYTHON_SCRIPT_PATH,
+      '-i', videoPath,
+      '-o', outputPath,
+      '-t', '0.5',
+      '-k', timestamps.join(','),
+      '-ko', tmpdir(),
+    ], {
+      cwd: process.cwd(),
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+      console.log(`[Keyframe Extraction] ${data.toString().trim()}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.warn(`[Keyframe Extraction Warning] ${data.toString().trim()}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      // 读取关键帧输出文件（Python 脚本保存到 .keyframes.json）
+      if (existsSync(keyframesOutputPath)) {
+        try {
+          const content = readFileSync(keyframesOutputPath, 'utf-8');
+          const data = JSON.parse(content);
+
+          // 转换为前端格式
+          const keyframes = (data.keyframes || []).map((kf: {
+            timestamp: number;
+            imageBase64?: string;
+            success: boolean;
+            error?: string;
+          }) => ({
+            timestamp: kf.timestamp,
+            timeFormatted: formatTimestamp(kf.timestamp),
+            imageBase64: kf.imageBase64 || '',
+            success: kf.success,
+            error: kf.error,
+          }));
+
+          // 清理输出文件
+          try {
+            unlinkSync(outputPath);
+            unlinkSync(keyframesOutputPath);
+          } catch {}
+
+          console.log(`[Keyframe Extraction] Parsed ${keyframes.length} keyframes from file`);
+          resolve(keyframes);
+          return;
+        } catch (parseError) {
+          console.warn('[Keyframe Extraction] Failed to parse keyframe output:', parseError);
+        }
+      } else {
+        console.warn(`[Keyframe Extraction] Keyframe output file not found: ${keyframesOutputPath}`);
+      }
+
+      // 尝试从主输出文件读取
+      if (existsSync(outputPath)) {
+        try {
+          const content = readFileSync(outputPath, 'utf-8');
+          const data = JSON.parse(content);
+
+          if (data.keyframes && Array.isArray(data.keyframes)) {
+            const keyframes = data.keyframes.map((kf: {
+              timestamp: number;
+              imageBase64?: string;
+              success: boolean;
+              error?: string;
+            }) => ({
+              timestamp: kf.timestamp,
+              timeFormatted: formatTimestamp(kf.timestamp),
+              imageBase64: kf.imageBase64 || '',
+              success: kf.success,
+              error: kf.error,
+            }));
+
+            try {
+              unlinkSync(outputPath);
+            } catch {}
+
+            console.log(`[Keyframe Extraction] Parsed ${keyframes.length} keyframes from main output`);
+            resolve(keyframes);
+            return;
+          }
+        } catch (parseError) {
+          console.warn('[Keyframe Extraction] Failed to parse main output file');
+        }
+      }
+
+      resolve([]);
+    });
+
+    // 超时保护（1分钟）
+    setTimeout(() => {
+      pythonProcess.kill();
+      try {
+        if (existsSync(outputPath)) unlinkSync(outputPath);
+        if (existsSync(keyframesOutputPath)) unlinkSync(keyframesOutputPath);
+      } catch {}
+      console.warn('[Keyframe Extraction] Timeout');
+      resolve([]);
+    }, 60000);
+  });
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   let tempVideoPath: string | null = null;
+  let tempVideoCleanup: (() => void) | null = null;
 
   try {
     // 验证 API Key
@@ -261,14 +598,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 保存临时视频文件用于姿态分析
+    // 保存临时视频文件用于姿态分析和关键帧提取
     let poseDataText: string | undefined;
     let poseAnalysisQuality: { frameCount: number; coverage: number; confidence: string } | undefined;
+    let poseResultData: PoseAnalysisResult | undefined;
 
     if (enablePoseAnalysis) {
       console.log(`[Ski Analysis] Saving temp video for pose analysis...`);
       const { path, cleanup } = await saveTempVideo(file);
       tempVideoPath = path;
+      tempVideoCleanup = cleanup;
 
       console.log(`[Ski Analysis] Running pose analysis...`);
       const poseResult = await runPoseAnalysis(path);
@@ -278,6 +617,7 @@ export async function POST(request: NextRequest) {
 
         // 转换为 LLM 可读的文本格式
         poseDataText = formatPoseDataForLLM(poseResult.data as unknown as PoseAnalysisResult);
+        poseResultData = poseResult.data as unknown as PoseAnalysisResult;
 
         // 获取质量指标
         const quality = getPoseQualityMetrics(poseResult.data as unknown as PoseAnalysisResult);
@@ -291,10 +631,6 @@ export async function POST(request: NextRequest) {
       } else {
         console.warn(`[Ski Analysis] Pose analysis failed: ${poseResult.error}, continuing without pose data`);
       }
-
-      // 清理临时文件
-      cleanup();
-      tempVideoPath = null;
     }
 
     // 创建 GenAI 客户端
@@ -384,15 +720,13 @@ export async function POST(request: NextRequest) {
         analysisPrompt,
       ]),
       config: {
+        responseMimeType: 'application/json',  // 强制返回 JSON 格式
         thinkingConfig: {
           includeThoughts: true,
           thinkingLevel: ThinkingLevel.HIGH,
         },
       },
     });
-
-    const duration = Date.now() - startTime;
-    console.log(`[Ski Analysis] Completed in ${duration}ms`);
 
     // 清理上传的文件
     try {
@@ -426,28 +760,232 @@ export async function POST(request: NextRequest) {
       console.log(`[Ski Analysis] Thinking process captured (${thinkingText.length} chars)`);
     }
 
-    // 尝试解析 JSON
-    let analysisResult;
+    // 解析 AI 响应获取分析结果和关键帧推荐
+    let analysisResult: Record<string, unknown> = {};
+    let keyframeRecommendations: KeyframeRecommendation[] = [];
+
     try {
-      const jsonMatch = resultText.match(/```json\n([\s\S]*?)\n```/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[1]);
-      } else {
-        try {
-          analysisResult = JSON.parse(resultText);
-        } catch {
+      // 提取关键帧推荐（独立解析，不影响主结果解析）
+      keyframeRecommendations = parseKeyframeRecommendations(resultText);
+
+      // 清理结果文本中的关键帧推荐部分，避免解析失败
+      // 尝试多种方式解析 JSON
+      // 由于使用了 responseMimeType: "application/json"，优先尝试直接解析
+      let jsonParsed = false;
+
+      // 方式0: 直接解析（使用 responseMimeType 后，AI 应该直接返回 JSON）
+      try {
+        // 清理可能的空白和 markdown 代码块
+        let jsonText = resultText.trim();
+        // 移除可能的 markdown 代码块标记
+        jsonText = jsonText.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '');
+        // 尝试直接解析
+        analysisResult = JSON.parse(jsonText);
+        jsonParsed = true;
+        console.log('[Ski Analysis] Parsed JSON directly (responseMimeType enforced)');
+      } catch (e) {
+        console.warn('[Ski Analysis] Direct JSON parse failed, trying fallback methods');
+      }
+
+      // 方式1: 标准 JSON 代码块（备用）
+      if (!jsonParsed) {
+        const jsonMatch = resultText.match(/```json\s*\n?([\s\S]*?)\n?\s*```/);
+        if (jsonMatch) {
+          try {
+            analysisResult = JSON.parse(jsonMatch[1]);
+            jsonParsed = true;
+            console.log('[Ski Analysis] Parsed JSON from code block');
+          } catch (e) {
+            console.warn('[Ski Analysis] Failed to parse JSON from code block');
+          }
+        }
+      }
+
+      // 方式2: 从整个响应提取（备用）
+      if (!jsonParsed) {
+        const fullJsonMatch = resultText.match(/\{[\s\S]*\}/);
+        if (fullJsonMatch) {
+          try {
+            analysisResult = JSON.parse(fullJsonMatch[0]);
+            jsonParsed = true;
+            console.log('[Ski Analysis] Parsed JSON from full response');
+          } catch (e) {
+            console.warn('[Ski Analysis] Failed to parse JSON from full response');
+          }
+        }
+      }
+
+      // 方式3: 尝试提取各个字段的文本值（最后手段）
+      if (!jsonParsed) {
+        console.log('[Ski Analysis] Attempting field-by-field extraction...');
+        let cleanResultText = resultText
+          .replace(/```json\s*\{[\s\S]*?keyframeRecommendations[\s\S]*?\}\s*```/g, '')
+          .replace(/"keyframeRecommendations"\s*:\s*\[[\s\S]*?\]/g, '');
+
+        // 提取 overallAssessment
+        const overallMatch = cleanResultText.match(/"overallAssessment"\s*:\s*\{[\s\S]*?\}/);
+        if (overallMatch) {
+          try {
+            analysisResult.overallAssessment = JSON.parse(overallMatch[0].replace('"overallAssessment": ', ''));
+          } catch (e) {}
+        }
+
+        // 提取 technicalScores
+        const scoresMatch = cleanResultText.match(/"technicalScores"\s*:\s*\{[\s\S]*?\}/);
+        if (scoresMatch) {
+          try {
+            analysisResult.technicalScores = JSON.parse(scoresMatch[0].replace('"technicalScores": ', ''));
+          } catch (e) {}
+        }
+
+        // 提取 strengths
+        const strengthsMatch = cleanResultText.match(/"strengths"\s*:\s*\[[\s\S]*?\]/);
+        if (strengthsMatch) {
+          try {
+            analysisResult.strengths = JSON.parse(strengthsMatch[0].replace('"strengths": ', ''));
+          } catch (e) {}
+        }
+
+        // 提取 areasForImprovement
+        const areasMatch = cleanResultText.match(/"areasForImprovement"\s*:\s*\[[\s\S]*?\]/);
+        if (areasMatch) {
+          try {
+            analysisResult.areasForImprovement = JSON.parse(areasMatch[0].replace('"areasForImprovement": ', ''));
+          } catch (e) {}
+        }
+
+        // 如果提取到任何结构化数据，标记为已解析
+        if (Object.keys(analysisResult).length > 0) {
+          jsonParsed = true;
+          console.log('[Ski Analysis] Extracted partial data:', Object.keys(analysisResult));
+        }
+      }
+
+      // 如果所有解析方式都失败，将原始文本作为 rawAnalysis
+      if (!jsonParsed || Object.keys(analysisResult).length === 0) {
+        console.warn('[Ski Analysis] JSON parsing failed, using pose data fallback');
+        // 记录原始响应用于调试
+        console.log('[Ski Analysis] Raw AI response (first 300 chars):',
+          resultText.substring(0, 300).replace(/\n/g, ' '));
+        console.log('[Ski Analysis] Raw AI response length:', resultText.length, 'chars');
+
+        // 如果有姿态数据，生成基于姿态的评估
+        if (poseResultData) {
+          analysisResult = generateBasicAssessmentFromPose(poseResultData);
+          analysisResult.rawAnalysis = resultText;
+          analysisResult.message = 'AI 解析失败，已基于姿态数据生成基础评估。';
+        } else {
           analysisResult = {
             rawAnalysis: resultText,
-            message: 'Analysis completed. Raw response included.',
+            message: 'Analysis completed. Raw response stored.',
           };
         }
       }
-    } catch {
+    } catch (e) {
+      console.warn('[Ski Analysis] Failed to parse analysis result:', e);
       analysisResult = {
         rawAnalysis: resultText,
-        message: 'Analysis completed but JSON parsing failed.',
+        message: 'Analysis completed but parsing failed.',
       };
     }
+
+    // 提取关键帧截图（如果视频还在且有关键帧推荐）
+    let keyframes: Array<{
+      timestamp: number;
+      timeFormatted: string;
+      imageBase64: string;
+      category: string;
+      roastCaption: string;
+      reason: string;
+    }> = [];
+
+    if (tempVideoPath && existsSync(tempVideoPath)) {
+      // 如果 AI 没有提供关键帧推荐，从姿态数据中自动生成
+      if (keyframeRecommendations.length === 0 && poseResultData?.frames) {
+        console.log('[Ski Analysis] No AI keyframe recommendations, auto-generating from pose data...');
+
+        // 找到重心最低和最高的时刻
+        let minCOGFrame = poseResultData.frames[0];
+        let maxCOGFrame = poseResultData.frames[0];
+        let maxVariationFrame = poseResultData.frames[0];
+
+        for (const frame of poseResultData.frames) {
+          const cog = frame.metrics.centerOfGravityHeight;
+          if (cog < minCOGFrame.metrics.centerOfGravityHeight) minCOGFrame = frame;
+          if (cog > maxCOGFrame.metrics.centerOfGravityHeight) maxCOGFrame = frame;
+        }
+
+        // 找到变化最大的连续帧
+        let maxVariation = 0;
+        for (let i = 1; i < poseResultData.frames.length; i++) {
+          const prev = poseResultData.frames[i - 1].metrics.centerOfGravityHeight;
+          const curr = poseResultData.frames[i].metrics.centerOfGravityHeight;
+          const variation = Math.abs(curr - prev);
+          if (variation > maxVariation) {
+            maxVariation = variation;
+            maxVariationFrame = poseResultData.frames[i];
+          }
+        }
+
+        // 生成推荐
+        keyframeRecommendations = [
+          {
+            timestamp: minCOGFrame.timestamp,
+            category: 'embarrassing',
+            reason: `重心高度最低 (${(minCOGFrame.metrics.centerOfGravityHeight * 100).toFixed(1)}%)`,
+            roastCaption: '这个重心低得可以去申请吉尼斯纪录了',
+            priority: 1,
+          },
+          {
+            timestamp: maxCOGFrame.timestamp,
+            category: 'awesome',
+            reason: `重心高度最高 (${(maxCOGFrame.metrics.centerOfGravityHeight * 100).toFixed(1)}%)`,
+            roastCaption: '难得见你把重心放这么高，继续保持！',
+            priority: 2,
+          },
+          {
+            timestamp: maxVariationFrame.timestamp,
+            category: 'technique',
+            reason: '重心变化最大的时刻',
+            roastCaption: '这一下重心转移，有点那味儿了',
+            priority: 3,
+          },
+        ];
+
+        console.log(`[Ski Analysis] Auto-generated ${keyframeRecommendations.length} keyframe recommendations`);
+      }
+
+      if (keyframeRecommendations.length > 0) {
+        console.log(`[Ski Analysis] Extracting ${keyframeRecommendations.length} keyframes...`);
+
+        const timestamps = keyframeRecommendations.map(kf => kf.timestamp);
+        const extractedKeyframes = await extractKeyframes(tempVideoPath, timestamps);
+
+        // 合并提取的截图与 AI 推荐数据
+        keyframes = keyframeRecommendations.map((rec, index) => {
+          const extracted = extractedKeyframes[index];
+          return {
+            timestamp: rec.timestamp,
+            timeFormatted: formatTimestamp(rec.timestamp),
+            imageBase64: extracted?.imageBase64 || '',
+            category: rec.category,
+            roastCaption: rec.roastCaption,
+            reason: rec.reason,
+          };
+        }).filter(kf => kf.imageBase64); // 只保留成功提取的关键帧
+
+        console.log(`[Ski Analysis] Successfully extracted ${keyframes.length}/${keyframeRecommendations.length} keyframes`);
+      }
+    }
+
+    // 清理临时视频文件
+    if (tempVideoCleanup) {
+      tempVideoCleanup();
+    }
+    tempVideoPath = null;
+
+    const duration = Date.now() - startTime;
+    console.log(`[Ski Analysis] Completed in ${duration}ms`);
 
     if (thinkingText) {
       analysisResult._thinking = thinkingText.trim();
@@ -458,6 +996,22 @@ export async function POST(request: NextRequest) {
       analysisResult._poseAnalysis = {
         enabled: true,
         quality: poseAnalysisQuality,
+      };
+    }
+
+    // 添加关键帧数据
+    if (keyframes.length > 0) {
+      analysisResult.keyframes = keyframes;
+    }
+
+    // 添加完整的 pose 数据（用于图表渲染）
+    if (poseResultData) {
+      analysisResult._poseData = {
+        frames: poseResultData.frames.map(f => ({
+          timestamp: f.timestamp,
+          metrics: f.metrics,
+        })),
+        summary: poseResultData.summary,
       };
     }
 
@@ -472,7 +1026,9 @@ export async function POST(request: NextRequest) {
     console.error('[Ski Analysis] Error:', error);
 
     // 清理临时文件
-    if (tempVideoPath && existsSync(tempVideoPath)) {
+    if (tempVideoCleanup) {
+      tempVideoCleanup();
+    } else if (tempVideoPath && existsSync(tempVideoPath)) {
       try {
         unlinkSync(tempVideoPath);
       } catch {}

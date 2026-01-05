@@ -59,6 +59,34 @@ interface AnalysisResult {
   }>;
   safetyNotes?: string[];
   rawAnalysis?: string;
+  keyframes?: Array<{
+    timestamp: number;
+    timeFormatted: string;
+    imageBase64: string;
+    category: string;
+    roastCaption: string;
+    reason: string;
+  }>;
+  _poseData?: {
+    frames: Array<{
+      timestamp: number;
+      metrics: {
+        centerOfGravityHeight: number;
+        bodyTiltAngle?: number;
+        leftKneeFlexion?: number;
+        rightKneeFlexion?: number;
+      };
+    }>;
+    summary: {
+      avgCenterOfGravityHeight: number;
+      minCenterOfGravityHeight: number;
+      maxBodyTilt?: number;
+      avgKneeFlexion?: number;
+      leftRightAsymmetry?: number;
+      framesAnalyzed?: number;
+      videoDuration?: number;
+    };
+  };
 }
 
 export default function SkiAnalysisPage() {
@@ -214,15 +242,6 @@ export default function SkiAnalysisPage() {
             disabled={state === 'analyzing'}
           />
 
-          {/* 视频上传 */}
-          <VideoUploader
-            onVideoSelect={handleVideoSelect}
-            onVideoRemove={handleVideoRemove}
-            selectedVideo={videoFile}
-            previewUrl={previewUrl}
-            isAnalyzing={state === 'analyzing'}
-          />
-
           {/* 提示信息 */}
           <Card className="rounded-[var(--radius)] bg-muted/50">
             <CardContent className="pt-6">
@@ -239,19 +258,15 @@ export default function SkiAnalysisPage() {
 
         {/* 右侧：结果展示 */}
         <div className="lg:col-span-2">
-          {/* 空闲状态 */}
+          {/* 空闲状态 - 显示上传组件 */}
           {state === 'idle' && (
-            <Card className="rounded-[var(--radius)]">
-              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="p-4 bg-primary/10 rounded-full mb-4">
-                  <SparkleIcon className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{t('readyTitle')}</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  {t('readyDescription')}
-                </p>
-              </CardContent>
-            </Card>
+            <VideoUploader
+              onVideoSelect={handleVideoSelect}
+              onVideoRemove={handleVideoRemove}
+              selectedVideo={videoFile}
+              previewUrl={previewUrl}
+              isAnalyzing={false}
+            />
           )}
 
           {/* 视频已上传，等待开始分析 */}
@@ -338,7 +353,7 @@ export default function SkiAnalysisPage() {
               </Card>
 
               {/* 分析结果 */}
-              <SkiAnalysisResult result={result} onReset={handleReset} />
+              <SkiAnalysisResult result={result} poseData={result._poseData} onReset={handleReset} />
             </>
           )}
 

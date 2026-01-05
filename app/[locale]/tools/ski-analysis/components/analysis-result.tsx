@@ -22,11 +22,14 @@ import {
   CheckCircle2,
   Target,
   Activity,
+  Camera,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { CenterOfGravityChart } from './cog-chart';
 
 interface SkiAnalysisResultProps {
   result: SkiAnalysisData;
+  poseData?: PoseData | null;
   onReset: () => void;
 }
 
@@ -65,6 +68,29 @@ interface SkiAnalysisData {
   }>;
   safetyNotes?: string[];
   rawAnalysis?: string;
+  keyframes?: Keyframe[];
+}
+
+interface PoseData {
+  frames: Array<{
+    timestamp: number;
+    metrics: {
+      centerOfGravityHeight: number;
+    };
+  }>;
+  summary: {
+    avgCenterOfGravityHeight: number;
+    minCenterOfGravityHeight: number;
+  };
+}
+
+interface Keyframe {
+  timestamp: number;
+  timeFormatted: string;
+  imageBase64: string;
+  category: string;
+  roastCaption: string;
+  reason: string;
 }
 
 // 分数颜色
@@ -93,7 +119,7 @@ const getSeverityBadge = (severity?: string) => {
   }
 };
 
-export function SkiAnalysisResult({ result, onReset }: SkiAnalysisResultProps) {
+export function SkiAnalysisResult({ result, poseData, onReset }: SkiAnalysisResultProps) {
   const t = useTranslations('SkiAnalysis');
   const [openSections, setOpenSections] = React.useState<Set<string>>(new Set(['overview']));
 
@@ -109,7 +135,48 @@ export function SkiAnalysisResult({ result, onReset }: SkiAnalysisResultProps) {
     });
   };
 
-  const { overallAssessment, technicalScores, strengths, areasForImprovement, timestampedIssues, priorityImprovements, drillRecommendations, safetyNotes } = result;
+  const { overallAssessment, technicalScores, strengths, areasForImprovement, timestampedIssues, priorityImprovements, drillRecommendations, safetyNotes, keyframes } = result;
+
+  // 计算图表所需的数据
+  const chartData = React.useMemo(() => {
+    if (!poseData?.frames) return [];
+    return poseData.frames.map(f => ({
+      timestamp: f.timestamp,
+      value: f.metrics.centerOfGravityHeight,
+    }));
+  }, [poseData]);
+
+  const chartStats = React.useMemo(() => {
+    if (!poseData?.summary) return undefined;
+    return {
+      avgHeight: poseData.summary.avgCenterOfGravityHeight,
+      minHeight: poseData.summary.minCenterOfGravityHeight,
+      maxHeight: 0.4, // 估算最大值
+    };
+  }, [poseData]);
+
+  const keyframeMarkers = React.useMemo(() => {
+    if (!keyframes) return [];
+    return keyframes.map(kf => ({
+      timestamp: kf.timestamp,
+      category: kf.category as 'embarrassing' | 'awesome' | 'technique',
+      caption: kf.roastCaption,
+    }));
+  }, [keyframes]);
+
+  // 获取分类徽章样式
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'embarrassing':
+        return <Badge variant="destructive">狼狈</Badge>;
+      case 'awesome':
+        return <Badge className="bg-green-500 hover:bg-green-600">帅气</Badge>;
+      case 'technique':
+        return <Badge variant="secondary">技术</Badge>;
+      default:
+        return <Badge variant="outline">{category}</Badge>;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -168,6 +235,68 @@ export function SkiAnalysisResult({ result, onReset }: SkiAnalysisResultProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* 重心曲线图 */}
+      {chartData.length > 0 && (
+        <CenterOfGravityChart
+          data={chartData}
+          keyframes={keyframeMarkers}
+          stats={chartStats}
+        />
+      )}
+
+      {/* 关键帧画廊 */}
+      {keyframes && keyframes.length > 0 && (
+        <Card className="rounded-[var(--radius)]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Camera className="h-5 w-5 text-primary" />
+              精彩瞬间
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {keyframes.map((kf, index) => (
+                <div
+                  key={index}
+                  className="relative group overflow-hidden rounded-lg border"
+                >
+                  {/* 截图 */}
+                  <img
+                    src={kf.imageBase64}
+                    alt={`Keyframe at ${kf.timeFormatted}`}
+                    className="w-full h-48 object-cover"
+                  />
+
+                  {/* 悬浮遮罩 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-3">
+                      <p className="text-white font-medium text-sm">
+                        {kf.roastCaption}
+                      </p>
+                      <p className="text-white/70 text-xs mt-1">
+                        {kf.reason}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 时间标签 */}
+                  <div className="absolute top-2 left-2">
+                    <Badge variant="outline" className="bg-black/50 text-white border-white/20">
+                      {kf.timeFormatted}
+                    </Badge>
+                  </div>
+
+                  {/* 分类标签 */}
+                  <div className="absolute top-2 right-2">
+                    {getCategoryBadge(kf.category)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 优势与改进点 */}
       <div className="grid gap-6 lg:grid-cols-2">

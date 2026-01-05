@@ -303,6 +303,45 @@ export const SKI_POSE_DATA_PROMPT = `
 === 姿态分析数据 (POSE DATA) ===
 {pose_data_text}
 
+=== 关键帧推荐要求 ===
+在分析完视频后，请推荐 2-4 个最具代表性的关键时刻（必须与姿态数据中的采样点对应）。
+
+**推荐类别**：
+1. **最"狼狈"时刻** (embarrassing) - 重心失控、动作变形、差点摔倒等
+2. **最帅时刻** (awesome) - 完美走刃、漂亮吸腿、干净换刃等
+3. **技术问题时刻** (technique) - 明显的姿态问题、左右不平衡等
+
+**输出格式**：
+请在分析结果末尾添加以下 JSON 格式的关键帧推荐：
+
+\`\`\`json
+{
+  "keyframeRecommendations": [
+    {
+      "timestamp": 3.5,
+      "category": "embarrassing",
+      "reason": "重心明显后坐，膝盖锁死",
+      "roastCaption": "这个重心后得可以去cosplay企鹅了",
+      "priority": 1
+    },
+    {
+      "timestamp": 8.2,
+      "category": "awesome",
+      "reason": "漂亮的低姿态走刃，膝盖折叠充分",
+      "roastCaption": "哦？这个居然是你滑的？继续保持！",
+      "priority": 2
+    }
+  ]
+}
+\`\`\`
+
+**要求**：
+- 每个类别最多推荐 1 个
+- 时间戳必须与姿态数据中的采样点对应（0.5秒间隔）
+- roastCaption 必须符合用户设置的毒舌程度
+- 优先推荐有明显特征的画面
+- 确保 timestamp 格式为数字（秒），不要加单位
+
 === 额外分析要求 ===
 基于上述结构化姿态数据，结合视频画面，给出专业滑雪教练级分析。
 请特别关注以下量化指标：
