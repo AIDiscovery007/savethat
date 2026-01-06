@@ -32,8 +32,21 @@ Hooks are configured in `.claude/settings.json` and scripts reside in `.claude/h
 | `code-review-trigger.sh` | Stop (task completion) | Auto-run code review for modified TS files |
 | `component-gen.sh` | PostToolUse (Glob new file) | Auto-generate component template |
 | `i18n-check.sh` | PostToolUse (Edit/Write) | Check i18n translation sync after edits |
+| `playwright-e2e-verify.sh` | Manual | Custom hook |
 | `tsc-check.sh` | PreToolUse (git commit) | TypeScript type checking before commit |
 | `update-claude-md.sh` | PostToolUse (Write/Edit) | Auto-update CLAUDE.md when codebase changes |
+### Documentation Lookup (Context7 MCP)
+
+**Before creating implementation plans or writing code for unfamiliar APIs:**
+
+1. Use `context7_resolve-library-id` to find the correct library ID
+2. Use `context7_query-docs` to retrieve best practices and code examples
+3. Apply the documented patterns to your implementation
+
+**Plan Mode Workflow:**
+- When entering Plan mode, first research relevant documentation using Context7
+- Look up technology stack patterns, API usage examples, and best practices
+- Then create the plan based on research findings
 ### AI Integration
 
 - Vercel AI SDK with aihubmix provider (`lib/api/aihubmix/`)
