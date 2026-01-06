@@ -9,8 +9,7 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { VideoUploader } from './components/video-uploader';
-import { SkillSelector } from './components/skill-selector';
-import { RoastSelector } from './components/roast-selector';
+import { OptionSelector } from '@/components/option-selector';
 import { ColorSelector } from './components/color-selector';
 import { SkiAnalysisResult } from './components/analysis-result';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,6 +20,7 @@ import {
   SparkleIcon,
   Spinner,
 } from '@phosphor-icons/react';
+import { Snowflake, Mountain, Zap } from 'lucide-react';
 
 type AnalysisState = 'idle' | 'ready' | 'uploading' | 'analyzing' | 'completed' | 'error';
 
@@ -216,16 +216,63 @@ export default function SkiAnalysisPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <SkillSelector
+              <OptionSelector
                 value={skillLevel}
-                onChange={setSkillLevel}
+                onChange={(val) => setSkillLevel(val as 'beginner' | 'intermediate' | 'advanced')}
                 disabled={state === 'analyzing'}
+                label={t('selectSkillLevel')}
+                columns={3}
+                options={[
+                  {
+                    value: 'beginner',
+                    label: t('skillBeginner'),
+                    description: t('skillBeginnerDesc'),
+                    icon: <Snowflake className="h-5 w-5 text-blue-500" />,
+                    bgClass: 'bg-blue-100 dark:bg-blue-900',
+                    colorClass: 'text-blue-500',
+                  },
+                  {
+                    value: 'intermediate',
+                    label: t('skillIntermediate'),
+                    description: t('skillIntermediateDesc'),
+                    icon: <Mountain className="h-5 w-5 text-green-500" />,
+                    bgClass: 'bg-green-100 dark:bg-green-900',
+                    colorClass: 'text-green-500',
+                  },
+                  {
+                    value: 'advanced',
+                    label: t('skillAdvanced'),
+                    description: t('skillAdvancedDesc'),
+                    icon: <Zap className="h-5 w-5 text-red-500" />,
+                    bgClass: 'bg-red-100 dark:bg-red-900',
+                    colorClass: 'text-red-500',
+                  },
+                ]}
               />
               <div className="mt-6">
-                <RoastSelector
+                <OptionSelector
                   value={roastLevel}
-                  onChange={setRoastLevel}
+                  onChange={(val) => setRoastLevel(val as RoastLevel)}
                   disabled={state === 'analyzing'}
+                  label={t('roastLevel')}
+                  columns={3}
+                  options={[
+                    {
+                      value: 'mild',
+                      label: t('roastMild'),
+                      description: t('roastMildDesc'),
+                    },
+                    {
+                      value: 'medium',
+                      label: t('roastMedium'),
+                      description: t('roastMediumDesc'),
+                    },
+                    {
+                      value: 'spicy',
+                      label: t('roastSpicy'),
+                      description: t('roastSpicyDesc'),
+                    },
+                  ]}
                 />
               </div>
             </CardContent>

@@ -1,45 +1,51 @@
 'use client';
 
-/**
- * 提示词输入组件
- */
-
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 interface PromptInputProps {
   value: string;
   onChange: (value: string) => void;
-  disabled?: boolean;
+  onSubmit?: () => void;
   placeholder?: string;
+  disabled?: boolean;
   className?: string;
-  rows?: number;
   maxLength?: number;
+  rows?: number;
   showCount?: boolean;
+  submitOnCtrlEnter?: boolean;
 }
 
 export function PromptInput({
   value,
   onChange,
-  disabled = false,
+  onSubmit,
   placeholder,
+  disabled = false,
   className,
+  maxLength = 2000,
   rows = 4,
-  maxLength = 500,
   showCount = true,
+  submitOnCtrlEnter = false,
 }: PromptInputProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = React.useState(false);
 
-  // 自动调整高度
+  // Auto-resize height
   React.useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [value]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (submitOnCtrlEnter && onSubmit && (e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      onSubmit();
+    }
+  };
 
   const charCount = value.length;
   const isNearMax = charCount >= maxLength * 0.9;
@@ -49,9 +55,7 @@ export function PromptInput({
       <div
         className={cn(
           'relative rounded-lg border transition-colors',
-          isFocused
-            ? 'border-primary ring-1 ring-primary'
-            : 'border-input',
+          isFocused ? 'border-primary ring-1 ring-primary' : 'border-input',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
       >
@@ -61,6 +65,7 @@ export function PromptInput({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
           rows={rows}
@@ -72,7 +77,6 @@ export function PromptInput({
           )}
         />
 
-        {/* 字符计数 */}
         {showCount && (
           <div
             className={cn(
@@ -85,13 +89,14 @@ export function PromptInput({
         )}
       </div>
 
-      {/* 快捷键提示 */}
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">Ctrl</kbd>
-        <span>+</span>
-        <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">Enter</kbd>
-        <span>{'提交'}</span>
-      </div>
+      {submitOnCtrlEnter && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">Ctrl</kbd>
+          <span>+</span>
+          <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px]">Enter</kbd>
+          <span>提交</span>
+        </div>
+      )}
     </div>
   );
 }

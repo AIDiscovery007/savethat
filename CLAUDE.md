@@ -115,6 +115,27 @@ Hooks are configured in `.claude/settings.json` and scripts reside in `.claude/h
 - Extract complex logic into well-named functions
 - Keep functions small and single-purpose (SRP)
 
+### Component Reusability (CRITICAL)
+
+**Before creating a new component, ALWAYS check if a reusable equivalent exists:**
+
+| New Requirement | Reusable Component | Location |
+|-----------------|-------------------|----------|
+| Textarea input with char count, auto-resize | `PromptInput` | `components/prompt-input.tsx` |
+| File upload (drag & drop, validation, preview) | `FileUploader` | `components/file-uploader.tsx` |
+| Option selector (icons + labels + grid layout) | `OptionSelector` | `components/option-selector.tsx` |
+
+**Checklist before creating new UI components:**
+1. Search `components/` directory for similar functionality
+2. Review `app/[locale]/tools/*/components/` for tool-specific components
+3. If 70%+ similar logic exists, extend the shared component instead of duplicating
+4. If creating a new shared component, update this table in CLAUDE.md
+
+**Common duplication patterns to avoid:**
+- Multiple "prompt input" components → use `PromptInput`
+- Multiple "file upload" components → use `FileUploader`
+- Multiple "option selector" cards → use `OptionSelector`
+
 ### Security
 
 - Validate all user inputs on the server

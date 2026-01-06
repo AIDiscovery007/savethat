@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ReferenceUploader } from './components/reference-uploader';
-import { PromptInput } from './components/prompt-input';
+import { PromptInput } from '@/components/prompt-input';
 import { StyleOptions } from './components/style-options';
 import { GenerationPreview } from './components/generation-preview';
 import { CoverCard } from './components/cover-card';
