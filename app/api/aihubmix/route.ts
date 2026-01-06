@@ -107,24 +107,24 @@ async function handleSyncRequest(request: AihubmixChatRequest): Promise<NextResp
 
     // 转换为标准响应格式
     const responseBody = {
-      id: response.id || `aihubmix-${Date.now()}`,
-      object: 'chat.completion',
-      created: response.timestamp || Math.floor(Date.now() / 1000),
+      id: response.id ?? `aihubmix-${Date.now()}`,
+      object: 'chat.completion' as const,
+      created: response.timestamp ?? Math.floor(Date.now() / 1000),
       model: request.model,
       choices: [
         {
           index: 0,
           message: {
-            role: 'assistant',
+            role: 'assistant' as const,
             content: text,
           },
-          finish_reason: 'stop',
+          finish_reason: 'stop' as const,
         },
       ],
       usage: {
-        prompt_tokens: usage.inputTokens || 0,
-        completion_tokens: usage.outputTokens || 0,
-        total_tokens: (usage.inputTokens || 0) + (usage.outputTokens || 0),
+        prompt_tokens: usage.inputTokens ?? 0,
+        completion_tokens: usage.outputTokens ?? 0,
+        total_tokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
       },
     };
 

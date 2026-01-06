@@ -22,6 +22,15 @@ import type { AihubmixMessage } from '@/lib/api/aihubmix/types';
 const DRAFT_RESULT_KEY = 'prompt_optimizer_draft_result';
 
 /**
+ * 阶段进度配置
+ */
+const STAGE_PROGRESS: Record<StageEnum, { current: number; next: number }> = {
+  [StageEnum.INTENT_ANALYSIS]: { current: 10, next: 33 },
+  [StageEnum.STRUCTURING]: { current: 33, next: 66 },
+  [StageEnum.REFINEMENT]: { current: 66, next: 100 },
+} as const;
+
+/**
  * 从 localStorage 恢复草稿结果
  */
 function restoreDraftResult(): OptimizationResult | null {
@@ -186,8 +195,9 @@ export function useOptimization() {
 
     try {
       // 阶段 1: 意图分析
-      setState(s => ({ ...s, currentStage: StageEnum.INTENT_ANALYSIS, stageProgress: 10 }));
-      onStageChange?.(StageEnum.INTENT_ANALYSIS, 10);
+      const intentProgress = STAGE_PROGRESS[StageEnum.INTENT_ANALYSIS];
+      setState(s => ({ ...s, currentStage: StageEnum.INTENT_ANALYSIS, stageProgress: intentProgress.current }));
+      onStageChange?.(StageEnum.INTENT_ANALYSIS, intentProgress.current);
 
       const intentMessage = buildStageUserMessage(StageEnum.INTENT_ANALYSIS, originalPrompt);
       const intentResult = await callStageApi(
@@ -196,11 +206,12 @@ export function useOptimization() {
         apiOptions
       );
       stageResults.push(intentResult);
-      setState(s => ({ ...s, stages: stageResults, stageProgress: 33 }));
+      setState(s => ({ ...s, stages: stageResults, stageProgress: intentProgress.next }));
 
       // 阶段 2: 结构化
-      setState(s => ({ ...s, currentStage: StageEnum.STRUCTURING, stageProgress: 33 }));
-      onStageChange?.(StageEnum.STRUCTURING, 33);
+      const structProgress = STAGE_PROGRESS[StageEnum.STRUCTURING];
+      setState(s => ({ ...s, currentStage: StageEnum.STRUCTURING, stageProgress: structProgress.current }));
+      onStageChange?.(StageEnum.STRUCTURING, structProgress.current);
 
       const structMessage = buildStageUserMessage(
         StageEnum.STRUCTURING,
@@ -213,11 +224,12 @@ export function useOptimization() {
         apiOptions
       );
       stageResults.push(structResult);
-      setState(s => ({ ...s, stages: stageResults, stageProgress: 66 }));
+      setState(s => ({ ...s, stages: stageResults, stageProgress: structProgress.next }));
 
       // 阶段 3: 细节优化
-      setState(s => ({ ...s, currentStage: StageEnum.REFINEMENT, stageProgress: 66 }));
-      onStageChange?.(StageEnum.REFINEMENT, 66);
+      const refineProgress = STAGE_PROGRESS[StageEnum.REFINEMENT];
+      setState(s => ({ ...s, currentStage: StageEnum.REFINEMENT, stageProgress: refineProgress.current }));
+      onStageChange?.(StageEnum.REFINEMENT, refineProgress.current);
 
       const refineMessage = buildStageUserMessage(
         StageEnum.REFINEMENT,

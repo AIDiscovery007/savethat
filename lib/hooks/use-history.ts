@@ -76,30 +76,23 @@ export function useHistory() {
   /**
    * 保存历史记录
    */
-  const saveRecord = useCallback(async (record: OptimizationHistory): Promise<boolean> => {
-    try {
-      await storageAdapter.save(record);
-      return true;
-    } catch (error) {
-      console.error('[useHistory] Failed to save record:', error);
-      return false;
-    }
-  }, []);
+  const saveRecord = useCallback((record: OptimizationHistory): Promise<boolean> =>
+    storageAdapter.save(record)
+      .then(() => true)
+      .catch((error) => {
+        console.error('[useHistory] Failed to save record:', error);
+        return false;
+      }), []);
 
   /**
    * 删除历史记录
    */
   const deleteRecord = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const success = await storageAdapter.delete(id);
-      if (success) {
-        await loadHistory();
-      }
-      return success;
-    } catch (error) {
-      console.error('[useHistory] Failed to delete record:', error);
-      return false;
+    const success = await storageAdapter.delete(id);
+    if (success) {
+      await loadHistory();
     }
+    return success;
   }, [loadHistory]);
 
   /**

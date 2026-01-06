@@ -112,17 +112,24 @@ export const TOOL_REGISTRY: ToolInfo[] = [
 ];
 
 /**
+ * 根据属性获取工具信息
+ */
+function getToolBy<K extends keyof ToolInfo>(key: K, value: string): ToolInfo | undefined {
+  return TOOL_REGISTRY.find(tool => tool[key] === value);
+}
+
+/**
  * 根据 ID 获取工具信息
  */
 export function getToolById(id: string): ToolInfo | undefined {
-  return TOOL_REGISTRY.find(tool => tool.id === id);
+  return getToolBy('id', id);
 }
 
 /**
  * 根据路径获取工具信息
  */
 export function getToolByPath(path: string): ToolInfo | undefined {
-  return TOOL_REGISTRY.find(tool => tool.path === path);
+  return getToolBy('path', path);
 }
 
 /**

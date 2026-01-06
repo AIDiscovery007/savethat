@@ -8,6 +8,26 @@
 import type { PoseAnalysisResult, FrameMetrics } from './types';
 
 /**
+ * 重心高度阈值
+ */
+const COG_THRESHOLDS = { low: 0.15, high: 0.35 } as const;
+
+/**
+ * 身体倾斜角度阈值（度）
+ */
+const TILT_THRESHOLDS = { severe: 30, moderate: 20, mild: 10, slight: 5 } as const;
+
+/**
+ * 膝盖折叠角度阈值（度）
+ */
+const KNEE_THRESHOLDS = { deep: 90, standard: 110, shallow: 130 } as const;
+
+/**
+ * 左右不对称度阈值（度）
+ */
+const ASYMMETRY_THRESHOLDS = { severe: 20, moderate: 10, mild: 5 } as const;
+
+/**
  * Interpret center of gravity height description
  * Height is now a proportion (0-1) of frame height
  */
@@ -16,8 +36,8 @@ function interpretCogHeight(height: number): string {
   // Very low crouch: < 0.15 (about 15% of frame height)
   // Good athletic stance: 0.15-0.35
   // Standing too tall: > 0.35
-  if (height < 0.15) return '很低（深蹲姿态）';
-  if (height < 0.35) return '适中（标准低姿态）';
+  if (height < COG_THRESHOLDS.low) return '很低（深蹲姿态）';
+  if (height < COG_THRESHOLDS.high) return '适中（标准低姿态）';
   return '较高（站姿偏高，重心偏高）';
 }
 
@@ -27,10 +47,10 @@ function interpretCogHeight(height: number): string {
  */
 function interpretTiltAngle(angle: number): string {
   const absAngle = Math.abs(angle);
-  if (absAngle > 30) return `过度倾斜 ${absAngle.toFixed(1)}°`;
-  if (absAngle > 20) return `明显倾斜 ${absAngle.toFixed(1)}°（内倾充足）`;
-  if (absAngle > 10) return `适度倾斜 ${absAngle.toFixed(1)}°`;
-  if (absAngle > 5) return `轻微倾斜 ${absAngle.toFixed(1)}°`;
+  if (absAngle > TILT_THRESHOLDS.severe) return `过度倾斜 ${absAngle.toFixed(1)}°`;
+  if (absAngle > TILT_THRESHOLDS.moderate) return `明显倾斜 ${absAngle.toFixed(1)}°（内倾充足）`;
+  if (absAngle > TILT_THRESHOLDS.mild) return `适度倾斜 ${absAngle.toFixed(1)}°`;
+  if (absAngle > TILT_THRESHOLDS.slight) return `轻微倾斜 ${absAngle.toFixed(1)}°`;
   return `接近中立位（${absAngle.toFixed(1)}°）`;
 }
 
@@ -38,9 +58,9 @@ function interpretTiltAngle(angle: number): string {
  * Interpret knee flexion description
  */
 function interpretKneeFlexion(degrees: number): string {
-  if (degrees < 90) return '折叠很深（低姿态转弯）';
-  if (degrees < 110) return '折叠适中（标准转弯姿态）';
-  if (degrees < 130) return '折叠较浅（站姿转弯）';
+  if (degrees < KNEE_THRESHOLDS.deep) return '折叠很深（低姿态转弯）';
+  if (degrees < KNEE_THRESHOLDS.standard) return '折叠适中（标准转弯姿态）';
+  if (degrees < KNEE_THRESHOLDS.shallow) return '折叠较浅（站姿转弯）';
   return '接近伸直（立刃不足）';
 }
 
@@ -48,9 +68,9 @@ function interpretKneeFlexion(degrees: number): string {
  * Interpret left/right asymmetry description
  */
 function interpretAsymmetry(diff: number): string {
-  if (diff > 20) return '⚠️ 左右差异过大，需要平衡训练';
-  if (diff > 10) return '左右略有差异，需注意';
-  if (diff > 5) return '左右轻微差异';
+  if (diff > ASYMMETRY_THRESHOLDS.severe) return '⚠️ 左右差异过大，需要平衡训练';
+  if (diff > ASYMMETRY_THRESHOLDS.moderate) return '左右略有差异，需注意';
+  if (diff > ASYMMETRY_THRESHOLDS.mild) return '左右轻微差异';
   return '左右对称良好';
 }
 

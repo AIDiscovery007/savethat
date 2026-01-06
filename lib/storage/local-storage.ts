@@ -22,6 +22,12 @@ const STORAGE_KEY = 'prompt_optimizer_history';
 const DEFAULT_MAX_RECORDS = 50;
 
 /**
+ * 按日期降序排序比较函数
+ */
+const sortByDateDesc = (a: OptimizationHistory, b: OptimizationHistory) =>
+  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+/**
  * 本地存储适配器类
  */
 export class LocalStorageAdapter implements StorageAdapter {
@@ -111,9 +117,7 @@ export class LocalStorageAdapter implements StorageAdapter {
    * 获取所有历史记录
    */
   async getAll(): Promise<OptimizationHistory[]> {
-    return this.getStorageData().sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return this.getStorageData().sort(sortByDateDesc);
   }
 
   /**
@@ -210,9 +214,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     }
 
     // 排序
-    records.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    records.sort(sortByDateDesc);
 
     // 分页
     const offset = query.offset || 0;

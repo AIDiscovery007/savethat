@@ -33,6 +33,55 @@ const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime', 'vide
 const PYTHON_SCRIPT_PATH = join(process.cwd(), 'scripts', 'analyze_ski_pose.py');
 
 /**
+ * 安全删除文件（静默处理错误）
+ */
+function safeUnlink(path: string): void {
+  if (existsSync(path)) {
+    try {
+      unlinkSync(path);
+    } catch {
+      // 忽略删除错误
+    }
+  }
+}
+
+/**
+ * 尝试多种方式解析 JSON
+ */
+function tryParseJson(text: string): { success: boolean; data: Record<string, unknown> } {
+  // 方式0: 直接解析
+  try {
+    let jsonText = text.trim();
+    jsonText = jsonText.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '');
+    return { success: true, data: JSON.parse(jsonText) };
+  } catch {
+    // 继续尝试其他方式
+  }
+
+  // 方式1: JSON 代码块
+  const codeBlockMatch = text.match(/```json\s*\n?([\s\S]*?)\n?\s*```/);
+  if (codeBlockMatch) {
+    try {
+      return { success: true, data: JSON.parse(codeBlockMatch[1]) };
+    } catch {
+      // 继续
+    }
+  }
+
+  // 方式2: 提取整个 JSON 对象
+  const fullJsonMatch = text.match(/\{[\s\S]*\}/);
+  if (fullJsonMatch) {
+    try {
+      return { success: true, data: JSON.parse(fullJsonMatch[0]) };
+    } catch {
+      // 继续
+    }
+  }
+
+  return { success: false, data: {} };
+}
+
+/**
  * 根据文件扩展名获取 MIME 类型
  */
 function getMimeTypeFromExtension(filename: string): string | null {
@@ -86,12 +135,7 @@ async function runPoseAnalysis(videoPath: string): Promise<{
       if (code !== 0) {
         console.error(`[Pose Analysis] Python script failed with code ${code}`);
         console.error(`[Pose Analysis] stderr: ${stderr}`);
-        // 清理输出文件
-        if (existsSync(outputPath)) {
-          try {
-            unlinkSync(outputPath);
-          } catch {}
-        }
+        safeUnlink(outputPath);
         resolve({ success: false, error: stderr || 'Pose analysis failed' });
         return;
       }
@@ -102,20 +146,10 @@ async function runPoseAnalysis(videoPath: string): Promise<{
           const fs = require('fs');
           const content = fs.readFileSync(outputPath, 'utf-8');
           const data = JSON.parse(content);
-
-          // 清理输出文件
-          try {
-            unlinkSync(outputPath);
-          } catch {}
-
+          safeUnlink(outputPath);
           resolve({ success: true, data });
         } catch (parseError) {
-          // 清理输出文件
-          if (existsSync(outputPath)) {
-            try {
-              unlinkSync(outputPath);
-            } catch {}
-          }
+          safeUnlink(outputPath);
           resolve({ success: false, error: 'Failed to parse pose analysis result' });
         }
       } else {
@@ -126,11 +160,7 @@ async function runPoseAnalysis(videoPath: string): Promise<{
     // 超时保护（2分钟）
     setTimeout(() => {
       pythonProcess.kill();
-      if (existsSync(outputPath)) {
-        try {
-          unlinkSync(outputPath);
-        } catch {}
-      }
+      safeUnlink(outputPath);
       resolve({ success: false, error: 'Pose analysis timeout' });
     }, 120000);
   });
@@ -464,12 +494,8 @@ async function extractKeyframes(
             error: kf.error,
           }));
 
-          // 清理输出文件
-          try {
-            unlinkSync(outputPath);
-            unlinkSync(keyframesOutputPath);
-          } catch {}
-
+          safeUnlink(outputPath);
+          safeUnlink(keyframesOutputPath);
           console.log(`[Keyframe Extraction] Parsed ${keyframes.length} keyframes from file`);
           resolve(keyframes);
           return;
@@ -500,10 +526,7 @@ async function extractKeyframes(
               error: kf.error,
             }));
 
-            try {
-              unlinkSync(outputPath);
-            } catch {}
-
+            safeUnlink(outputPath);
             console.log(`[Keyframe Extraction] Parsed ${keyframes.length} keyframes from main output`);
             resolve(keyframes);
             return;
@@ -519,10 +542,8 @@ async function extractKeyframes(
     // 超时保护（1分钟）
     setTimeout(() => {
       pythonProcess.kill();
-      try {
-        if (existsSync(outputPath)) unlinkSync(outputPath);
-        if (existsSync(keyframesOutputPath)) unlinkSync(keyframesOutputPath);
-      } catch {}
+      safeUnlink(outputPath);
+      safeUnlink(keyframesOutputPath);
       console.warn('[Keyframe Extraction] Timeout');
       resolve([]);
     }, 60000);
@@ -768,108 +789,17 @@ export async function POST(request: NextRequest) {
       // 提取关键帧推荐（独立解析，不影响主结果解析）
       keyframeRecommendations = parseKeyframeRecommendations(resultText);
 
-      // 清理结果文本中的关键帧推荐部分，避免解析失败
-      // 尝试多种方式解析 JSON
-      // 由于使用了 responseMimeType: "application/json"，优先尝试直接解析
-      let jsonParsed = false;
+      // 使用辅助函数解析 JSON
+      const parseResult = tryParseJson(resultText);
 
-      // 方式0: 直接解析（使用 responseMimeType 后，AI 应该直接返回 JSON）
-      try {
-        // 清理可能的空白和 markdown 代码块
-        let jsonText = resultText.trim();
-        // 移除可能的 markdown 代码块标记
-        jsonText = jsonText.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '');
-        // 尝试直接解析
-        analysisResult = JSON.parse(jsonText);
-        jsonParsed = true;
-        console.log('[Ski Analysis] Parsed JSON directly (responseMimeType enforced)');
-      } catch (e) {
-        console.warn('[Ski Analysis] Direct JSON parse failed, trying fallback methods');
-      }
-
-      // 方式1: 标准 JSON 代码块（备用）
-      if (!jsonParsed) {
-        const jsonMatch = resultText.match(/```json\s*\n?([\s\S]*?)\n?\s*```/);
-        if (jsonMatch) {
-          try {
-            analysisResult = JSON.parse(jsonMatch[1]);
-            jsonParsed = true;
-            console.log('[Ski Analysis] Parsed JSON from code block');
-          } catch (e) {
-            console.warn('[Ski Analysis] Failed to parse JSON from code block');
-          }
-        }
-      }
-
-      // 方式2: 从整个响应提取（备用）
-      if (!jsonParsed) {
-        const fullJsonMatch = resultText.match(/\{[\s\S]*\}/);
-        if (fullJsonMatch) {
-          try {
-            analysisResult = JSON.parse(fullJsonMatch[0]);
-            jsonParsed = true;
-            console.log('[Ski Analysis] Parsed JSON from full response');
-          } catch (e) {
-            console.warn('[Ski Analysis] Failed to parse JSON from full response');
-          }
-        }
-      }
-
-      // 方式3: 尝试提取各个字段的文本值（最后手段）
-      if (!jsonParsed) {
-        console.log('[Ski Analysis] Attempting field-by-field extraction...');
-        let cleanResultText = resultText
-          .replace(/```json\s*\{[\s\S]*?keyframeRecommendations[\s\S]*?\}\s*```/g, '')
-          .replace(/"keyframeRecommendations"\s*:\s*\[[\s\S]*?\]/g, '');
-
-        // 提取 overallAssessment
-        const overallMatch = cleanResultText.match(/"overallAssessment"\s*:\s*\{[\s\S]*?\}/);
-        if (overallMatch) {
-          try {
-            analysisResult.overallAssessment = JSON.parse(overallMatch[0].replace('"overallAssessment": ', ''));
-          } catch (e) {}
-        }
-
-        // 提取 technicalScores
-        const scoresMatch = cleanResultText.match(/"technicalScores"\s*:\s*\{[\s\S]*?\}/);
-        if (scoresMatch) {
-          try {
-            analysisResult.technicalScores = JSON.parse(scoresMatch[0].replace('"technicalScores": ', ''));
-          } catch (e) {}
-        }
-
-        // 提取 strengths
-        const strengthsMatch = cleanResultText.match(/"strengths"\s*:\s*\[[\s\S]*?\]/);
-        if (strengthsMatch) {
-          try {
-            analysisResult.strengths = JSON.parse(strengthsMatch[0].replace('"strengths": ', ''));
-          } catch (e) {}
-        }
-
-        // 提取 areasForImprovement
-        const areasMatch = cleanResultText.match(/"areasForImprovement"\s*:\s*\[[\s\S]*?\]/);
-        if (areasMatch) {
-          try {
-            analysisResult.areasForImprovement = JSON.parse(areasMatch[0].replace('"areasForImprovement": ', ''));
-          } catch (e) {}
-        }
-
-        // 如果提取到任何结构化数据，标记为已解析
-        if (Object.keys(analysisResult).length > 0) {
-          jsonParsed = true;
-          console.log('[Ski Analysis] Extracted partial data:', Object.keys(analysisResult));
-        }
-      }
-
-      // 如果所有解析方式都失败，将原始文本作为 rawAnalysis
-      if (!jsonParsed || Object.keys(analysisResult).length === 0) {
+      if (parseResult.success) {
+        analysisResult = parseResult.data;
+        console.log('[Ski Analysis] Parsed JSON successfully');
+      } else {
         console.warn('[Ski Analysis] JSON parsing failed, using pose data fallback');
-        // 记录原始响应用于调试
         console.log('[Ski Analysis] Raw AI response (first 300 chars):',
           resultText.substring(0, 300).replace(/\n/g, ' '));
-        console.log('[Ski Analysis] Raw AI response length:', resultText.length, 'chars');
 
-        // 如果有姿态数据，生成基于姿态的评估
         if (poseResultData) {
           analysisResult = generateBasicAssessmentFromPose(poseResultData);
           analysisResult.rawAnalysis = resultText;
@@ -1028,10 +958,8 @@ export async function POST(request: NextRequest) {
     // 清理临时文件
     if (tempVideoCleanup) {
       tempVideoCleanup();
-    } else if (tempVideoPath && existsSync(tempVideoPath)) {
-      try {
-        unlinkSync(tempVideoPath);
-      } catch {}
+    } else {
+      safeUnlink(tempVideoPath!);
     }
 
     return NextResponse.json(
