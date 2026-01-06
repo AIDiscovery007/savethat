@@ -3,7 +3,7 @@
     {
       "model_id": "gemini-3-flash-preview",
       "developer_id": 8,
-      "desc": "Gemini 3 Flash Preview is a low-latency model in the Gemini 3 family, designed for real-time and high-throughput inference. It retains Gemini 3\u2019s core multimodal and reasoning capabilities while prioritizing responsiveness and execution efficiency.",
+      "desc": "Gemini 3 Flash Preview is a low-latency model in the Gemini 3 family, designed for real-time and high-throughput inference. It retains Gemini 3’s core multimodal and reasoning capabilities while prioritizing responsiveness and execution efficiency.",
       "pricing": {
         "cache_read": 0.05,
         "input": 0.5,
@@ -33,7 +33,7 @@
     {
       "model_id": "claude-opus-4-5",
       "developer_id": 2,
-      "desc": "Claude Opus 4.5 is Anthropic\u2019s latest frontier reasoning model, optimized for complex engineering, agentic workflows, and long-horizon computer use. It features strong multimodal capabilities, improved resistance to prompt injection, and a new Verbosity parameter to control token efficiency. With advanced tool use, extended context, and multi-agent support, Opus 4.5 excels in autonomous research, debugging, planning, and spreadsheet/browser operations.",
+      "desc": "Claude Opus 4.5 is Anthropic’s latest frontier reasoning model, optimized for complex engineering, agentic workflows, and long-horizon computer use. It features strong multimodal capabilities, improved resistance to prompt injection, and a new Verbosity parameter to control token efficiency. With advanced tool use, extended context, and multi-agent support, Opus 4.5 excels in autonomous research, debugging, planning, and spreadsheet/browser operations.",
       "pricing": {
         "cache_read": 0.5,
         "cache_write": 6.25,
@@ -109,7 +109,7 @@
     {
       "model_id": "gemini-3-pro-image-preview",
       "developer_id": 8,
-      "desc": "Gemini-3-Pro-Image-Preview (Nano Banana Pro) is a high-performance image generation and editing model built on Gemini 3 Pro. It delivers enhanced multimodal understanding and real-world semantic reasoning, enabling fast creation of well-structured visual content such as infographics, product sketches, and multi-subject scenes. It can also leverage real-time knowledge through Search grounding. The model excels in text rendering, consistent multi-image blending, and identity preservation, while offering fine-grained creative controls like localized edits, lighting and focus adjustments, camera transformations, and flexible aspect ratios. It\u2019s ideal for rapid design, concept previews, product visualization, and everyday image generation workflows.",
+      "desc": "Gemini-3-Pro-Image-Preview (Nano Banana Pro) is a high-performance image generation and editing model built on Gemini 3 Pro. It delivers enhanced multimodal understanding and real-world semantic reasoning, enabling fast creation of well-structured visual content such as infographics, product sketches, and multi-subject scenes. It can also leverage real-time knowledge through Search grounding. The model excels in text rendering, consistent multi-image blending, and identity preservation, while offering fine-grained creative controls like localized edits, lighting and focus adjustments, camera transformations, and flexible aspect ratios. It’s ideal for rapid design, concept previews, product visualization, and everyday image generation workflows.",
       "pricing": {
         "cache_read": 2,
         "input": 2,
@@ -124,7 +124,7 @@
     {
       "model_id": "gpt-image-1.5",
       "developer_id": 12,
-      "desc": "GPT Image 1.5 is a new image generation model powered by OpenAI\u2019s flagship visual capabilities, comprehensively upgraded for high-quality creative and production workflows. It delivers significant improvements in instruction understanding, fine-grained image editing, and detail preservation, while achieving up to 4\u00d7 faster generation compared to previous versions \u2014 reducing latency without compromising quality.\n\nGPT Image 1.5 is well suited for image generation, precise visual editing, and professional content creation, balancing performance with efficiency.",
+      "desc": "GPT Image 1.5 is a new image generation model powered by OpenAI’s flagship visual capabilities, comprehensively upgraded for high-quality creative and production workflows. It delivers significant improvements in instruction understanding, fine-grained image editing, and detail preservation, while achieving up to 4× faster generation compared to previous versions — reducing latency without compromising quality.\n\nGPT Image 1.5 is well suited for image generation, precise visual editing, and professional content creation, balancing performance with efficiency.",
       "pricing": {
         "cache_read": 5,
         "input": 5,
@@ -139,7 +139,7 @@
     {
       "model_id": "gpt-5.2",
       "developer_id": 12,
-      "desc": "GPT\u20115.2 builds on GPT\u20115.1 with improvements that make interactions more reliable, flexible, and user-friendly. The focus is on delivering clearer responses, better adaptability, and enhanced control for diverse tasks. Key highlights include:\n\nAccelerate agent development: Build AI agents for analytics, decision support, code modernization, and data pipelines.\nGreater consistency: Produces more predictable and accurate outputs aligned with user instructions.\nAdaptive reasoning: Handles complex queries with improved depth while remaining efficient for simpler tasks.\nExpanded context handling: Supports longer inputs for multi-step workflows and richer conversations.\nRefined customization: Offers better control over tone, style, and structured output for tailored experiences.\nBroader applicability: Strengthens performance across a wide range of domains while maintaining clarity and safety.",
+      "desc": "GPT‑5.2 builds on GPT‑5.1 with improvements that make interactions more reliable, flexible, and user-friendly. The focus is on delivering clearer responses, better adaptability, and enhanced control for diverse tasks. Key highlights include:\n\nAccelerate agent development: Build AI agents for analytics, decision support, code modernization, and data pipelines.\nGreater consistency: Produces more predictable and accurate outputs aligned with user instructions.\nAdaptive reasoning: Handles complex queries with improved depth while remaining efficient for simpler tasks.\nExpanded context handling: Supports longer inputs for multi-step workflows and richer conversations.\nRefined customization: Offers better control over tone, style, and structured output for tailored experiences.\nBroader applicability: Strengthens performance across a wide range of domains while maintaining clarity and safety.",
       "pricing": {
         "cache_read": 0.175,
         "input": 1.75,
@@ -199,7 +199,7 @@
     {
       "model_id": "gpt-5.1",
       "developer_id": 12,
-      "desc": "GPT-5 is OpenAI\u2019s most advanced language model, designed for complex tasks that require step-by-step reasoning, precise instruction following, and high reliability. It improves reasoning, code generation, and prompt understanding\u2014including test-time routing and intent cues like \u201cthink hard about this\u201d\u2014while reducing hallucination and sycophancy.",
+      "desc": "GPT-5 is OpenAI’s most advanced language model, designed for complex tasks that require step-by-step reasoning, precise instruction following, and high reliability. It improves reasoning, code generation, and prompt understanding—including test-time routing and intent cues like “think hard about this”—while reducing hallucination and sycophancy.",
       "pricing": {
         "cache_read": 0.125,
         "input": 1.25,
@@ -425,7 +425,7 @@
     {
       "model_id": "gpt-5",
       "developer_id": 12,
-      "desc": "GPT-5 is OpenAI\u2019s most advanced general-purpose model, delivering major improvements in reasoning, code quality, and overall user experience. It is optimized for complex tasks that require step-by-step reasoning, precise instruction following, and high accuracy in high-stakes scenarios. The model supports test-time routing and advanced prompt understanding, including user-specified intent such as \u201cthink hard about this,\u201d while significantly reducing hallucination and sycophancy and improving performance in coding, writing, and health-related tasks.",
+      "desc": "GPT-5 is OpenAI’s most advanced general-purpose model, delivering major improvements in reasoning, code quality, and overall user experience. It is optimized for complex tasks that require step-by-step reasoning, precise instruction following, and high accuracy in high-stakes scenarios. The model supports test-time routing and advanced prompt understanding, including user-specified intent such as “think hard about this,” while significantly reducing hallucination and sycophancy and improving performance in coding, writing, and health-related tasks.",
       "pricing": {
         "cache_read": 0.125,
         "input": 1.25,
@@ -455,7 +455,7 @@
     {
       "model_id": "deepseek-v3.2",
       "developer_id": 7,
-      "desc": "DeepSeek-V3.2 is an efficient large language model equipped with DeepSeek Sparse Attention and reinforced reasoning performance, but its core strength lies in powerful agentic capabilities\u2014enabled by large-scale task-synthesis that tightly integrates reasoning with real-world tool use, delivering robust, compliant, and generalizable agent behaviour. Users can toggle deeper reasoning through the reasoning_enabled switch.",
+      "desc": "DeepSeek-V3.2 is an efficient large language model equipped with DeepSeek Sparse Attention and reinforced reasoning performance, but its core strength lies in powerful agentic capabilities—enabled by large-scale task-synthesis that tightly integrates reasoning with real-world tool use, delivering robust, compliant, and generalizable agent behaviour. Users can toggle deeper reasoning through the reasoning_enabled switch.",
       "pricing": {
         "cache_read": 0.0302,
         "input": 0.302,
@@ -484,7 +484,7 @@
     {
       "model_id": "deepseek-v3.2-think",
       "developer_id": 7,
-      "desc": "DeepSeek-V3.2 is an efficient large language model equipped with DeepSeek Sparse Attention and reinforced reasoning performance, but its core strength lies in powerful agentic capabilities\u2014enabled by large-scale task-synthesis that tightly integrates reasoning with real-world tool use, delivering robust, compliant, and generalizable agent behaviour. Users can toggle deeper reasoning through the reasoning_enabled switch.",
+      "desc": "DeepSeek-V3.2 is an efficient large language model equipped with DeepSeek Sparse Attention and reinforced reasoning performance, but its core strength lies in powerful agentic capabilities—enabled by large-scale task-synthesis that tightly integrates reasoning with real-world tool use, delivering robust, compliant, and generalizable agent behaviour. Users can toggle deeper reasoning through the reasoning_enabled switch.",
       "pricing": {
         "cache_read": 0.0302,
         "input": 0.302,
@@ -1031,7 +1031,7 @@
     {
       "model_id": "flux-2-flex",
       "developer_id": 27,
-      "desc": "FLUX.2 is purpose-built for real-world creative production workflows. It delivers high-quality images while maintaining character and style consistency across multiple reference images, shows exceptional understanding and execution of structured prompts, and supports complex text reading and writing. It also adheres to brand guidelines, handles lighting, layout, and logo elements with stability, and enables image editing at resolutions up to 4MP \u2014 all while preserving fine details, striking a balance between creativity and professional-grade visual output.",
+      "desc": "FLUX.2 is purpose-built for real-world creative production workflows. It delivers high-quality images while maintaining character and style consistency across multiple reference images, shows exceptional understanding and execution of structured prompts, and supports complex text reading and writing. It also adheres to brand guidelines, handles lighting, layout, and logo elements with stability, and enables image editing at resolutions up to 4MP — all while preserving fine details, striking a balance between creativity and professional-grade visual output.",
       "pricing": {
         "cache_read": 0,
         "input": 2,
@@ -1046,7 +1046,7 @@
     {
       "model_id": "flux-2-pro",
       "developer_id": 27,
-      "desc": "FLUX.2 is purpose-built for real-world creative production workflows. It delivers high-quality images while maintaining character and style consistency across multiple reference images, shows exceptional understanding and execution of structured prompts, and supports complex text reading and writing. It also adheres to brand guidelines, handles lighting, layout, and logo elements with stability, and enables image editing at resolutions up to 4MP \u2014 all while preserving fine details, striking a balance between creativity and professional-grade visual output.",
+      "desc": "FLUX.2 is purpose-built for real-world creative production workflows. It delivers high-quality images while maintaining character and style consistency across multiple reference images, shows exceptional understanding and execution of structured prompts, and supports complex text reading and writing. It also adheres to brand guidelines, handles lighting, layout, and logo elements with stability, and enables image editing at resolutions up to 4MP — all while preserving fine details, striking a balance between creativity and professional-grade visual output.",
       "pricing": {
         "cache_read": 0,
         "input": 2,
@@ -1076,7 +1076,7 @@
     {
       "model_id": "glm-4.6",
       "developer_id": 5,
-      "desc": "GLM-4.6 is Zhipu\u2019s latest flagship model (total parameters 355B, activation parameters 32B), comprehensively surpassing GLM-4.5. Its coding capability is aligned with Claude Sonnet 4, making it a top domestic coding model; the context window has been expanded from 128K to 200K, better suited for long code and agent tasks; inference capabilities have been significantly enhanced and support tool invocation during processing; improvements have been made in tool calling, search agents, writing style, role play, and multilingual translation. The model is named glm-4.6 and is provided by three vendors, with calls prioritized to the Sophnet platform.",
+      "desc": "GLM-4.6 is Zhipu’s latest flagship model (total parameters 355B, activation parameters 32B), comprehensively surpassing GLM-4.5. Its coding capability is aligned with Claude Sonnet 4, making it a top domestic coding model; the context window has been expanded from 128K to 200K, better suited for long code and agent tasks; inference capabilities have been significantly enhanced and support tool invocation during processing; improvements have been made in tool calling, search agents, writing style, role play, and multilingual translation. The model is named glm-4.6 and is provided by three vendors, with calls prioritized to the Sophnet platform.",
       "pricing": {
         "cache_read": 0,
         "input": 0,
@@ -1207,7 +1207,7 @@
     {
       "model_id": "DeepSeek-V3.1-Fast",
       "developer_id": 7,
-      "desc": "The model provider is the Sophon platform. DeepSeek V3.1 Fast is the high-TPS speed version of DeepSeek V3.1.\nHybrid thinking mode: By modifying the chat template, a single model can simultaneously support both thinking and non-thinking modes.\nSmarter tool usage: Through post-training optimization, the model\u2019s performance in tool utilization and agent tasks has improved significantly.",
+      "desc": "The model provider is the Sophon platform. DeepSeek V3.1 Fast is the high-TPS speed version of DeepSeek V3.1.\nHybrid thinking mode: By modifying the chat template, a single model can simultaneously support both thinking and non-thinking modes.\nSmarter tool usage: Through post-training optimization, the model’s performance in tool utilization and agent tasks has improved significantly.",
       "pricing": {
         "input": 1.096,
         "output": 3.288
@@ -1251,7 +1251,7 @@
     {
       "model_id": "gemini-2.5-flash",
       "developer_id": 8,
-      "desc": "Gemini 2.5 Flash is Google\u2019s best model in terms of both performance and cost efficiency, offering a comprehensive set of capabilities. It is the first Flash model to support visible reasoning, allowing insight into the thought process behind its responses. With its strong price\u2013performance ratio, the model is well suited for large-scale processing, low-latency, high-throughput tasks that require reasoning, as well as agent-based application scenarios.",
+      "desc": "Gemini 2.5 Flash is Google’s best model in terms of both performance and cost efficiency, offering a comprehensive set of capabilities. It is the first Flash model to support visible reasoning, allowing insight into the thought process behind its responses. With its strong price–performance ratio, the model is well suited for large-scale processing, low-latency, high-throughput tasks that require reasoning, as well as agent-based application scenarios.",
       "pricing": {
         "cache_read": 0.03,
         "input": 0.3,
@@ -1266,7 +1266,7 @@
     {
       "model_id": "gemini-2.5-flash-preview-09-2025",
       "developer_id": 8,
-      "desc": "This latest 2.5 Flash model comes with improvements in two key areas we heard consistent feedback on:\n\nBetter agentic tool use: We've improved how the model uses tools, leading to better performance in more complex, agentic and multi-step applications. This model shows noticeable improvements on key agentic benchmarks, including a 5% gain on SWE-Bench Verified, compared to our last release (48.9% \u2192 54%). More efficient: With thinking on, the model is now significantly more cost-efficient\u2014achieving higher quality outputs while using fewer tokens, reducing latency and cost (see charts above).",
+      "desc": "This latest 2.5 Flash model comes with improvements in two key areas we heard consistent feedback on:\n\nBetter agentic tool use: We've improved how the model uses tools, leading to better performance in more complex, agentic and multi-step applications. This model shows noticeable improvements on key agentic benchmarks, including a 5% gain on SWE-Bench Verified, compared to our last release (48.9% → 54%). More efficient: With thinking on, the model is now significantly more cost-efficient—achieving higher quality outputs while using fewer tokens, reducing latency and cost (see charts above).",
       "pricing": {
         "cache_read": 0.03,
         "input": 0.3,
@@ -1515,7 +1515,7 @@
     {
       "model_id": "gpt-image-1",
       "developer_id": 12,
-      "desc": "Azure OpenAI\u2019s gpt-image-1 image generation API offers both text-to-image generation and image-to-image editing with text guidance capabilities.\nBefore using this API, please ensure you have the latest OpenAI package installed by running pip install -U openai.",
+      "desc": "Azure OpenAI’s gpt-image-1 image generation API offers both text-to-image generation and image-to-image editing with text guidance capabilities.\nBefore using this API, please ensure you have the latest OpenAI package installed by running pip install -U openai.",
       "pricing": {
         "cache_read": 5,
         "input": 5,
@@ -1616,7 +1616,7 @@
     {
       "model_id": "qwen3-vl-30b-a3b-instruct",
       "developer_id": 13,
-      "desc": "The Qwen3-VL series\u2019 second-largest MoE model Instruct version offers fast response speed and supports ultra-long contexts such as long videos and long documents; it features comprehensive upgrades in image/video understanding, spatial perception, and universal recognition abilities; it also provides visual 2DD/3D localization capabilities, making it capable of handling complex real-world tasks.",
+      "desc": "The Qwen3-VL series’ second-largest MoE model Instruct version offers fast response speed and supports ultra-long contexts such as long videos and long documents; it features comprehensive upgrades in image/video understanding, spatial perception, and universal recognition abilities; it also provides visual 2DD/3D localization capabilities, making it capable of handling complex real-world tasks.",
       "pricing": {
         "input": 0.1028,
         "output": 0.4112
@@ -1630,7 +1630,7 @@
     {
       "model_id": "qwen3-vl-30b-a3b-thinking",
       "developer_id": 13,
-      "desc": "The Qwen3-VL series\u2019 second-largest MoE model Thinking version offers fast response speed, stronger multimodal understanding and reasoning, visual agent capabilities, and ultra-long context support for long videos and long documents; it features comprehensive upgrades in image/video understanding, spatial perception, and universal recognition abilities, making it capable of handling complex real-world tasks.",
+      "desc": "The Qwen3-VL series’ second-largest MoE model Thinking version offers fast response speed, stronger multimodal understanding and reasoning, visual agent capabilities, and ultra-long context support for long videos and long documents; it features comprehensive upgrades in image/video understanding, spatial perception, and universal recognition abilities, making it capable of handling complex real-world tasks.",
       "pricing": {
         "input": 0.1028,
         "output": 1.028
@@ -1644,7 +1644,7 @@
     {
       "model_id": "veo-3.0-generate-preview",
       "developer_id": 8,
-      "desc": "Veo 3.0 Generate Preview is an advanced AI video generation model that supports text-to-video creation with synchronized audio, featuring excellent physical simulation and lip-sync capabilities. Users can generate vivid video clips from short story prompts. \ud83c\udf9f\ufe0f Limited-Time Deal: Save 10% Now.",
+      "desc": "Veo 3.0 Generate Preview is an advanced AI video generation model that supports text-to-video creation with synchronized audio, featuring excellent physical simulation and lip-sync capabilities. Users can generate vivid video clips from short story prompts. 🎟️ Limited-Time Deal: Save 10% Now.",
       "pricing": {
         "cache_read": 0,
         "input": 2,
@@ -1747,7 +1747,7 @@
     {
       "model_id": "grok-4",
       "developer_id": 9,
-      "desc": "Grok, their latest and greatest flagship model, offers unparalleled performance in natural language, math, and reasoning \u2013 the perfect jack of all trades.\nThe current pointing model version is grok-4-0709.",
+      "desc": "Grok, their latest and greatest flagship model, offers unparalleled performance in natural language, math, and reasoning – the perfect jack of all trades.\nThe current pointing model version is grok-4-0709.",
       "pricing": {
         "cache_read": 0.825,
         "input": 3.3,
@@ -1821,7 +1821,7 @@
     {
       "model_id": "DeepSeek-OCR",
       "developer_id": 7,
-      "desc": "DeepSeek-OCR is a vision-language model launched by DeepSeek AI, focusing on optical character recognition (OCR) and \u201ccontextual optical compression.\u201d The model is designed to explore the limits of compressing contextual information from images, efficiently processing documents and converting them into structured text formats such as Markdown. The model requires an image as input.",
+      "desc": "DeepSeek-OCR is a vision-language model launched by DeepSeek AI, focusing on optical character recognition (OCR) and “contextual optical compression.” The model is designed to explore the limits of compressing contextual information from images, efficiently processing documents and converting them into structured text formats such as Markdown. The model requires an image as input.",
       "pricing": {
         "input": 0.02,
         "output": 0.02
@@ -1835,7 +1835,7 @@
     {
       "model_id": "deepseek-ocr",
       "developer_id": 7,
-      "desc": "DeepSeek-OCR is a vision-language model launched by DeepSeek AI, focusing on optical character recognition (OCR) and \u201ccontextual optical compression.\u201d The model is designed to explore the limits of compressing contextual information from images, efficiently processing documents and converting them into structured text formats such as Markdown. The model requires an image as input.",
+      "desc": "DeepSeek-OCR is a vision-language model launched by DeepSeek AI, focusing on optical character recognition (OCR) and “contextual optical compression.” The model is designed to explore the limits of compressing contextual information from images, efficiently processing documents and converting them into structured text formats such as Markdown. The model requires an image as input.",
       "pricing": {
         "input": 0.02,
         "output": 0.02
@@ -1969,7 +1969,7 @@
     {
       "model_id": "qwen3-max-preview",
       "developer_id": 13,
-      "desc": "Qwen3-Max-Preview is the latest preview model in the Qwen3 series. This version is functionally equivalent to Qwen3-Max-Thinking \u2014 simply set extra_body={\"enable_thinking\": True} to enable the thinking mode. Compared to the Qwen2.5 series, it delivers significant improvements in overall general capabilities, including English\u2013Chinese text understanding, complex instruction following, open-ended reasoning, multilingual processing, and tool-use proficiency. The model also exhibits fewer hallucinations and stronger overall reliability.",
+      "desc": "Qwen3-Max-Preview is the latest preview model in the Qwen3 series. This version is functionally equivalent to Qwen3-Max-Thinking — simply set extra_body={\"enable_thinking\": True} to enable the thinking mode. Compared to the Qwen2.5 series, it delivers significant improvements in overall general capabilities, including English–Chinese text understanding, complex instruction following, open-ended reasoning, multilingual processing, and tool-use proficiency. The model also exhibits fewer hallucinations and stronger overall reliability.",
       "pricing": {
         "cache_read": 0.822,
         "input": 0.822,
@@ -2230,7 +2230,7 @@
     {
       "model_id": "inclusionAI/Ling-1T",
       "developer_id": 29,
-      "desc": "Ling-1T is the first flagship non-thinking model in the \u201cLing 2.0\u201d series, featuring 1 trillion total parameters and approximately 50 billion active parameters per token. Built on the Ling 2.0 architecture, Ling-1T is designed to push the limits of efficient inference and scalable cognition. Ling-1T-base was pretrained on over 20 trillion high-quality, reasoning-intensive tokens, supports up to a 128K context length, and incorporates an Evolutionary Chain of Thought (Evo-CoT) process during mid-stage and post-stage training. This training regimen greatly enhances the model\u2019s efficiency and depth of reasoning, enabling Ling-1T to achieve top performance across multiple complex reasoning benchmarks, balancing accuracy and efficiency.",
+      "desc": "Ling-1T is the first flagship non-thinking model in the “Ling 2.0” series, featuring 1 trillion total parameters and approximately 50 billion active parameters per token. Built on the Ling 2.0 architecture, Ling-1T is designed to push the limits of efficient inference and scalable cognition. Ling-1T-base was pretrained on over 20 trillion high-quality, reasoning-intensive tokens, supports up to a 128K context length, and incorporates an Evolutionary Chain of Thought (Evo-CoT) process during mid-stage and post-stage training. This training regimen greatly enhances the model’s efficiency and depth of reasoning, enabling Ling-1T to achieve top performance across multiple complex reasoning benchmarks, balancing accuracy and efficiency.",
       "pricing": {
         "input": 0.548,
         "output": 2.192
@@ -2244,7 +2244,7 @@
     {
       "model_id": "inclusionAI/Ring-1T",
       "developer_id": 29,
-      "desc": "Ring-1T is an open-source idea model with a trillion parameters released by the Bailing team. It is based on the Ling 2.0 architecture and the Ling-1T-base foundational model for training, with a total parameter count of 1 trillion, an active parameter count of 50 billion, and supports up to a 128K context window. The model is trained via large-scale verifiable reward reinforcement learning (RLVR), combined with the self-developed Icepop reinforcement learning stabilization method and the efficient ASystem reinforcement learning system, significantly improving the model\u2019s deep reasoning and natural language reasoning capabilities. Ring-1T achieves leading performance among open-source models on high-difficulty reasoning benchmarks such as mathematics competitions (e.g., IMO 2025), code generation (e.g., ICPC World Finals 2025), and logical reasoning.",
+      "desc": "Ring-1T is an open-source idea model with a trillion parameters released by the Bailing team. It is based on the Ling 2.0 architecture and the Ling-1T-base foundational model for training, with a total parameter count of 1 trillion, an active parameter count of 50 billion, and supports up to a 128K context window. The model is trained via large-scale verifiable reward reinforcement learning (RLVR), combined with the self-developed Icepop reinforcement learning stabilization method and the efficient ASystem reinforcement learning system, significantly improving the model’s deep reasoning and natural language reasoning capabilities. Ring-1T achieves leading performance among open-source models on high-difficulty reasoning benchmarks such as mathematics competitions (e.g., IMO 2025), code generation (e.g., ICPC World Finals 2025), and logical reasoning.",
       "pricing": {
         "input": 0.548,
         "output": 2.192
@@ -2252,21 +2252,6 @@
       "types": "llm",
       "features": "thinking,tools,function_calling,structured_outputs",
       "input_modalities": "text",
-      "max_output": 0,
-      "context_length": 0
-    },
-    {
-      "model_id": "ernie-irag-edit",
-      "developer_id": 25,
-      "desc": "Baidu's self-developed ERNIE iRAG Edit image editing model supports operations based on images such as erase (object removal), repaint (object redrawing), and variation (variant generation).",
-      "pricing": {
-        "cache_read": 0,
-        "input": 2,
-        "output": 0
-      },
-      "types": "image_generation",
-      "features": "tools,function_calling,structured_outputs",
-      "input_modalities": "text,image",
       "max_output": 0,
       "context_length": 0
     },
@@ -2373,7 +2358,7 @@
     {
       "model_id": "jina-deepsearch-v1",
       "developer_id": 22,
-      "desc": "DeepSearch combines search, reading, and reasoning capabilities to pursue the best possible answer. It's fully compatible with OpenAI's Chat API format\u2014just replace api.openai.com with aihubmix.com to get started.  \nThe stream will return the thinking process.",
+      "desc": "DeepSearch combines search, reading, and reasoning capabilities to pursue the best possible answer. It's fully compatible with OpenAI's Chat API format—just replace api.openai.com with aihubmix.com to get started.  \nThe stream will return the thinking process.",
       "pricing": {
         "input": 0.05,
         "output": 0.05
@@ -2558,7 +2543,7 @@
     {
       "model_id": "qwen3-reranker-0.6b",
       "developer_id": 13,
-      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model\u2019s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
+      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model’s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
       "pricing": {
         "input": 0.11,
         "output": 0.11
@@ -2572,7 +2557,7 @@
     {
       "model_id": "qwen3-reranker-4b",
       "developer_id": 13,
-      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model\u2019s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
+      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model’s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
       "pricing": {
         "input": 0.11,
         "output": 0.11
@@ -2586,7 +2571,7 @@
     {
       "model_id": "qwen3-reranker-8b",
       "developer_id": 13,
-      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model\u2019s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
+      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model’s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
       "pricing": {
         "input": 0.11,
         "output": 0.11
@@ -2614,7 +2599,7 @@
     {
       "model_id": "bce-reranker-base",
       "developer_id": 13,
-      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model\u2019s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
+      "desc": "Based on the dense foundational model of the Qwen3 series, it is specifically designed for ranking tasks. It inherits the base model’s outstanding multilingual capabilities, long-text understanding, and reasoning skills, achieving significant advancements in ranking tasks.",
       "pricing": {
         "input": 0.068,
         "output": 0.068
@@ -2682,6 +2667,21 @@
       "input_modalities": "text,image",
       "max_output": 12000,
       "context_length": 135000
+    },
+    {
+      "model_id": "ernie-irag-edit",
+      "developer_id": 25,
+      "desc": "Baidu's self-developed ERNIE iRAG Edit image editing model supports operations based on images such as erase (object removal), repaint (object redrawing), and variation (variant generation).",
+      "pricing": {
+        "cache_read": 0,
+        "input": 2,
+        "output": 0
+      },
+      "types": "image_generation",
+      "features": "tools,function_calling,structured_outputs",
+      "input_modalities": "text,image",
+      "max_output": 0,
+      "context_length": 0
     },
     {
       "model_id": "jina-clip-v2",
@@ -2802,7 +2802,7 @@
     {
       "model_id": "gemini-2.0-flash-preview-image-generation",
       "developer_id": 8,
-      "desc": "Gemini 2.0 Flash EXP is the official preview version of the drawing model. Compared to Imagen 3.0, Gemini\u2019s image generation is better suited for scenarios that require contextual understanding and reasoning, rather than the pursuit of ultimate artistic performance and visual quality.",
+      "desc": "Gemini 2.0 Flash EXP is the official preview version of the drawing model. Compared to Imagen 3.0, Gemini’s image generation is better suited for scenarios that require contextual understanding and reasoning, rather than the pursuit of ultimate artistic performance and visual quality.",
       "pricing": {
         "cache_read": 0,
         "input": 0.1,
@@ -2925,7 +2925,7 @@
         "output": 1.8
       },
       "types": "llm",
-      "features": "thinking\uff0ctools,function_calling,structured_outputs",
+      "features": "thinking，tools,function_calling,structured_outputs",
       "input_modalities": "text,image,video",
       "max_output": 32000,
       "context_length": 256000
@@ -2940,7 +2940,7 @@
         "output": 0.44
       },
       "types": "llm",
-      "features": "thinking\uff0ctools,function_calling,structured_outputs",
+      "features": "thinking，tools,function_calling,structured_outputs",
       "input_modalities": "text,image,video",
       "max_output": 33000,
       "context_length": 256000
@@ -2955,7 +2955,7 @@
         "output": 0.656
       },
       "types": "llm",
-      "features": "thinking\uff0ctools,function_calling,structured_outputs",
+      "features": "thinking，tools,function_calling,structured_outputs",
       "input_modalities": "text,image,video",
       "max_output": 32000,
       "context_length": 256000
@@ -2970,7 +2970,7 @@
         "output": 1.8
       },
       "types": "llm",
-      "features": "thinking\uff0ctools,function_calling,structured_outputs",
+      "features": "thinking，tools,function_calling,structured_outputs",
       "input_modalities": "text,image,video",
       "max_output": 32000,
       "context_length": 256000
@@ -3048,7 +3048,7 @@
     {
       "model_id": "DeepSeek-R1-Distill-Qwen-32B",
       "developer_id": 7,
-      "desc": "The model provider is the Sophnet platform. Deepseek-R1-Distill-Qwen-32B is a knowledge-distilled large language model based on Qwen 2.5 32B and trained using outputs from DeepSeek R1.\nDeepSeek-R1 addresses issues such as infinite repetition, poor readability, and language mixing by introducing cold-start data before reinforcement learning.\nDeepSeek-R1\u2019s performance in mathematics, programming, and reasoning tasks is comparable to OpenAI-o1.\nTo support the research community, we have open-sourced DeepSeek-R1-Zero, DeepSeek-R1, and six dense models based on Llama and Qwen.\nDeepSeek-R1-Distill-Qwen-32B outperforms OpenAI-o1-mini on multiple benchmark tests, setting new state-of-the-art results for dense models.",
+      "desc": "The model provider is the Sophnet platform. Deepseek-R1-Distill-Qwen-32B is a knowledge-distilled large language model based on Qwen 2.5 32B and trained using outputs from DeepSeek R1.\nDeepSeek-R1 addresses issues such as infinite repetition, poor readability, and language mixing by introducing cold-start data before reinforcement learning.\nDeepSeek-R1’s performance in mathematics, programming, and reasoning tasks is comparable to OpenAI-o1.\nTo support the research community, we have open-sourced DeepSeek-R1-Zero, DeepSeek-R1, and six dense models based on Llama and Qwen.\nDeepSeek-R1-Distill-Qwen-32B outperforms OpenAI-o1-mini on multiple benchmark tests, setting new state-of-the-art results for dense models.",
       "pricing": {
         "input": 0.28,
         "output": 0.84
@@ -3218,7 +3218,7 @@
     {
       "model_id": "gemini-2.5-pro-preview-06-05",
       "developer_id": 8,
-      "desc": "Google\u2019s latest multimodal flagship model, combining exceptional coding and reasoning capabilities. Its massive 1 million token context window (soon to expand to 2 million) places it at the top of the WebDevArena and LMArena leaderboards. It is particularly well-suited for developing aesthetically pleasing and highly functional interactive web applications, code transformation, and complex workflows. The newly introduced \"reasoning budget\" feature cleverly balances cost and performance, while optimized tool calls and response styles further enhance development efficiency, making it the ideal choice for rapid prototyping and advanced coding.",
+      "desc": "Google’s latest multimodal flagship model, combining exceptional coding and reasoning capabilities. Its massive 1 million token context window (soon to expand to 2 million) places it at the top of the WebDevArena and LMArena leaderboards. It is particularly well-suited for developing aesthetically pleasing and highly functional interactive web applications, code transformation, and complex workflows. The newly introduced \"reasoning budget\" feature cleverly balances cost and performance, while optimized tool calls and response styles further enhance development efficiency, making it the ideal choice for rapid prototyping and advanced coding.",
       "pricing": {
         "cache_read": 0.125,
         "input": 1.25,
@@ -3233,7 +3233,7 @@
     {
       "model_id": "Aihubmix-MAI-DS-R1",
       "developer_id": 3,
-      "desc": "MAI-DS-R1 is a refined version of DeepSeek-R1 by Microsoft AI, designed to improve responsiveness to previously blocked topics while enhancing safety. It integrates 110k Tulu-3 SFT samples and 350k multilingual safety-alignment examples. The model retains strong reasoning and coding abilities, surpasses R1-1776 in handling sensitive queries, and reduces harmful content leakage. Based on a transformer MoE architecture, it suits general-purpose tasks\u2014excluding legal, medical, or autonomous systems.",
+      "desc": "MAI-DS-R1 is a refined version of DeepSeek-R1 by Microsoft AI, designed to improve responsiveness to previously blocked topics while enhancing safety. It integrates 110k Tulu-3 SFT samples and 350k multilingual safety-alignment examples. The model retains strong reasoning and coding abilities, surpasses R1-1776 in handling sensitive queries, and reduces harmful content leakage. Based on a transformer MoE architecture, it suits general-purpose tasks—excluding legal, medical, or autonomous systems.",
       "pricing": {
         "input": 0.6,
         "output": 1.8
@@ -3247,7 +3247,7 @@
     {
       "model_id": "embedding-2",
       "developer_id": 5,
-      "desc": "A text vector model that converts input text information into vector representations so that, in conjunction with a vector database, it provides an external knowledge base for the large model, thereby improving the accuracy of the model\u2019s reasoning.",
+      "desc": "A text vector model that converts input text information into vector representations so that, in conjunction with a vector database, it provides an external knowledge base for the large model, thereby improving the accuracy of the model’s reasoning.",
       "pricing": {
         "input": 0.0686,
         "output": 0.0686
@@ -3326,7 +3326,7 @@
         "output": 0.534
       },
       "types": "llm",
-      "features": "thinking\uff0ctools,function_calling,structured_outputs",
+      "features": "thinking，tools,function_calling,structured_outputs",
       "input_modalities": "text,image",
       "max_output": 32000,
       "context_length": 256000
@@ -3556,7 +3556,7 @@
     {
       "model_id": "gpt-4o-mini-tts",
       "developer_id": 12,
-      "desc": "OpenAI\u2019s latest TTS model, gpt-4o-mini-tts, uses the same API endpoint (/v1/audio/speech) as tts-1. However, OpenAI introduced a new pricing method without providing billing details via API, causing discrepancies between official pricing and aihubmix\u2019s charges\u2014some requests may cost more, others less. Avoid using this model if precise billing accuracy is essential.",
+      "desc": "OpenAI’s latest TTS model, gpt-4o-mini-tts, uses the same API endpoint (/v1/audio/speech) as tts-1. However, OpenAI introduced a new pricing method without providing billing details via API, causing discrepancies between official pricing and aihubmix’s charges—some requests may cost more, others less. Avoid using this model if precise billing accuracy is essential.",
       "pricing": {
         "input": 15,
         "output": 15
@@ -3584,7 +3584,7 @@
     {
       "model_id": "tngtech/DeepSeek-R1T-Chimera",
       "developer_id": 7,
-      "desc": "Provided by chutes.ai\nDeepSeek-R1T-Chimera merges DeepSeek-R1\u2019s reasoning strengths with DeepSeek-V3 (0324)\u2019s token-efficiency improvements into a MoE Transformer optimized for general text generation. It integrates pretrained weights from both models and is released under the MIT license for research and commercial use.\n",
+      "desc": "Provided by chutes.ai\nDeepSeek-R1T-Chimera merges DeepSeek-R1’s reasoning strengths with DeepSeek-V3 (0324)’s token-efficiency improvements into a MoE Transformer optimized for general text generation. It integrates pretrained weights from both models and is released under the MIT license for research and commercial use.\n",
       "pricing": {
         "input": 0.02,
         "output": 0.02
@@ -3671,7 +3671,7 @@
     {
       "model_id": "gpt-4o",
       "developer_id": 12,
-      "desc": "GPT-4o (\u201co\u201d stands for \u201comni\u201d) is a new-generation multimodal model designed for more natural human\u2013computer interaction. It can accept any combination of text, audio, image, and video as input, and generate multimodal outputs including text, audio, and images. With audio response latency as low as 232 milliseconds on average around 320 milliseconds, it approaches real human conversational speed. The model delivers strong performance in English text and code, significantly improved multilingual understanding, and outstanding capabilities in visual and audio perception, while offering faster API performance and substantially reduced cost for real-time and complex multimodal applications.",
+      "desc": "GPT-4o (“o” stands for “omni”) is a new-generation multimodal model designed for more natural human–computer interaction. It can accept any combination of text, audio, image, and video as input, and generate multimodal outputs including text, audio, and images. With audio response latency as low as 232 milliseconds on average around 320 milliseconds, it approaches real human conversational speed. The model delivers strong performance in English text and code, significantly improved multilingual understanding, and outstanding capabilities in visual and audio perception, while offering faster API performance and substantially reduced cost for real-time and complex multimodal applications.",
       "pricing": {
         "cache_read": 1.25,
         "input": 2.5,
@@ -3841,7 +3841,7 @@
     {
       "model_id": "baidu/ERNIE-4.5-300B-A47B",
       "developer_id": 25,
-      "desc": "ERNIE-4.5-300B-A47B is a large language model developed by Baidu based on a Mixture of Experts (MoE) architecture. The model has a total of 300 billion parameters, but only activates 47 billion parameters per token during inference, which balances strong performance with computational efficiency. As one of the core models in the ERNIE 4.5 series, it demonstrates outstanding capabilities in tasks such as text understanding, generation, reasoning, and programming. The model employs an innovative multimodal heterogeneous MoE pretraining approach, leveraging joint training of textual and visual modalities to effectively enhance the model\u2019s overall abilities, particularly excelling in instruction following and world knowledge memorization. Baidu has open-sourced this model along with other models in the series, aiming to promote the research and application of AI technology.",
+      "desc": "ERNIE-4.5-300B-A47B is a large language model developed by Baidu based on a Mixture of Experts (MoE) architecture. The model has a total of 300 billion parameters, but only activates 47 billion parameters per token during inference, which balances strong performance with computational efficiency. As one of the core models in the ERNIE 4.5 series, it demonstrates outstanding capabilities in tasks such as text understanding, generation, reasoning, and programming. The model employs an innovative multimodal heterogeneous MoE pretraining approach, leveraging joint training of textual and visual modalities to effectively enhance the model’s overall abilities, particularly excelling in instruction following and world knowledge memorization. Baidu has open-sourced this model along with other models in the series, aiming to promote the research and application of AI technology.",
       "pricing": {
         "cache_read": 0,
         "input": 0.32,
@@ -3941,7 +3941,7 @@
     {
       "model_id": "qianfan-qi-vl",
       "developer_id": 25,
-      "desc": "The Qianfan-QI-VL model is a proprietary image quality inspection and visual understanding large model (Quality Inspection Large Vision Language Model, Qianfan-QI-VL) developed by Baidu Cloud\u2019s Qianfan platform. It is designed for quality inspection of product images uploaded in e-commerce scenarios, with detection capabilities including AIGC human defect detection, mosaic recognition, watermark recognition, and trademark detection.",
+      "desc": "The Qianfan-QI-VL model is a proprietary image quality inspection and visual understanding large model (Quality Inspection Large Vision Language Model, Qianfan-QI-VL) developed by Baidu Cloud’s Qianfan platform. It is designed for quality inspection of product images uploaded in e-commerce scenarios, with detection capabilities including AIGC human defect detection, mosaic recognition, watermark recognition, and trademark detection.",
       "pricing": {
         "input": 0.2,
         "output": 0.6
@@ -3969,7 +3969,7 @@
     {
       "model_id": "tencent/Hunyuan-A13B-Instruct",
       "developer_id": 24,
-      "desc": "Hunyuan-A13B-Instruct has 8 billion parameters and can match larger models by activating only 1.3 billion parameters, supporting \"fast thinking/slow thinking\" hybrid inference. It offers stable long text understanding. Verified by BFCL-v3 and \u03c4-Bench, its Agent capabilities are leading in the field. Combined with GQA and multiple quantization formats, it enables efficient inference.",
+      "desc": "Hunyuan-A13B-Instruct has 8 billion parameters and can match larger models by activating only 1.3 billion parameters, supporting \"fast thinking/slow thinking\" hybrid inference. It offers stable long text understanding. Verified by BFCL-v3 and τ-Bench, its Agent capabilities are leading in the field. Combined with GQA and multiple quantization formats, it enables efficient inference.",
       "pricing": {
         "input": 0.14,
         "output": 0.56
@@ -4026,7 +4026,7 @@
     {
       "model_id": "kat-dev",
       "developer_id": 13,
-      "desc": "KAT-Dev (32B) is an open-source 32B parameter model specifically designed for software engineering tasks. It achieved a 62.4% resolution rate on the SWE-Bench Verified benchmark, ranking fifth among all open-source models of various scales. The model is optimized through multiple stages, including intermediate training, supervised fine-tuning (SFT) and reinforcement fine-tuning (RFT), as well as large-scale agent reinforcement learning (RL). Based on Qwen3-32B, its training process lays the foundation for subsequent fine-tuning and reinforcement learning stages by enhancing fundamental abilities such as tool usage, multi-turn interaction, and instruction following. During the fine-tuning phase, the model not only learns eight carefully curated task types and programming scenarios but also innovatively introduces a reinforcement fine-tuning (RFT) stage guided by human engineer-annotated \u201cteacher trajectories.\u201d The final agent reinforcement learning phase addresses scalability challenges through multi-level prefix caching, entropy-based trajectory pruning, and efficient architecture.",
+      "desc": "KAT-Dev (32B) is an open-source 32B parameter model specifically designed for software engineering tasks. It achieved a 62.4% resolution rate on the SWE-Bench Verified benchmark, ranking fifth among all open-source models of various scales. The model is optimized through multiple stages, including intermediate training, supervised fine-tuning (SFT) and reinforcement fine-tuning (RFT), as well as large-scale agent reinforcement learning (RL). Based on Qwen3-32B, its training process lays the foundation for subsequent fine-tuning and reinforcement learning stages by enhancing fundamental abilities such as tool usage, multi-turn interaction, and instruction following. During the fine-tuning phase, the model not only learns eight carefully curated task types and programming scenarios but also innovatively introduces a reinforcement fine-tuning (RFT) stage guided by human engineer-annotated “teacher trajectories.” The final agent reinforcement learning phase addresses scalability challenges through multi-level prefix caching, entropy-based trajectory pruning, and efficient architecture.",
       "pricing": {
         "input": 0.137,
         "output": 0.548
@@ -4240,7 +4240,7 @@
     {
       "model_id": "V3",
       "developer_id": 21,
-      "desc": "Fast and high-quality \u2014 top image quality in just 11 seconds per piece, with almost no extra time for batch generation.\nFlexible ratios \u2014 supports ultra-wide and tall formats like 3:1, 2:1, offering diverse perspectives.\nUnique strengths \u2014 outstanding design capabilities in the V3 and V2 series, with powerful text rendering (Chinese support coming soon).\nPrecise local editing \u2014 fine-tuned mask control for area redrawing (edit) and easy background replacement (replace-background).",
+      "desc": "Fast and high-quality — top image quality in just 11 seconds per piece, with almost no extra time for batch generation.\nFlexible ratios — supports ultra-wide and tall formats like 3:1, 2:1, offering diverse perspectives.\nUnique strengths — outstanding design capabilities in the V3 and V2 series, with powerful text rendering (Chinese support coming soon).\nPrecise local editing — fine-tuned mask control for area redrawing (edit) and easy background replacement (replace-background).",
       "pricing": {
         "cache_read": 0,
         "input": 2,
@@ -4460,7 +4460,7 @@
     {
       "model_id": "stepfun-ai/step3",
       "developer_id": 16,
-      "desc": "Step3 is a multimodal reasoning model released by StepFun. It uses a Mixture\u2011of\u2011Experts (MoE) architecture with 321\u202fbillion total parameters and 38\u202fbillion activation parameters. The model follows an end\u2011to\u2011end design that reduces decoding cost while delivering top\u2011tier performance on vision\u2011language reasoning tasks. Thanks to the combined use of Multi\u2011Head Factorized Attention (MFA) and Attention\u2011FFN Decoupling (AFD), Step3 remains highly efficient on both flagship and low\u2011end accelerators. During pre\u2011training, it processed over 20\u202ftrillion text tokens and 4\u202ftrillion image\u2011text mixed tokens, covering more than ten languages. On benchmarks for mathematics, code, and multimodal tasks, Step3 consistently outperforms other open\u2011source models.",
+      "desc": "Step3 is a multimodal reasoning model released by StepFun. It uses a Mixture‑of‑Experts (MoE) architecture with 321 billion total parameters and 38 billion activation parameters. The model follows an end‑to‑end design that reduces decoding cost while delivering top‑tier performance on vision‑language reasoning tasks. Thanks to the combined use of Multi‑Head Factorized Attention (MFA) and Attention‑FFN Decoupling (AFD), Step3 remains highly efficient on both flagship and low‑end accelerators. During pre‑training, it processed over 20 trillion text tokens and 4 trillion image‑text mixed tokens, covering more than ten languages. On benchmarks for mathematics, code, and multimodal tasks, Step3 consistently outperforms other open‑source models.",
       "pricing": {
         "input": 1.1,
         "output": 2.75
@@ -4603,7 +4603,7 @@
     {
       "model_id": "claude-3-opus-20240229",
       "developer_id": 2,
-      "desc": "Claude\u2019s previous generation strongest model",
+      "desc": "Claude’s previous generation strongest model",
       "pricing": {
         "input": 16.5,
         "output": 82.5
@@ -4896,7 +4896,7 @@
     {
       "model_id": "Pro/THUDM/GLM-4.1V-9B-Thinking",
       "developer_id": 5,
-      "desc": "GLM-4.1V-9B-Thinking is an open-source Vision Language Model (VLM) jointly released by Zhipu AI and the KEG Laboratory at Tsinghua University, designed specifically for handling complex multimodal cognitive tasks. Based on the GLM-4-9B-0414 foundation model, it significantly enhances cross-modal reasoning ability and stability by introducing the \u201cChain-of-Thought\u201d reasoning mechanism and using reinforcement learning strategies. As a lightweight model with 9 billion parameters, it strikes a balance between deployment efficiency and performance. In 28 authoritative benchmark evaluations, it matched or even outperformed the 72-billion-parameter Qwen-2.5-VL-72B model in 18 tasks. The model excels not only in image-text understanding, mathematical and scientific reasoning, and video understanding, but also supports images up to 4K resolution and inputs of arbitrary aspect ratios.",
+      "desc": "GLM-4.1V-9B-Thinking is an open-source Vision Language Model (VLM) jointly released by Zhipu AI and the KEG Laboratory at Tsinghua University, designed specifically for handling complex multimodal cognitive tasks. Based on the GLM-4-9B-0414 foundation model, it significantly enhances cross-modal reasoning ability and stability by introducing the “Chain-of-Thought” reasoning mechanism and using reinforcement learning strategies. As a lightweight model with 9 billion parameters, it strikes a balance between deployment efficiency and performance. In 28 authoritative benchmark evaluations, it matched or even outperformed the 72-billion-parameter Qwen-2.5-VL-72B model in 18 tasks. The model excels not only in image-text understanding, mathematical and scientific reasoning, and video understanding, but also supports images up to 4K resolution and inputs of arbitrary aspect ratios.",
       "pricing": {
         "cache_read": 0,
         "input": 0.04,
@@ -4911,7 +4911,7 @@
     {
       "model_id": "THUDM/GLM-4.1V-9B-Thinking",
       "developer_id": 5,
-      "desc": "GLM-4.1V-9B-Thinking is an open-source Vision Language Model (VLM) jointly released by Zhipu AI and the KEG Laboratory at Tsinghua University, designed specifically for handling complex multimodal cognitive tasks. Based on the GLM-4-9B-0414 foundation model, it significantly enhances cross-modal reasoning ability and stability by introducing the \u201cChain-of-Thought\u201d reasoning mechanism and using reinforcement learning strategies. As a lightweight model with 9 billion parameters, it strikes a balance between deployment efficiency and performance. In 28 authoritative benchmark evaluations, it matched or even outperformed the 72-billion-parameter Qwen-2.5-VL-72B model in 18 tasks. The model excels not only in image-text understanding, mathematical and scientific reasoning, and video understanding, but also supports images up to 4K resolution and inputs of arbitrary aspect ratios.",
+      "desc": "GLM-4.1V-9B-Thinking is an open-source Vision Language Model (VLM) jointly released by Zhipu AI and the KEG Laboratory at Tsinghua University, designed specifically for handling complex multimodal cognitive tasks. Based on the GLM-4-9B-0414 foundation model, it significantly enhances cross-modal reasoning ability and stability by introducing the “Chain-of-Thought” reasoning mechanism and using reinforcement learning strategies. As a lightweight model with 9 billion parameters, it strikes a balance between deployment efficiency and performance. In 28 authoritative benchmark evaluations, it matched or even outperformed the 72-billion-parameter Qwen-2.5-VL-72B model in 18 tasks. The model excels not only in image-text understanding, mathematical and scientific reasoning, and video understanding, but also supports images up to 4K resolution and inputs of arbitrary aspect ratios.",
       "pricing": {
         "cache_read": 0,
         "input": 0.1,
@@ -4940,7 +4940,7 @@
     {
       "model_id": "THUDM/GLM-4-32B-0414",
       "developer_id": 5,
-      "desc": "GLM-4-32B-0414 is a next-generation open-source model with 32 billion parameters, delivering performance comparable to OpenAI\u2019s GPT series and DeepSeek V3/R1. It supports smooth local deployment.\n\nThe base model was pre-trained on 15T of high-quality data, including a large amount of reasoning-focused synthetic content, setting the stage for advanced reinforcement learning.\n\nIn the post-training phase, techniques like human preference alignment, rejection sampling, and reinforcement learning were used to improve the model\u2019s ability to follow instructions, generate code, and handle function calls\u2014core skills needed for agent-style tasks.\n\nGLM-4-32B-0414 has shown strong results in engineering code, artifact generation, function calling, search-based QA, and report writing\u2014sometimes matching or even surpassing larger models like GPT-4o and DeepSeek-V3 (671B) on specific benchmarks.",
+      "desc": "GLM-4-32B-0414 is a next-generation open-source model with 32 billion parameters, delivering performance comparable to OpenAI’s GPT series and DeepSeek V3/R1. It supports smooth local deployment.\n\nThe base model was pre-trained on 15T of high-quality data, including a large amount of reasoning-focused synthetic content, setting the stage for advanced reinforcement learning.\n\nIn the post-training phase, techniques like human preference alignment, rejection sampling, and reinforcement learning were used to improve the model’s ability to follow instructions, generate code, and handle function calls—core skills needed for agent-style tasks.\n\nGLM-4-32B-0414 has shown strong results in engineering code, artifact generation, function calling, search-based QA, and report writing—sometimes matching or even surpassing larger models like GPT-4o and DeepSeek-V3 (671B) on specific benchmarks.",
       "pricing": {
         "input": 0.08,
         "output": 0.08
@@ -4954,7 +4954,7 @@
     {
       "model_id": "THUDM/GLM-Z1-9B-0414",
       "developer_id": 5,
-      "desc": "GLM-Z1-9B-0414 is a small but powerful model in the GLM series, with only 9 billion parameters. Despite its size, it delivers strong performance in math reasoning and general tasks, ranking among the best in its class of open-source models.\n\nTrained with the same techniques as larger models, it strikes an excellent balance between performance and efficiency\u2014making it a great option for low-resource or lightweight deployment scenarios.",
+      "desc": "GLM-Z1-9B-0414 is a small but powerful model in the GLM series, with only 9 billion parameters. Despite its size, it delivers strong performance in math reasoning and general tasks, ranking among the best in its class of open-source models.\n\nTrained with the same techniques as larger models, it strikes an excellent balance between performance and efficiency—making it a great option for low-resource or lightweight deployment scenarios.",
       "pricing": {
         "input": 0.05,
         "output": 0.05
@@ -4968,7 +4968,7 @@
     {
       "model_id": "THUDM/GLM-4-9B-0414",
       "developer_id": 5,
-      "desc": "GLM-4-9B-0414 is a lightweight model in the GLM family, with 9 billion parameters. It inherits the core tech from GLM-4-32B and offers an efficient option for deployment on limited resources.\n\nDespite its smaller size, it performs well in tasks like code generation, web design, SVG graphics creation, and search-based writing. It also supports function calling to interact with external tools, enhancing its versatility.\n\nGLM-4-9B-0414 strikes a solid balance between efficiency and performance, making it a strong choice for low-resource environments\u2014while remaining competitive on various benchmarks.",
+      "desc": "GLM-4-9B-0414 is a lightweight model in the GLM family, with 9 billion parameters. It inherits the core tech from GLM-4-32B and offers an efficient option for deployment on limited resources.\n\nDespite its smaller size, it performs well in tasks like code generation, web design, SVG graphics creation, and search-based writing. It also supports function calling to interact with external tools, enhancing its versatility.\n\nGLM-4-9B-0414 strikes a solid balance between efficiency and performance, making it a strong choice for low-resource environments—while remaining competitive on various benchmarks.",
       "pricing": {
         "input": 0.05,
         "output": 0.05
@@ -6324,6 +6324,21 @@
       "context_length": 0
     },
     {
+      "model_id": "fx-flux-2-pro",
+      "developer_id": 27,
+      "desc": "",
+      "pricing": {
+        "cache_read": 0,
+        "input": 2,
+        "output": 0
+      },
+      "types": "",
+      "features": "",
+      "input_modalities": "",
+      "max_output": 0,
+      "context_length": 0
+    },
+    {
       "model_id": "gemini-2.0-flash-001",
       "developer_id": 8,
       "desc": "Google Gemini's enterprise version VertexAI",
@@ -6385,7 +6400,7 @@
     {
       "model_id": "gemini-2.5-pro-exp-03-25",
       "developer_id": 8,
-      "desc": "Google\u2019s latest experimental model, highly unstable, for experience only.\nIt boasts strong reasoning and coding capabilities, able to \"think\" before responding, enhancing performance and accuracy in complex tasks. It supports multimodal inputs (text, audio, images, video) and a 1 million token context window, suitable for advanced programming, math, and science tasks.\n\nThis means Gemini 2.5 can handle more complex problems in coding, science and math, and support more context-aware agents.",
+      "desc": "Google’s latest experimental model, highly unstable, for experience only.\nIt boasts strong reasoning and coding capabilities, able to \"think\" before responding, enhancing performance and accuracy in complex tasks. It supports multimodal inputs (text, audio, images, video) and a 1 million token context window, suitable for advanced programming, math, and science tasks.\n\nThis means Gemini 2.5 can handle more complex problems in coding, science and math, and support more context-aware agents.",
       "pricing": {
         "cache_read": 0.125,
         "input": 1.25,
@@ -8096,7 +8111,7 @@
     {
       "model_id": "ahm-Phi-3-5-mini-instruct",
       "developer_id": 3,
-      "desc": "Phi-3.5-mini is a lightweight, state-of-the-art open model built upon the dataset used for Phi-3\u2014which includes synthetic data and carefully curated publicly available websites\u2014focusing on very high-quality, reasoning-intensive data. This model is part of the Phi-3 model family and supports a context length of 128K tokens.",
+      "desc": "Phi-3.5-mini is a lightweight, state-of-the-art open model built upon the dataset used for Phi-3—which includes synthetic data and carefully curated publicly available websites—focusing on very high-quality, reasoning-intensive data. This model is part of the Phi-3 model family and supports a context length of 128K tokens.",
       "pricing": {
         "input": 1,
         "output": 3
@@ -9090,21 +9105,6 @@
       "input_modalities": "",
       "max_output": 0,
       "context_length": 0
-    },
-    {
-      "model_id": "doubao-seed-1-8-251215",
-      "developer_id": 4,
-      "desc": "",
-      "pricing": {
-        "cache_read": 0.021918,
-        "input": 0.10959,
-        "output": 0.273975
-      },
-      "types": "",
-      "features": "",
-      "input_modalities": "",
-      "max_output": 64000,
-      "context_length": 256000
     },
     {
       "model_id": "aistudio_gemini-2.0-flash",

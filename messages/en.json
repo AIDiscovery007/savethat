@@ -103,6 +103,14 @@
     "ski-analysis": {
       "name": "Ski Technique Analysis",
       "description": "Upload your skiing video and get professional analysis with improvement suggestions"
+    },
+    "cover-generator": {
+      "name": "Xiaohongshu Cover Generator",
+      "description": "AI-powered Xiaohongshu note cover generator"
+    },
+    "xiaohongshu-analytics": {
+      "name": "Xiaohongshu Analytics",
+      "description": "AI-powered Xiaohongshu note data analysis"
     }
   },
   "PromptOptimizer": {
@@ -178,5 +186,100 @@
     "title": "Send to AI Client",
     "sending": "Sending...",
     "instruction": "Copied! Press Cmd+V / Ctrl+V to paste in the new chat"
+  },
+  "XiaohongshuAnalytics": {
+    "title": "Xiaohongshu Analytics",
+    "subtitle": "AI-powered Xiaohongshu note data analysis",
+    "uploadSection": {
+      "title": "Upload Data",
+      "dragDrop": "Drag and drop CSV file here",
+      "orClick": "or click to browse",
+      "supportedFormats": "Supports .csv, .xlsx, .xls formats",
+      "rowsCount": "{count} notes data"
+    },
+    "previewSection": {
+      "title": "Data Preview"
+    },
+    "previewTable": {
+      "title": "Title",
+      "likes": "Likes",
+      "comments": "Comments",
+      "views": "Views",
+      "moreData": "{count} more entries..."
+    },
+    "analysisSection": {
+      "title": "Analysis Config",
+      "templates": "Select Analysis Template",
+      "customInstruction": "Custom Analysis Instruction",
+      "instructionPlaceholder": "Enter your analysis focus, e.g., Analyze which content types perform best...",
+      "analyzing": "Analyzing...",
+      "startAnalysis": "Start Analysis"
+    },
+    "resultSection": {
+      "title": "Analysis Result",
+      "placeholder": "Upload data and start analysis to see results here"
+    },
+    "errors": {
+      "invalidFormat": "Unsupported file format. Please upload a CSV file.",
+      "parseFailed": "Parse failed: {message}",
+      "noData": "Please upload data first",
+      "analyzeFailed": "Analysis failed: {message}"
+    },
+    "templates": {
+      "viral-features": {
+        "name": "Viral Note Analysis",
+        "description": "Analyze common features of high-engagement notes to find viral patterns"
+      },
+      "content-optimization": {
+        "name": "Content Optimization",
+        "description": "Provide content optimization suggestions based on data analysis"
+      },
+      "publishing-time": {
+        "name": "Publishing Time Analysis",
+        "description": "Analyze optimal posting times"
+      },
+      "engagement-improvement": {
+        "name": "Engagement Boost Strategies",
+        "description": "Provide practical strategies to improve note engagement rate"
+      }
+    }
+  },
+  "CoverGenerator": {
+    "title": "Xiaohongshu Cover Generator",
+    "subtitle": "AI-powered professional Xiaohongshu note cover generator",
+    "badge": "AI Generated",
+    "referenceImages": "Reference Images",
+    "referenceImagesDesc": "Upload 1-5 reference images to help AI understand your desired style",
+    "styleSelect": "Select Style",
+    "styleSelectDesc": "Choose a Xiaohongshu cover style that fits your content",
+    "promptTitle": "Describe Your Requirements",
+    "promptDesc": "Describe the cover effect you want in one sentence",
+    "promptPlaceholder": "e.g., Food exploration vlog, outfit sharing, product recommendation, travel diary...",
+    "generate": "Generate Cover",
+    "generating": "Generating...",
+    "optimizing": "Optimizing prompt...",
+    "reset": "Reset",
+    "optimized": "AI Optimized",
+    "optimizedPrompt": "Optimized Prompt",
+    "generatedCovers": "Generated Covers",
+    "count": "{count} covers",
+    "download": "Download",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyPrompt": "Copy Prompt",
+    "regenerate": "Regenerate",
+    "emptyState": {
+      "title": "No covers generated yet",
+      "desc": "Upload reference images and describe your requirements, AI will generate professional Xiaohongshu covers for you"
+    },
+    "dragDrop": "Drag and drop images here",
+    "orClick": "or click to browse",
+    "invalidImageType": "Unsupported image format. Please upload JPG, PNG, WebP, or GIF",
+    "imageTooLarge": "Image too large. Maximum size is {size}MB",
+    "maxSizeMB": "Max {size}MB",
+    "maxCount": "{current}/{max}",
+    "maxImagesReached": "Maximum number of images reached",
+    "selectedCount": "{count}/{max} images selected",
+    "readFileError": "Failed to read file"
   }
 }

@@ -29,6 +29,14 @@
     "text-summarizer": {
       "name": "文本摘要",
       "description": "快速生成文章、文档的摘要"
+    },
+    "cover-generator": {
+      "name": "小红书封面生成器",
+      "description": "基于 AI 的小红书笔记封面生成工具"
+    },
+    "xiaohongshu-analytics": {
+      "name": "小红书分析",
+      "description": "上传小红书笔记数据 CSV 文件，AI 智能分析笔记表现，提供优化建议"
     }
   },
   "Footer": {
@@ -178,5 +186,100 @@
     "title": "发送到 AI 客户端",
     "sending": "发送中...",
     "instruction": "已复制！在新对话中按 Cmd+V / Ctrl+V 粘贴"
+  },
+  "XiaohongshuAnalytics": {
+    "title": "小红书分析",
+    "subtitle": "AI 智能分析小红书笔记数据",
+    "uploadSection": {
+      "title": "上传数据",
+      "dragDrop": "将 CSV 文件拖放到此处",
+      "orClick": "或点击选择文件",
+      "supportedFormats": "支持 .csv、.xlsx、.xls 格式",
+      "rowsCount": "共 {count} 条笔记数据"
+    },
+    "previewSection": {
+      "title": "数据预览"
+    },
+    "previewTable": {
+      "title": "标题",
+      "likes": "点赞",
+      "comments": "评论",
+      "views": "曝光",
+      "moreData": "还有 {count} 条数据..."
+    },
+    "analysisSection": {
+      "title": "分析配置",
+      "templates": "选择分析模板",
+      "customInstruction": "自定义分析指令",
+      "instructionPlaceholder": "输入你想要分析的方向，例如：分析哪些内容类型最受欢迎...",
+      "analyzing": "正在分析中...",
+      "startAnalysis": "开始分析"
+    },
+    "resultSection": {
+      "title": "分析结果",
+      "placeholder": "上传数据并开始分析后，将在这里显示结果"
+    },
+    "errors": {
+      "invalidFormat": "不支持的文件格式，请上传 CSV 文件",
+      "parseFailed": "解析失败: {message}",
+      "noData": "请先上传数据",
+      "analyzeFailed": "分析失败: {message}"
+    },
+    "templates": {
+      "viral-features": {
+        "name": "爆款笔记特征分析",
+        "description": "分析高互动笔记的共同特征，找出爆款规律"
+      },
+      "content-optimization": {
+        "name": "内容优化建议",
+        "description": "基于数据分析提供具体的内容优化方向"
+      },
+      "publishing-time": {
+        "name": "发布时间分析",
+        "description": "分析最佳发布时间段"
+      },
+      "engagement-improvement": {
+        "name": "互动率提升策略",
+        "description": "提供提升笔记互动率的实用策略"
+      }
+    }
+  },
+  "CoverGenerator": {
+    "title": "小红书封面生成器",
+    "subtitle": "AI 驱动的专业小红书笔记封面生成工具",
+    "badge": "AI 生成",
+    "referenceImages": "参考图片",
+    "referenceImagesDesc": "上传 1-5 张参考图片，帮助 AI 理解你想要的风格",
+    "styleSelect": "选择风格",
+    "styleSelectDesc": "选择适合你内容的小红书封面风格",
+    "promptTitle": "描述你的需求",
+    "promptDesc": "用一句话描述你想要的封面效果",
+    "promptPlaceholder": "例如：美食探店 vlog、穿搭分享、好物推荐、旅行日记...",
+    "generate": "生成封面",
+    "generating": "生成中...",
+    "optimizing": "正在优化提示词...",
+    "reset": "重置",
+    "optimized": "AI 优化",
+    "optimizedPrompt": "优化后的提示词",
+    "generatedCovers": "生成结果",
+    "count": "共 {count} 张",
+    "download": "下载",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyPrompt": "复制提示词",
+    "regenerate": "重新生成",
+    "emptyState": {
+      "title": "还没有生成封面",
+      "desc": "上传参考图片并描述你的需求，AI 将为你生成专业的小红书封面"
+    },
+    "dragDrop": "拖拽图片到此处",
+    "orClick": "或点击选择文件",
+    "invalidImageType": "不支持的图片格式，请上传 JPG、PNG、WebP 或 GIF",
+    "imageTooLarge": "图片过大，最大支持 {size}MB",
+    "maxSizeMB": "最大 {size}MB",
+    "maxCount": "{current}/{max} 张",
+    "maxImagesReached": "已达到最大数量限制",
+    "selectedCount": "已选择 {count}/{max} 张图片",
+    "readFileError": "读取文件失败"
   }
 }

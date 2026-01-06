@@ -26,6 +26,8 @@ export interface ModelInfo {
   };
   /** 是否支持 thinking 模式（扩展思考） */
   supportsThinking?: boolean;
+  /** 是否支持搜索功能 */
+  supportsSearch?: boolean;
 }
 
 /**
@@ -116,6 +118,21 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
       outputPer1M: 0,
     },
     supportsThinking: true,
+  },
+  {
+    id: 'gemini-3-flash-preview-search',
+    name: 'Gemini 3 Flash Search',
+    provider: 'Google',
+    description: 'Google 高效快速模型，支持 thinking 模式和 web 搜索',
+    contextWindow: 1000000,
+    maxOutputTokens: 65536,
+    defaultTemperature: 0.7,
+    pricing: {
+      inputPer1M: 0.5,
+      outputPer1M: 3,
+    },
+    supportsThinking: true,
+    supportsSearch: true,
   },
   {
     id: 'gemini-2.5-flash',
@@ -245,4 +262,12 @@ export function getModelsGroupedByProvider(): Record<ModelProvider, ModelInfo[]>
 export function supportsThinkingMode(modelId: string): boolean {
   const model = AVAILABLE_MODELS.find(m => m.id === modelId);
   return model?.supportsThinking ?? false;
+}
+
+/**
+ * 检查模型是否支持搜索功能
+ */
+export function supportsSearchMode(modelId: string): boolean {
+  const model = AVAILABLE_MODELS.find(m => m.id === modelId);
+  return model?.supportsSearch ?? false;
 }

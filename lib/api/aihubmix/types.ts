@@ -37,6 +37,8 @@ export interface AihubmixChatRequest {
   n?: number;
   /** 是否启用 thinking 模式（扩展思考） */
   thinking?: boolean;
+  /** 是否启用搜索功能 */
+  search?: boolean;
 }
 
 /**

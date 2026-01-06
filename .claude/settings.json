@@ -6,7 +6,7 @@
       "Bash($CLAUDE_PROJECT_DIR/.claude/ralph-*)"
     ]
   },
-  "defaultMode": "acceptEdits",
+  "defaultMode": "bypassPermissions",
   "hooks": {
     "PreToolUse": [
       {

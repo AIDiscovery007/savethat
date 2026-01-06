@@ -190,3 +190,5 @@ export async function createUser(formData: FormData) {
 | `image-generator` | image | experimental | 图像生成 tool |
 | `text-summarizer` | text | experimental | 文本摘要 tool |
 | `ski-analysis` | video | available | Ski technique analysis with pose detection |
+| `cover-generator` | image | experimental | 小红书封面生成器 tool |
+| `xiaohongshu-analytics` | analysis | experimental | 小红书分析 tool |

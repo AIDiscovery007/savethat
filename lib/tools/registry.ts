@@ -12,7 +12,8 @@ export type ToolIconName =
   | 'translate'
   | 'image'
   | 'file-text'
-  | 'video';
+  | 'video'
+  | 'chart';
 
 /**
  * 工具信息接口
@@ -108,6 +109,26 @@ export const TOOL_REGISTRY: ToolInfo[] = [
     category: 'video',
     status: 'available',
     tags: ['AI', '滑雪', '动作分析', '运动'],
+  },
+  {
+    id: 'cover-generator',
+    name: '小红书封面生成器',
+    description: '基于 AI 的小红书笔记封面生成工具，上传参考图并描述需求即可生成专业封面',
+    path: '/tools/cover-generator',
+    icon: 'image',
+    category: 'image',
+    status: 'experimental',
+    tags: ['小红书', '封面', '图像生成', 'AI'],
+  },
+  {
+    id: 'xiaohongshu-analytics',
+    name: '小红书分析',
+    description: '上传小红书笔记数据 CSV 文件，AI 智能分析笔记表现，提供优化建议',
+    path: '/tools/xiaohongshu-analytics',
+    icon: 'chart',
+    category: 'analysis',
+    status: 'experimental',
+    tags: ['AI', '小红书', '数据分析', '运营'],
   },
 ];
 
