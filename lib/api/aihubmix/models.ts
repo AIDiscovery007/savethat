@@ -219,7 +219,7 @@ export const AVAILABLE_MODELS: ModelInfo[] = [
 /**
  * 默认模型 ID
  */
-export const DEFAULT_MODEL_ID = 'gpt-4o-mini';
+export const DEFAULT_MODEL_ID = 'gemini-2.5-flash';
 
 /**
  * 根据模型 ID 获取模型信息

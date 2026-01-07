@@ -8,9 +8,6 @@
       "Read(src/**)"
     ]
   },
-  "env": {
-    "MAX_MCP_OUTPUT_TOKENS": "50000",
-  },
   "defaultMode": "dontAsk",
   "hooks": {
     "PreToolUse": [
