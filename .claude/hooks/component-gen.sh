@@ -15,21 +15,75 @@ fi
 if echo "$file_path" | grep -qE 'components/.*\.tsx$' && [ ! -f "$file_path" ]; then
   echo "New component detected: $file_path"
 
-  # 提取组件名（兼容 macOS sed）
+  # 提取组件名（将 kebab-case 转换为 PascalCase）
   component_name=$(basename "$file_path" .tsx | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)} 1' | tr -d ' ')
   component_filename=$(basename "$file_path" .tsx)
 
   # 提取目录路径
   component_dir=$(dirname "$file_path")
-  feature_name=$(basename "$component_dir")
 
-  # 读取现有文件内容（如果是空文件）
-  if [ -s "$file_path" ]; then
-    echo "File already exists, checking for template..."
-    if ! head -3 "$file_path" | grep -q "'use client'"; then
-      echo "Note: Consider adding 'use client' directive for client components"
-    fi
+  # 检查是否是 ui 组件
+  is_ui_component=false
+  if echo "$file_path" | grep -qE 'components/ui/'; then
+    is_ui_component=true
   fi
+
+  # 根据组件类型生成不同的模板
+  if [ "$is_ui_component" = true ]; then
+    # UI 组件模板（基于 shadcn/ui 模式）
+    cat > "$file_path" << EOF
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+export interface ${component_name}Props
+  extends React.HTMLAttributes<HTMLDivElement> {
+  // Add props here
+}
+
+const ${component_name} = React.forwardRef<HTMLDivElement, ${component_name}Props>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          " rounded-lg border bg-card text-card-foreground shadow-sm",
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
+${component_name}.displayName = "${component_name}"
+
+export { ${component_name} }
+EOF
+    echo "✓ Generated UI component template: $component_name"
+
+  else
+    # 通用组件模板
+    cat > "$file_path" << EOF
+'use client'
+
+import { cn } from '@/lib/utils'
+
+interface ${component_name}Props {
+  className?: string
+}
+
+export function ${component_name}({ className }: ${component_name}Props) {
+  return (
+    <div className={cn('', className)}>
+      {/* Component content */}
+    </div>
+  )
+}
+EOF
+    echo "✓ Generated component template: $component_name"
+  fi
+else
+  echo "Skipping template generation for non-component file: $file_path"
 fi
 
 exit 0

@@ -4,200 +4,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an AI-powered tool platform built with Next.js 16 App Router. It features a plugin-like architecture where tools are registered in a central registry and accessed via `/tools/[tool-id]` routes.
+AI-powered tool platform built with Next.js 16 App Router. Plugin-like architecture with tools registered in `lib/tools/registry.ts` and accessed via `/tools/[tool-id]` routes.
 
 ## Commands
 
-```bash
-npm run dev      # Start development server at localhost:3000
-npm run build    # Production build
-npm run start    # Start production server
-npm run lint     # Run ESLint
-```
+| Command | Purpose |
+|---------|---------|
+| `/debug-app` | Verify/debug with Playwright |
+| `/review-code` | Run code review |
+| `/context7` | Query Context7 docs |
+| `/ralph-loop` | Ralph Wiggum iterative solving |
+| `/simplify-code` | Refactor code |
+
+## Skills & Agents
+
+| Type | Name | Purpose |
+|------|------|---------|
+| Skill | `aihubmix-models-helper` | AIHUBMIX model info |
+| Skill | `npm-dep-resolver` | Dependency conflicts |
+| Skill | `lobehub-icons-helper` | LobeHub icons |
+| Skill | `nextjs-code-reviewer` | Next.js 16 review |
+| Agent | `code-simplifier` | Simplify/refactor code |
+| Agent | `feature-dev:code-architect` | Design feature architecture |
+| Agent | `feature-dev:code-explorer` | Analyze codebase patterns |
+| Agent | `feature-dev:code-reviewer` | Review code for bugs |
+
+## MCP Servers (Always Active)
+
+| When user mentions... | Use this MCP tool... |
+|----------------------|---------------------|
+| "docs", "API", "how to use" | `context7_query-docs` |
+| "browser", "verify", "playwright" | `mcp__playwright__browser_*` |
+| "task", "ticket", "kanban" | `mcp__vibe_kanban__*` |
+| "diagnostics", "errors" | `mcp__ide__getDiagnostics` |
+
+## Auto-Invocation Rules
+
+| User mentions... | Claude should... |
+|------------------|------------------|
+| "model", "AIHUBMIX" | Invoke `aihubmix-models-helper` |
+| "dependency", "npm" | Invoke `npm-dep-resolver` |
+| "icon", "lobehub" | Invoke `lobehub-icons-helper` |
+| "review Next.js" | Invoke `nextjs-code-reviewer` |
+| "simplify", "refactor" | Use `code-simplifier` agent |
+| "architect", "design plan" | Use `feature-dev:code-architect` agent |
+| "explore", "analyze" | Use `feature-dev:code-explorer` agent |
 
 ## Architecture
 
-### Tool System
+- **Tool System**: `lib/tools/registry.ts` defines tool metadata; each tool in `app/[locale]/tools/[tool-id]/`
+- **AI**: Vercel AI SDK with aihubmix provider (`lib/api/aihubmix/`)
+- **i18n**: `next-intl` with `app/[locale]/` routing, locales: en, zh
+- **UI**: shadcn/ui + Tailwind CSS 4, Radix UI primitives, `@lobehub/icons`
 
-- Tools are defined in `lib/tools/registry.ts` with metadata (id, name, path, category, status)
-- Each tool lives in `app/[locale]/tools/[tool-id]/` as a self-contained feature
-- Tools use a consistent pattern: page component + hooks + API routes
+## Key Files
 
-### Claude Code Hooks
-
-Hooks are configured in `.claude/settings.json` and scripts reside in `.claude/hooks/`:
-
-| Hook | Trigger | Purpose |
-|------|---------|---------|
-| `code-review-trigger.sh` | Stop (task completion) | Auto-run code review for modified TS files |
-| `component-gen.sh` | PostToolUse (Glob new file) | Auto-generate component template |
-| `i18n-check.sh` | PostToolUse (Edit/Write) | Check i18n translation sync after edits |
-| `playwright-e2e-verify.sh` | Manual | Custom hook |
-| `tsc-check.sh` | PreToolUse (git commit) | TypeScript type checking before commit |
-| `update-claude-md.sh` | PostToolUse (Write/Edit) | Auto-update CLAUDE.md when codebase changes |
-### Documentation Lookup (Context7 MCP)
-
-**Before creating implementation plans or writing code for unfamiliar APIs:**
-
-1. Use `context7_resolve-library-id` to find the correct library ID
-2. Use `context7_query-docs` to retrieve best practices and code examples
-3. Apply the documented patterns to your implementation
-
-**Plan Mode Workflow:**
-- When entering Plan mode, first research relevant documentation using Context7
-- Look up technology stack patterns, API usage examples, and best practices
-- Then create the plan based on research findings
-### AI Integration
-
-- Vercel AI SDK with aihubmix provider (`lib/api/aihubmix/`)
-- API routes proxy requests through `/app/api/aihubmix/route.ts`
-- Model configurations use environment variables:
-  - `AIHUBMIX_API_KEY`, `AIHUBMIX_BASE_URL`, `DEFAULT_MODEL`
-
-### Internationalization
-
-- Locale-aware routing via `app/[locale]/` dynamic segment
-- `next-intl` for translations (`i18n/` config, `messages/` translations)
-- Supported locales: English (`en`), Chinese (`zh`)
-- Use `i18n/navigation.ts` Link for internal navigation
-
-### UI Components
-
-- shadcn/ui pattern with Tailwind CSS 4 + CSS variables
-- Components in `components/ui/` built on Radix UI primitives
-- Use `cn()` utility (`lib/utils/cn.ts`) for class merging
-- Icons: Phosphor Icons, Lucide, LobeHub icons (`@lobehub/icons`)
-
-### Key Files
-
-- `lib/tools/registry.ts` - Tool registration and discovery
-- `app/[locale]/layout.tsx` - Root layout with nav and i18n
-- `lib/api/aihubmix/client.ts` - AI SDK client configuration
-- `.claude/skills/` - Custom Claude skills (aihubmix-models-helper, lobehub-icons-helper)
+| Path | Purpose |
+|------|---------|
+| `lib/tools/registry.ts` | Tool registration |
+| `app/[locale]/layout.tsx` | Root layout |
+| `lib/api/aihubmix/client.ts` | AI SDK config |
+| `.claude/settings.json` | Hooks & settings |
 
 ## Dependencies
 
-- React 19 with `legacy-peer-deps=true` in `.npmrc` for compatibility
-- TypeScript 5, Tailwind CSS 4, ESLint 9
+React 19 (`legacy-peer-deps`), TypeScript 5, Tailwind CSS 4, ESLint 9
 
 ## Code Style
 
 ### TypeScript
-
-- Enable strict mode; avoid `any` unless absolutely necessary
-- Use `unknown` for truly unknown types, `Record<K, V>` for objects
-- Interfaces for object shapes that may be extended; types for unions/intersections
-- Component props naming: `ComponentNameProps` pattern
+- Strict mode; avoid `any`
+- Use `unknown` for unknown types, `Record<K, V>` for objects
+- `ComponentNameProps` pattern for props
 
 ### React Components
-
-- Order: imports → types → constants → helpers → main component → sub-components
-- Destructure props directly in function signature for required props
-- Use early returns to reduce nesting
-
-## Best Practices
-
-### Server Components First
-
-- Default to Server Components; only use `'use client'` when interactivity is needed
-- Wrap async components in `Suspense` with proper fallbacks
-- Avoid browser-only APIs (`window`, `localStorage`, `document`) in Server Components
-
-### Error Handling
-
-- Use try/catch with specific error messages
-- Return meaningful error states rather than throwing silently
-- Log errors appropriately for debugging
-
-### Code Quality
-
-- Write self-documenting code with clear variable names
-- Extract complex logic into well-named functions
-- Keep functions small and single-purpose (SRP)
+- Order: imports → types → constants → helpers → component → sub-components
+- Early returns to reduce nesting
+- Default to Server Components; only `'use client'` when needed
 
 ### Component Reusability (CRITICAL)
 
-**Before creating a new component, ALWAYS check if a reusable equivalent exists:**
+| New Requirement | Reusable Component |
+|-----------------|-------------------|
+| Textarea with char count | `PromptInput` |
+| File upload (drag & drop) | `FileUploader` |
+| Option selector (grid) | `OptionSelector` |
 
-| New Requirement | Reusable Component | Location |
-|-----------------|-------------------|----------|
-| Textarea input with char count, auto-resize | `PromptInput` | `components/prompt-input.tsx` |
-| File upload (drag & drop, validation, preview) | `FileUploader` | `components/file-uploader.tsx` |
-| Option selector (icons + labels + grid layout) | `OptionSelector` | `components/option-selector.tsx` |
+## Anti-Patterns
 
-**Checklist before creating new UI components:**
-1. Search `components/` directory for similar functionality
-2. Review `app/[locale]/tools/*/components/` for tool-specific components
-3. If 70%+ similar logic exists, extend the shared component instead of duplicating
-4. If creating a new shared component, update this table in CLAUDE.md
-
-**Common duplication patterns to avoid:**
-- Multiple "prompt input" components → use `PromptInput`
-- Multiple "file upload" components → use `FileUploader`
-- Multiple "option selector" cards → use `OptionSelector`
-
-### Security
-
-- Validate all user inputs on the server
-- Prefix client-side env vars with `NEXT_PUBLIC_`
-- Never expose API keys or secrets in client code
-
-## Anti-Patterns to Avoid
-
-### React/Next.js
-
-- Do NOT use `'use client'` unnecessarily (increases client bundle)
-- Do NOT use `Date`, `Math.random()` directly in component render (causes hydration mismatch)
-- Do NOT mutate state directly; always use immutable updates
-- Do NOT use `useEffect` for data fetching in Client Components (use React Query or SWR)
-
-### TypeScript
-
-- Do NOT use `any` without explicit justification comment
-- Do NOT use `as any` to bypass type checking
-- Do NOT ignore TypeScript errors
-- Do NOT use loose equality (`==`) instead of strict equality (`===`)
-
-### State Management
-
-- Do NOT put everything in global state; use local state when appropriate
-- Do NOT use `useEffect` for side effects that can be handled otherwise
+| Category | Avoid |
+|----------|-------|
+| React | `'use client'` unnecessarily, `Date` in render, mutate state |
+| TypeScript | `any`, `as any`, loose equality (`==`) |
+| State | Everything in global state |
 
 ## Next.js 16 Patterns
 
-### API Routes
-
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-
+// API Route
 export async function POST(request: NextRequest) {
   const body = await request.json()
   return NextResponse.json({ result })
 }
-```
 
-### Video Processing API Pattern
-
-For large file uploads (video processing):
-
-```typescript
+// Video Processing
 export const runtime = 'nodejs';
-export const maxDuration = 300; // 5 minutes for video processing
+export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
-  // Handle file upload, spawn Python processes for analysis
-}
-```
-
-### Server Actions
-
-```typescript
+// Server Action
 'use server'
-
 export async function createUser(formData: FormData) {
-  const name = formData.get('name') as string
-  await db.user.create({ data: { name } })
+  await db.user.create({ data: { name: formData.get('name') as string } })
 }
 ```
 

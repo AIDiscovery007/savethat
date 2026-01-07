@@ -1,0 +1,76 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - alert [ref=e20]
+  - banner [ref=e21]:
+    - generic [ref=e22]:
+      - link "AI Tools Hub" [ref=e24] [cursor=pointer]:
+        - /url: /en
+        - generic [ref=e25]: AI Tools Hub
+      - navigation [ref=e26]:
+        - link "About" [ref=e27] [cursor=pointer]:
+          - /url: "#"
+        - button "English" [ref=e28]:
+          - img
+          - generic [ref=e29]: English
+  - main [ref=e30]:
+    - generic [ref=e32]:
+      - generic [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e39]:
+          - heading "Xiaohongshu Analytics" [level=1] [ref=e40]
+          - paragraph [ref=e41]: AI-powered Xiaohongshu note data analysis
+      - main [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - heading "Upload Data" [level=2] [ref=e46]:
+                - img [ref=e47]
+                - text: Upload Data
+              - generic [ref=e51] [cursor=pointer]:
+                - img [ref=e52]
+                - paragraph [ref=e55]: Drag and drop CSV file here
+                - paragraph [ref=e56]: Supports .csv, .xlsx, .xls formats
+            - generic [ref=e57]:
+              - heading "Analysis Config" [level=2] [ref=e58]:
+                - img [ref=e59]
+                - text: Analysis Config
+              - generic [ref=e62]:
+                - generic [ref=e63]: Select Analysis Template
+                - generic [ref=e64]:
+                  - button "Viral Note Analysis Analyze common features of high-engagement notes to find viral patterns" [ref=e65]:
+                    - paragraph [ref=e66]: Viral Note Analysis
+                    - paragraph [ref=e67]: Analyze common features of high-engagement notes to find viral patterns
+                  - button "Content Optimization Provide content optimization suggestions based on data analysis" [ref=e68]:
+                    - paragraph [ref=e69]: Content Optimization
+                    - paragraph [ref=e70]: Provide content optimization suggestions based on data analysis
+                  - button "Publishing Time Analysis Analyze optimal posting times" [ref=e71]:
+                    - paragraph [ref=e72]: Publishing Time Analysis
+                    - paragraph [ref=e73]: Analyze optimal posting times
+                  - button "Engagement Boost Strategies Provide practical strategies to improve note engagement rate" [ref=e74]:
+                    - paragraph [ref=e75]: Engagement Boost Strategies
+                    - paragraph [ref=e76]: Provide practical strategies to improve note engagement rate
+              - generic [ref=e77]:
+                - generic [ref=e78]: Custom Analysis Instruction
+                - textbox "Enter your analysis focus, e.g., Analyze which content types perform best..." [ref=e79]
+              - button "Start Analysis" [disabled] [ref=e80]:
+                - img [ref=e81]
+                - text: Start Analysis
+          - generic [ref=e85]:
+            - img [ref=e86]
+            - paragraph [ref=e88]: Upload data and start analysis to see results here
+  - contentinfo [ref=e89]:
+    - paragraph [ref=e91]: AI Tools Hub - Powered by AI - Prompt optimization, code generation, smart translation, and more to help you work more efficiently.
+```
