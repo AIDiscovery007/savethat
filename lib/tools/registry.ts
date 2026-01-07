@@ -19,7 +19,7 @@ export interface ToolInfo {
 export type ToolCategory = 'prompt' | 'code' | 'image' | 'text' | 'translation' | 'analysis' | 'video' | 'game';
 export type ToolStatus = 'available' | 'beta' | 'experimental';
 
-export const TOOL_REGISTRY: ToolInfo[] = [
+const TOOL_REGISTRY: ToolInfo[] = [
   { id: 'prompt-quiz', name: '提问挑战', description: '通过猜谜游戏训练你的提问能力，学会提出更有价值的问题', path: '/tools/prompt-quiz', icon: 'game-controller', category: 'game', status: 'available', tags: ['AI', '提问', '游戏', '训练'] },
   { id: 'prompt-trainer', name: '提问训练', description: '学习如何提出更好的问题，训练你的提问思维能力', path: '/tools/prompt-trainer', icon: 'sparkle', category: 'prompt', status: 'available', tags: ['AI', '提问', '思考', '训练'] },
   { id: 'prompt-optimizer', name: '提示词优化', description: '基于 AI 的三阶段提示词优化工具，帮助你写出更好的提示词', path: '/tools/prompt-optimizer', icon: 'sparkle', category: 'prompt', status: 'available', tags: ['AI', '提示词', '优化'] },
@@ -32,33 +32,17 @@ export const TOOL_REGISTRY: ToolInfo[] = [
   { id: 'xiaohongshu-analytics', name: '小红书分析', description: '上传小红书笔记数据 CSV 文件，AI 智能分析笔记表现，提供优化建议', path: '/tools/xiaohongshu-analytics', icon: 'chart', category: 'analysis', status: 'experimental', tags: ['AI', '小红书', '数据分析', '运营'] },
 ];
 
-function getToolBy<K extends keyof ToolInfo>(key: K, value: string): ToolInfo | undefined {
-  return TOOL_REGISTRY.find(tool => tool[key] === value);
-}
+// Helper to find tools by a property
+const findTool = <K extends keyof ToolInfo>(key: K, value: string): ToolInfo | undefined =>
+  TOOL_REGISTRY.find(tool => tool[key] === value);
 
-export function getToolById(id: string): ToolInfo | undefined {
-  return getToolBy('id', id);
-}
-
-export function getToolByPath(path: string): ToolInfo | undefined {
-  return getToolBy('path', path);
-}
-
-export function getAllTools(): ToolInfo[] {
-  return TOOL_REGISTRY;
-}
-
-export function getToolsByCategory(category: ToolCategory): ToolInfo[] {
-  return TOOL_REGISTRY.filter(tool => tool.category === category);
-}
-
-export function getToolsByStatus(status: ToolStatus): ToolInfo[] {
-  return TOOL_REGISTRY.filter(tool => tool.status === status);
-}
-
-export function getAllCategories(): ToolCategory[] {
-  return [...new Set(TOOL_REGISTRY.map(tool => tool.category))];
-}
+// Query helpers
+export const getToolById = (id: string) => findTool('id', id);
+export const getToolByPath = (path: string) => findTool('path', path);
+export const getAllTools = () => TOOL_REGISTRY;
+export const getToolsByCategory = (category: ToolCategory) => TOOL_REGISTRY.filter(tool => tool.category === category);
+export const getToolsByStatus = (status: ToolStatus) => TOOL_REGISTRY.filter(tool => tool.status === status);
+export const getAllCategories = () => [...new Set(TOOL_REGISTRY.map(tool => tool.category))];
 
 export function searchTools(query: string): ToolInfo[] {
   const lower = query.toLowerCase();

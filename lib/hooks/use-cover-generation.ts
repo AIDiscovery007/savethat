@@ -33,9 +33,6 @@ interface UseCoverGenerationReturn {
   reset: () => void;
 }
 
-/**
- * 构建增强的 System Prompt
- */
 function buildSystemPrompt(styleConfig: StyleConfig | undefined, styleId: string): string {
   const basePrompt = `You are a professional Xiaohongshu (Chinese lifestyle platform) cover designer.
 Your task is to analyze reference images and user requirements, then generate optimized prompts for Gemini image generation.
@@ -76,9 +73,6 @@ The prompt should describe the overall visual, not individual elements.`;
   return basePrompt + styleSection + compositionSection + outputSection;
 }
 
-/**
- * 构建用户提示词
- */
 function buildUserPrompt(
   userPrompt: string,
   styleConfig: StyleConfig | undefined,
@@ -110,35 +104,29 @@ Generate an optimized English prompt for Xiaohongshu cover generation that:
 }
 
 export function useCoverGeneration(): UseCoverGenerationReturn {
-  const [isOptimizing, setIsOptimizing] = React.useState(false);
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [optimizedPrompt, setOptimizedPrompt] = React.useState('');
-  const [error, setError] = React.useState<string | null>(null);
+  const [state, setState] = React.useState({
+    isOptimizing: false,
+    isGenerating: false,
+    optimizedPrompt: '',
+    error: null as string | null,
+  });
 
-  // 生成优化后的提示词
+  const reset = () => setState({ isOptimizing: false, isGenerating: false, optimizedPrompt: '', error: null });
+
   const optimizePrompt = async (
     images: ReferenceImage[],
     prompt: string,
     styleId: string
   ): Promise<string> => {
     const styleConfig = getStyleById(styleId);
-    const systemPrompt = buildSystemPrompt(styleConfig, styleId);
-    const userPromptText = buildUserPrompt(prompt, styleConfig, styleId, images.length);
-
     const response = await fetch('/api/aihubmix', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'gemini-3-flash-preview-search',
         messages: [
-          {
-            role: 'system',
-            content: systemPrompt,
-          },
-          {
-            role: 'user',
-            content: userPromptText,
-          },
+          { role: 'system', content: buildSystemPrompt(styleConfig, styleId) },
+          { role: 'user', content: buildUserPrompt(prompt, styleConfig, styleId, images.length) },
         ],
         temperature: 0.7,
         max_tokens: 65536,
@@ -146,17 +134,11 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error('提示词优化失败');
-    }
-
+    if (!response.ok) throw new Error('提示词优化失败');
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    return content || prompt;
+    return data.choices?.[0]?.message?.content || prompt;
   };
 
-  // 生成封面
   const generateCovers = async (
     images: ReferenceImage[],
     prompt: string
@@ -179,52 +161,26 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
     return data.covers || [];
   };
 
-  // 主生成函数
   const generate = async (params: GenerateParams): Promise<GenerateResult | undefined> => {
     const { images, prompt, styleId } = params;
 
-    setError(null);
-    setOptimizedPrompt('');
-
     try {
-      // Step 1: 优化提示词
-      setIsOptimizing(true);
+      setState(s => ({ ...s, isOptimizing: true, error: null }));
       const optimized = await optimizePrompt(images, prompt, styleId);
-      setOptimizedPrompt(optimized);
-      setIsOptimizing(false);
+      setState(s => ({ ...s, isOptimizing: false, optimizedPrompt: optimized }));
 
-      // Step 2: 生成封面
-      setIsGenerating(true);
+      setState(s => ({ ...s, isGenerating: true }));
       const covers = await generateCovers(images, optimized);
-      setIsGenerating(false);
+      setState(s => ({ ...s, isGenerating: false }));
 
       return { covers, optimizedPrompt: optimized };
     } catch (err) {
-      setIsOptimizing(false);
-      setIsGenerating(false);
-
       const errorMessage = err instanceof Error ? err.message : '生成失败，请重试';
-      setError(errorMessage);
-
+      setState({ isOptimizing: false, isGenerating: false, optimizedPrompt: '', error: errorMessage });
       console.error('Cover generation error:', err);
       return undefined;
     }
   };
 
-  // 重置状态
-  const reset = () => {
-    setIsOptimizing(false);
-    setIsGenerating(false);
-    setOptimizedPrompt('');
-    setError(null);
-  };
-
-  return {
-    isOptimizing,
-    isGenerating,
-    optimizedPrompt,
-    error,
-    generate,
-    reset,
-  };
+  return { ...state, generate, reset };
 }
