@@ -324,7 +324,16 @@
     "maxCount": "{current}/{max} 张",
     "maxImagesReached": "已达到最大数量限制",
     "selectedCount": "已选择 {count}/{max} 张图片",
-    "readFileError": "读取文件失败"
+    "readFileError": "读取文件失败",
+    "clearAll": "清空全部",
+    "previous": "上一页",
+    "next": "下一页",
+    "pageInfo": "第 {current} / {total} 页",
+    "delete": "删除",
+    "preview": "预览",
+    "confirmDelete": "确认删除",
+    "deleteImageDescription": "确定要删除这张封面图片吗？此操作无法撤销。",
+    "cancel": "取消"
   },
   "PromptQuiz": {
     "title": "Prompt 挑战",

@@ -2,13 +2,14 @@
 
 /**
  * 生成预览组件
- * 显示生成过程中的加载状态
+ * 显示生成过程中的加载状态 - 创意趣味风格
  */
 
 import * as React from 'react';
-import { Spinner, ImageIcon } from '@phosphor-icons/react';
+import { Spinner, ImageIcon, SparkleIcon } from '@phosphor-icons/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { motion } from 'framer-motion';
 
 interface GenerationPreviewProps {
   isGenerating?: boolean;

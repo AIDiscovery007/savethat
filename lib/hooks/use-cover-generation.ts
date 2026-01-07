@@ -6,16 +6,22 @@
  */
 
 import * as React from 'react';
-import type { ReferenceImage, GeneratedCover, CoverStyle } from '@/app/[locale]/tools/cover-generator/page';
+import { getStyleById } from '@/app/[locale]/tools/cover-generator/config/styles';
+import type {
+  ReferenceImage,
+  GeneratedCover,
+  StyleConfig,
+} from '@/app/[locale]/tools/cover-generator/types';
 
 interface GenerateParams {
   images: ReferenceImage[];
   prompt: string;
-  style: CoverStyle;
+  styleId: string;
 }
 
 interface GenerateResult {
   covers: GeneratedCover[];
+  optimizedPrompt?: string;
 }
 
 interface UseCoverGenerationReturn {
@@ -25,6 +31,82 @@ interface UseCoverGenerationReturn {
   error: string | null;
   generate: (params: GenerateParams) => Promise<GenerateResult | undefined>;
   reset: () => void;
+}
+
+/**
+ * 构建增强的 System Prompt
+ */
+function buildSystemPrompt(styleConfig: StyleConfig | undefined, styleId: string): string {
+  const basePrompt = `You are a professional Xiaohongshu (Chinese lifestyle platform) cover designer.
+Your task is to analyze reference images and user requirements, then generate optimized prompts for Gemini image generation.
+
+## KEY PRINCIPLES:
+1. Analyze reference images for style characteristics (colors, composition, layout)
+2. Generate prompts that match the specific style requirements
+3. Use English, be concise yet detailed enough for Gemini to understand
+4. Include Xiaohongshu-specific keywords: high-quality texture, atmospheric, appealing to viewers
+5. Output only the optimized English prompt, no explanations
+
+## STYLE GUIDANCE:
+`;
+
+  const styleSection = styleConfig
+    ? `Target Style: ${styleConfig.name}
+Style Description: ${styleConfig.mood}
+Color Scheme: ${styleConfig.colors.primary} (primary), ${styleConfig.colors.secondary} (secondary), ${styleConfig.colors.accent} (accent), ${styleConfig.colors.background} (background)
+Keywords to include: ${styleConfig.keywords.join(', ')}`
+    : `Custom style ID: ${styleId}`;
+
+  const compositionSection = `
+
+## COMPOSITION RULES:
+- Use vertical 9:16 aspect ratio (Xiaohongshu standard)
+- Bold, readable title text that catches attention
+- Clear visual hierarchy with dominant headline
+- Strategic use of negative space
+- Eye-catching data points or numbers highlighted
+- Clean, modern aesthetic that works for Chinese social media`;
+
+  const outputSection = `
+
+## OUTPUT FORMAT:
+Return ONLY the optimized English prompt text, suitable for direct use in Gemini image generation.
+The prompt should describe the overall visual, not individual elements.`;
+
+  return basePrompt + styleSection + compositionSection + outputSection;
+}
+
+/**
+ * 构建用户提示词
+ */
+function buildUserPrompt(
+  userPrompt: string,
+  styleConfig: StyleConfig | undefined,
+  styleId: string,
+  imageCount: number
+): string {
+  const styleInfo = styleConfig
+    ? `Target Style: ${styleConfig.name}
+Mood: ${styleConfig.mood}
+Colors: ${styleConfig.colors.primary}, ${styleConfig.colors.secondary}, ${styleConfig.colors.accent}`
+    : `Style ID: ${styleId}`;
+
+  return `## User Requirements:
+${userPrompt}
+
+## Style Details:
+${styleInfo}
+
+## Reference Images:
+${imageCount} image(s) provided as reference
+
+## Task:
+Generate an optimized English prompt for Xiaohongshu cover generation that:
+1. Incorporates the style characteristics
+2. Creates an eye-catching, scroll-stopping design
+3. Works well on mobile (9:16 vertical format)
+4. Includes text/title elements that would grab attention
+5. Maintains the reference image's aesthetic qualities`;
 }
 
 export function useCoverGeneration(): UseCoverGenerationReturn {
@@ -37,8 +119,12 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
   const optimizePrompt = async (
     images: ReferenceImage[],
     prompt: string,
-    style: CoverStyle
+    styleId: string
   ): Promise<string> => {
+    const styleConfig = getStyleById(styleId);
+    const systemPrompt = buildSystemPrompt(styleConfig, styleId);
+    const userPromptText = buildUserPrompt(prompt, styleConfig, styleId, images.length);
+
     const response = await fetch('/api/aihubmix', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -47,26 +133,11 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
         messages: [
           {
             role: 'system',
-            content: `你是一位专业的小红书封面设计师。你的任务是分析用户上传的参考图片，并结合用户需求，生成适合 Gemini 图像生成的优化提示词。
-
-要求：
-1. 分析参考图片的风格特征（色彩、构图、文案排版）
-2. 结合用户描述，生成小红书风格的封面提示词
-3. 提示词要用英文，简洁明了，适合 Gemini 理解
-4. 融入小红书风格关键词：高清质感、氛围感、种草风
-5. 如果用户提到特定风格（鲜艳/极简/暖色/冷色/活泼），要体现出来
-
-输出格式：
-只返回优化后的英文提示词，不要任何解释。`,
+            content: systemPrompt,
           },
           {
             role: 'user',
-            content: `请分析参考图片并优化以下提示词：
-
-用户需求：${prompt}
-期望风格：${style}
-
-参考图片数量：${images.length}张`,
+            content: userPromptText,
           },
         ],
         temperature: 0.7,
@@ -110,7 +181,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
 
   // 主生成函数
   const generate = async (params: GenerateParams): Promise<GenerateResult | undefined> => {
-    const { images, prompt, style } = params;
+    const { images, prompt, styleId } = params;
 
     setError(null);
     setOptimizedPrompt('');
@@ -118,7 +189,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
     try {
       // Step 1: 优化提示词
       setIsOptimizing(true);
-      const optimized = await optimizePrompt(images, prompt, style);
+      const optimized = await optimizePrompt(images, prompt, styleId);
       setOptimizedPrompt(optimized);
       setIsOptimizing(false);
 
@@ -127,7 +198,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
       const covers = await generateCovers(images, optimized);
       setIsGenerating(false);
 
-      return { covers };
+      return { covers, optimizedPrompt: optimized };
     } catch (err) {
       setIsOptimizing(false);
       setIsGenerating(false);

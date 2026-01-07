@@ -2,7 +2,7 @@
 
 /**
  * 参考图上传组件
- * 支持拖拽和点击上传多张图片
+ * 支持拖拽和点击上传多张图片 - 创意趣味风格
  */
 
 import * as React from 'react';
@@ -12,7 +12,9 @@ import { AlertCircle, CheckCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { ReferenceImage } from '../page';
+import type { ReferenceImage } from '../types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface ReferenceUploaderProps {
   images: ReferenceImage[];

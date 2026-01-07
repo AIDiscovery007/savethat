@@ -324,7 +324,16 @@
     "maxCount": "{current}/{max}",
     "maxImagesReached": "Maximum number of images reached",
     "selectedCount": "{count}/{max} images selected",
-    "readFileError": "Failed to read file"
+    "readFileError": "Failed to read file",
+    "clearAll": "Clear All",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {current} / {total}",
+    "delete": "Delete",
+    "preview": "Preview",
+    "confirmDelete": "Confirm Delete",
+    "deleteImageDescription": "Are you sure you want to delete this cover image? This action cannot be undone.",
+    "cancel": "Cancel"
   },
   "PromptQuiz": {
     "title": "Prompt Challenge",

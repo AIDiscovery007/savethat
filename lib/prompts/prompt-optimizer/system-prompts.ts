@@ -459,7 +459,7 @@ export function buildStageUserMessage(
  */
 export function extractFinalPrompt(jsonOutput: string): string {
   // 1. 先清理 thinking 标记（如果存在）
-  let cleaned = jsonOutput
+  const cleaned = jsonOutput
     .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
     .replace(/<think>[\s\S]*?<\/think>/gi, '')
     .trim();

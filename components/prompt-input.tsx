@@ -15,6 +15,7 @@ interface PromptInputProps {
   rows?: number;
   showCount?: boolean;
   submitOnCtrlEnter?: boolean;
+  autoResize?: boolean; // 控制是否自动调整高度
 }
 
 export function PromptInput({
@@ -28,17 +29,18 @@ export function PromptInput({
   rows = 4,
   showCount = true,
   submitOnCtrlEnter = false,
+  autoResize = true,
 }: PromptInputProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [isFocused, setIsFocused] = React.useState(false);
 
   // Auto-resize height
   React.useEffect(() => {
-    if (textareaRef.current) {
+    if (autoResize && textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [value]);
+  }, [value, autoResize]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (submitOnCtrlEnter && onSubmit && (e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -71,9 +73,11 @@ export function PromptInput({
           rows={rows}
           maxLength={maxLength}
           className={cn(
-            'min-h-[100px] resize-none border-0 p-3 shadow-none',
+            'border-0 p-3 shadow-none resize-none',
             'focus-visible:ring-0 focus-visible:ring-offset-0',
-            disabled && 'cursor-not-allowed'
+            disabled && 'cursor-not-allowed',
+            // 当 autoResize 为 false 时，使用固定高度和滚动
+            autoResize === false && 'h-[240px] overflow-y-auto'
           )}
         />
 

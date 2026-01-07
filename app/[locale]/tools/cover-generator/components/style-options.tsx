@@ -2,72 +2,23 @@
 
 /**
  * 风格选择组件
+ * 创意趣味风格设计
  */
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import type { CoverStyle } from '../page';
-import {
-  SparkleIcon,
-  PaletteIcon,
-  SunIcon,
-  SnowflakeIcon,
-  ConfettiIcon,
-} from '@phosphor-icons/react';
+import { COVER_STYLES } from '../config/styles';
+import { motion } from 'framer-motion';
 
 interface StyleOptionsProps {
-  selectedStyle: CoverStyle;
-  onStyleChange: (style: CoverStyle) => void;
+  selectedStyleId: string;
+  onStyleChange: (styleId: string) => void;
   disabled?: boolean;
 }
 
-const STYLE_OPTIONS: Array<{
-  id: CoverStyle;
-  label: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  colorClass: string;
-}> = [
-  {
-    id: 'vibrant',
-    label: '鲜艳风格',
-    description: '色彩饱和度高，视觉冲击力强',
-    icon: SparkleIcon,
-    colorClass: 'bg-gradient-to-r from-orange-400 to-pink-500',
-  },
-  {
-    id: 'minimal',
-    label: '极简风格',
-    description: '简约干净，留白艺术',
-    icon: PaletteIcon,
-    colorClass: 'bg-gradient-to-r from-gray-400 to-gray-600',
-  },
-  {
-    id: 'warm',
-    label: '暖色风格',
-    description: '温暖柔和，温馨氛围',
-    icon: SunIcon,
-    colorClass: 'bg-gradient-to-r from-yellow-400 to-orange-500',
-  },
-  {
-    id: 'cool',
-    label: '冷色风格',
-    description: '清爽冷静，专业感',
-    icon: SnowflakeIcon,
-    colorClass: 'bg-gradient-to-r from-cyan-400 to-blue-500',
-  },
-  {
-    id: 'playful',
-    label: '活泼风格',
-    description: '有趣生动，年轻活力',
-    icon: ConfettiIcon,
-    colorClass: 'bg-gradient-to-r from-purple-400 to-pink-400',
-  },
-];
-
 export function StyleOptions({
-  selectedStyle,
+  selectedStyleId,
   onStyleChange,
   disabled = false,
 }: StyleOptionsProps) {
@@ -76,9 +27,9 @@ export function StyleOptions({
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2">
-        {STYLE_OPTIONS.map((style) => {
+        {COVER_STYLES.map((style) => {
           const Icon = style.icon;
-          const isSelected = selectedStyle === style.id;
+          const isSelected = selectedStyleId === style.id;
 
           return (
             <button
@@ -96,21 +47,15 @@ export function StyleOptions({
               )}
             >
               <div className="flex items-start gap-2">
+                {/* 颜色预览点 */}
                 <div
-                  className={cn(
-                    'p-1.5 rounded-md',
-                    isSelected ? style.colorClass : 'bg-muted'
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      'h-4 w-4',
-                      isSelected ? 'text-white' : 'text-muted-foreground'
-                    )}
-                  />
-                </div>
+                  className="w-6 h-6 rounded-full flex-shrink-0 mt-0.5"
+                  style={{
+                    background: `linear-gradient(135deg, ${style.colors.primary} 0%, ${style.colors.secondary} 50%, ${style.colors.accent} 100%)`,
+                  }}
+                />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{style.label}</p>
+                  <p className="text-sm font-medium truncate">{style.name}</p>
                   <p className="text-xs text-muted-foreground truncate">
                     {style.description}
                   </p>
@@ -123,8 +68,11 @@ export function StyleOptions({
                   className={cn(
                     'absolute -top-1 -right-1 w-4 h-4 rounded-full',
                     'flex items-center justify-center',
-                    style.colorClass
+                    'bg-primary'
                   )}
+                  style={{
+                    background: style.colors.accent,
+                  }}
                 >
                   <div className="w-2 h-2 rounded-full bg-white" />
                 </div>

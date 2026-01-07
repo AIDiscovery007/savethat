@@ -119,6 +119,7 @@ export function FileUploader({
     if (previewType === 'none') return null;
 
     const previewUrl = URL.createObjectURL(file);
+    const cleanup = () => URL.revokeObjectURL(previewUrl);
 
     if (previewType === 'video') {
       return (
@@ -127,6 +128,7 @@ export function FileUploader({
           src={previewUrl}
           controls
           className="w-full h-full object-contain"
+          onEnded={cleanup}
         />
       );
     }
@@ -137,7 +139,7 @@ export function FileUploader({
         src={previewUrl}
         alt={file.name}
         className="w-full h-full object-cover"
-        onLoad={() => URL.revokeObjectURL(previewUrl)}
+        onLoad={cleanup}
       />
     );
   };

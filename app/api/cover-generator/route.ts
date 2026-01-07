@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { generateText } from 'ai';
 import type { TextPart, ImagePart } from 'ai';
 import { getModel, isConfigured } from '@/lib/api/aihubmix/sdk-client';
@@ -21,6 +22,31 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif
 
 // 生成图片数量
 const DEFAULT_NUM_IMAGES = 2;
+
+// 错误类型映射
+const ERROR_PATTERNS: Array<{ pattern: RegExp; message: string; status: number }> = [
+  { pattern: /API key|authentication/i, message: 'Authentication failed. Please check your API key.', status: 401 },
+  { pattern: /rate limit|quota/i, message: 'Rate limit exceeded. Please try again later.', status: 429 },
+  { pattern: /timeout|deadline/i, message: 'Generation timed out. Please try again.', status: 504 },
+];
+
+/**
+ * 处理 API 错误并返回标准化响应
+ */
+function handleApiError(error: Error): NextResponse {
+  const errorMessage = error.message;
+
+  for (const { pattern, message, status } of ERROR_PATTERNS) {
+    if (pattern.test(errorMessage)) {
+      return NextResponse.json({ error: message }, { status });
+    }
+  }
+
+  return NextResponse.json(
+    { error: 'An unexpected error occurred. Please try again.' },
+    { status: 500 }
+  );
+}
 
 /**
  * 验证 base64 图像数据
@@ -104,14 +130,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const body = await request.json();
     const { images, prompt } = body;
 
-    // 验证输入
-    if (!images || !Array.isArray(images) || images.length === 0) {
-      return NextResponse.json(
-        { error: 'Please provide at least one reference image.' },
-        { status: 400 }
-      );
-    }
-
+    // 验证提示词 (参考图片现在是可选的)
     if (!prompt || typeof prompt !== 'string') {
       return NextResponse.json(
         { error: 'Please provide a prompt describing the cover you want.' },
@@ -119,15 +138,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 验证图像数据
-    for (const img of images) {
-      if (!img.base64 || typeof img.base64 !== 'string') {
-        return NextResponse.json(
-          { error: 'Invalid image data. Each image must have a base64 string.' },
-          { status: 400 }
-        );
-      }
+    // 验证参考图片 (如果有的话)
+    const validImages = (images || []).filter(
+      (img: { base64?: string }) => img?.base64 && typeof img.base64 === 'string'
+    );
 
+    for (const img of validImages) {
       if (!validateBase64Image(img.base64)) {
         return NextResponse.json(
           { error: 'Image too large. Maximum size is 4MB per image.' },
@@ -142,8 +158,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 构建内容 - 使用 AI SDK 的多模态格式
     const contentParts: Array<TextPart | ImagePart> = [];
 
-    // 添加参考图片
-    for (const img of images) {
+    // 添加参考图片 (如果有)
+    for (const img of validImages) {
       const { mimeType, data } = parseBase64Image(img.base64);
       contentParts.push({
         type: 'image',
@@ -182,7 +198,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const dataUrl = `data:${file.mediaType};base64,${base64}`;
 
           covers.push({
-            id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            id: `${Date.now()}-${randomUUID()}`,
             url: dataUrl,
             prompt,
           });
@@ -205,30 +221,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error('Cover generation error:', error);
 
-    // 处理特定错误
     if (error instanceof Error) {
-      const errorMessage = error.message;
-
-      if (errorMessage.includes('API key') || errorMessage.includes('authentication')) {
-        return NextResponse.json(
-          { error: 'Authentication failed. Please check your API key.' },
-          { status: 401 }
-        );
-      }
-
-      if (errorMessage.includes('rate limit') || errorMessage.includes('quota')) {
-        return NextResponse.json(
-          { error: 'Rate limit exceeded. Please try again later.' },
-          { status: 429 }
-        );
-      }
-
-      if (errorMessage.includes('timeout') || errorMessage.includes('deadline')) {
-        return NextResponse.json(
-          { error: 'Generation timed out. Please try again.' },
-          { status: 504 }
-        );
-      }
+      return handleApiError(error);
     }
 
     return NextResponse.json(

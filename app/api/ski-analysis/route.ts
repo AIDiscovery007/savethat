@@ -81,15 +81,20 @@ function tryParseJson(text: string): { success: boolean; data: Record<string, un
   return { success: false, data: {} };
 }
 
+// MIME 类型映射表
+const MIME_TYPE_MAP: Record<string, string> = {
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mov': 'video/quicktime',
+  '.avi': 'video/x-msvideo',
+};
+
 /**
  * 根据文件扩展名获取 MIME 类型
  */
 function getMimeTypeFromExtension(filename: string): string | null {
-  if (filename.endsWith('.mp4')) return 'video/mp4';
-  if (filename.endsWith('.webm')) return 'video/webm';
-  if (filename.endsWith('.mov')) return 'video/quicktime';
-  if (filename.endsWith('.avi')) return 'video/x-msvideo';
-  return null;
+  const ext = Object.keys(MIME_TYPE_MAP).find((ext) => filename.endsWith(ext));
+  return ext ? MIME_TYPE_MAP[ext] : null;
 }
 
 /**
@@ -360,7 +365,7 @@ function generateBasicAssessmentFromPose(poseData: PoseAnalysisResult): Record<s
 
   // 根据重心高度估算技能水平
   let level = '初级';
-  let style = '休闲';
+  const style = '休闲';
   let score = 5.0;
 
   if (avgCOG < 0.3) {

@@ -2,6 +2,7 @@
 
 /**
  * 封面卡片组件
+ * 创意趣味风格设计
  */
 
 import * as React from 'react';
@@ -10,19 +11,36 @@ import {
   DownloadIcon,
   CopyIcon,
   ArrowClockwiseIcon,
+  TrashIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { GeneratedCover } from '../page';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import type { GeneratedCover } from '../types';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface CoverCardProps {
   cover: GeneratedCover;
   prompt: string;
+  onDelete?: (coverId: string) => void;
   onRegenerate?: () => void;
+  className?: string;
 }
 
-export function CoverCard({ cover, prompt, onRegenerate }: CoverCardProps) {
+export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: CoverCardProps) {
   const t = useTranslations('CoverGenerator');
   const [copied, setCopied] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
@@ -50,38 +68,92 @@ export function CoverCard({ cover, prompt, onRegenerate }: CoverCardProps) {
   const handleCopyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(prompt);
-      // 可以添加 toast 提示
     } catch (err) {
       console.error('Failed to copy prompt:', err);
     }
   };
 
   return (
-    <Card className="rounded-[var(--radius)] overflow-hidden group">
+    <Card className={cn(
+      'rounded-[var(--radius)] overflow-hidden group',
+      'transition-all duration-300 ease-out',
+      'hover:shadow-xl hover:shadow-primary/10',
+      'border border-transparent group-hover:border-primary/20',
+      'bg-background',
+      className
+    )}>
       <CardContent className="p-0">
         {/* 图片预览 */}
-        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+        <div className={cn(
+          "relative aspect-[4/3] bg-muted overflow-hidden",
+          "transition-transform duration-300 ease-out",
+          "group-hover:scale-[1.02]"
+        )}>
           {imageError ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-sm text-muted-foreground">图片加载失败</p>
             </div>
           ) : (
-            <img
-              src={cover.url}
-              alt="Generated cover"
-              className="w-full h-full object-contain transition-transform group-hover:scale-105"
-              onError={() => setImageError(true)}
-            />
+            <>
+              <img
+                src={cover.url}
+                alt="Generated cover"
+                className="w-full h-full object-contain"
+                onError={() => setImageError(true)}
+              />
+
+              {/* 悬浮按钮组 - 顶部 */}
+              <div className={cn(
+                "absolute top-2 left-2 right-2 flex justify-end z-20",
+                "transition-all duration-200 ease-out",
+                "opacity-0 group-hover:opacity-100",
+                "translate-y-[-8px] group-hover:translate-y-0"
+              )}>
+                {/* 删除按钮 - 带确认弹窗 */}
+                {onDelete && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="h-7 w-7 rounded-full shadow-lg"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>{t('confirmDelete')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t('deleteImageDescription')}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(cover.id)}>
+                          {t('delete')}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+            </>
           )}
 
-          {/* 悬浮操作栏 */}
-          <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* 悬浮操作栏 - 底部 */}
+          <div className={cn(
+            "absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20",
+            "transition-all duration-200 ease-out",
+            "opacity-0 group-hover:opacity-100",
+            "translate-y-[8px] group-hover:translate-y-0"
+          )}>
             <div className="flex items-center justify-center gap-2">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleDownload}
-                className="gap-1"
+                className="gap-1 bg-white/20 hover:bg-white/30 text-white border-0"
               >
                 <DownloadIcon className="h-3.5 w-3.5" />
                 {t('download')}
@@ -90,7 +162,7 @@ export function CoverCard({ cover, prompt, onRegenerate }: CoverCardProps) {
                 variant="secondary"
                 size="sm"
                 onClick={handleCopy}
-                className="gap-1"
+                className="gap-1 bg-white/20 hover:bg-white/30 text-white border-0"
               >
                 {copied ? (
                   <>
