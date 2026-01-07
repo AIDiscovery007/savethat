@@ -14,14 +14,12 @@ import { ReferenceUploader } from './components/reference-uploader';
 import { PromptInput } from '@/components/prompt-input';
 import { StyleOptions } from './components/style-options';
 import { GenerationPreview } from './components/generation-preview';
-import { CoverCard } from './components/cover-card';
 import { CoversGrid } from './components/covers-grid';
 import { useCoverGeneration } from '@/lib/hooks/use-cover-generation';
 import { COVER_STYLES } from './config/styles';
 import type { ReferenceImage, GeneratedCover } from './types';
 import { Spinner, ImageIcon, TrashIcon, SparkleIcon } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
 // 单次生成记录
 interface GenerationRecord {
