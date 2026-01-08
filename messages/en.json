@@ -120,6 +120,10 @@
     "xiaohongshu-analytics": {
       "name": "Xiaohongshu Analytics",
       "description": "AI-powered Xiaohongshu note data analysis"
+    },
+    "wallhaven-gallery": {
+      "name": "Wallpaper Gallery",
+      "description": "Browse and download high-quality wallpapers from Wallhaven"
     }
   },
   "PromptOptimizer": {
@@ -371,5 +375,11 @@
     "noMatchedPoints": "No matches yet",
     "allPointsMatched": "Excellent! All points matched!",
     "optimizationTip": "Tip: Try adding specific requirements to your prompt, such as word count, format, or key points."
+  },
+  "WallhavenGallery": {
+    "title": "Wallpaper Gallery",
+    "subtitle": "Browse and download high-quality wallpapers from Wallhaven",
+    "filters": "Search Filters",
+    "filtersDesc": "Customize your search with keywords, categories, and sorting options"
   }
 }

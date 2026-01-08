@@ -48,68 +48,81 @@ export class AihubmixClient {
   }
 
   /**
-   * 发送聊天完成请求（同步）
+   * 内部请求执行
    */
-  async chat(request: AihubmixChatRequest, options?: RequestOptions): Promise<AihubmixChatResponse> {
-    const { apiKey, baseUrl, timeout, maxRetries } = this.config;
-    const url = `${baseUrl}/chat/completions`;
+  private async executeRequest<T>(
+    url: string,
+    body: object,
+    timeoutMs: number
+  ): Promise<T> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})) as AihubmixError;
+        throw new AihubmixAPIError(
+          errorData.error?.message || `API request failed with status ${response.status}`,
+          response.status,
+          errorData.error?.type
+        );
+      }
+
+      return response.json() as Promise<T>;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  /**
+   * 执行带重试的请求
+   */
+  private async requestWithRetry<T>(
+    url: string,
+    body: object,
+    options?: RequestOptions
+  ): Promise<T> {
+    const { timeout, maxRetries } = this.config;
     let lastError: Error | null = null;
-    let attempt = 0;
 
-    while (attempt < maxRetries) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), options?.timeout || timeout);
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            ...request,
-            stream: false,
-          }),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({})) as AihubmixError;
-          throw new AihubmixAPIError(
-            errorData.error?.message || `API request failed with status ${response.status}`,
-            response.status,
-            errorData.error?.type
-          );
-        }
-
-        const data = await response.json() as AihubmixChatResponse;
-        return data;
+        return await this.executeRequest<T>(url, body, options?.timeout || timeout);
       } catch (error) {
         lastError = error as Error;
 
-        // 如果是中止错误或客户端错误，不重试
-        if (error instanceof AihubmixAPIError) {
-          const isClientError = error.statusCode >= 400 && error.statusCode < 500;
-          if (isClientError) {
-            throw error;
-          }
+        // 客户端错误不重试
+        if (error instanceof AihubmixAPIError && error.statusCode >= 400 && error.statusCode < 500) {
+          throw error;
         }
 
-        attempt++;
-        if (attempt < maxRetries) {
-          // 指数退避
+        if (attempt < maxRetries - 1) {
           const delay = Math.pow(2, attempt) * 1000;
-          console.warn(`[AihubmixClient] Retry attempt ${attempt}/${maxRetries} after ${delay}ms`);
+          console.warn(`[AihubmixClient] Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
 
     throw lastError || new Error('Max retries exceeded');
+  }
+
+  /**
+   * 发送聊天完成请求（同步）
+   */
+  async chat(request: AihubmixChatRequest, options?: RequestOptions): Promise<AihubmixChatResponse> {
+    const { baseUrl } = this.config;
+    return this.requestWithRetry(`${baseUrl}/chat/completions`, { ...request, stream: false }, options);
   }
 
   /**

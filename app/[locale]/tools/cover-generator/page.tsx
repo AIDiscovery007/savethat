@@ -31,34 +31,42 @@ interface GenerationRecord {
   covers: GeneratedCover[];
 }
 
+/**
+ * LocalStorage 工具对象
+ */
+const storage = {
+  load<T>(key: string, fallback: T): T {
+    if (typeof window === 'undefined') return fallback;
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : fallback;
+    } catch {
+      return fallback;
+    }
+  },
+  save<T>(key: string, value: T): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.error(`Failed to save ${key}:`, e);
+    }
+  },
+};
+
 // 从 localStorage 恢复历史记录
 const loadHistory = (): GenerationRecord[] => {
-  if (typeof window === 'undefined') return [];
-  try {
-    const saved = localStorage.getItem('cover-generator-history');
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
+  return storage.load<GenerationRecord[]>('cover-generator-history', []);
 };
 
 // 保存历史记录到 localStorage
-const saveHistory = (history: GenerationRecord[]) => {
-  if (typeof window === 'undefined') return;
-  try {
-    // 检查存储是否接近满（单条记录超过 200KB 时触发清理）
-    const serialized = JSON.stringify(history);
-    if (serialized.length > 200 * 1024) {
-      // 存储空间不足，清理最旧的记录
-      const trimmedHistory = history.slice(0, -2);
-      localStorage.setItem('cover-generator-history', JSON.stringify(trimmedHistory));
-    } else {
-      localStorage.setItem('cover-generator-history', serialized);
-    }
-  } catch (e) {
-    // 如果还是失败，清除所有历史
-    console.error('Failed to save history, clearing:', e);
-    localStorage.removeItem('cover-generator-history');
+const saveHistory = (history: GenerationRecord[]): void => {
+  const serialized = JSON.stringify(history);
+  // 检查存储是否接近满（单条记录超过 200KB 时触发清理）
+  if (serialized.length > 200 * 1024) {
+    storage.save('cover-generator-history', history.slice(0, -2));
+  } else {
+    storage.save('cover-generator-history', history);
   }
 };
 

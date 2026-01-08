@@ -30,6 +30,7 @@ const TOOL_REGISTRY: ToolInfo[] = [
   { id: 'ski-analysis', name: '滑雪动作分析', description: '上传滑雪视频，AI 将从专业滑手角度分析动作问题并提供改进建议', path: '/tools/ski-analysis', icon: 'video', category: 'video', status: 'available', tags: ['AI', '滑雪', '动作分析', '运动'] },
   { id: 'cover-generator', name: '小红书封面生成器', description: '基于 AI 的小红书笔记封面生成工具，上传参考图并描述需求即可生成专业封面', path: '/tools/cover-generator', icon: 'image', category: 'image', status: 'experimental', tags: ['小红书', '封面', '图像生成', 'AI'] },
   { id: 'xiaohongshu-analytics', name: '小红书分析', description: '上传小红书笔记数据 CSV 文件，AI 智能分析笔记表现，提供优化建议', path: '/tools/xiaohongshu-analytics', icon: 'chart', category: 'analysis', status: 'experimental', tags: ['AI', '小红书', '数据分析', '运营'] },
+  { id: 'wallhaven-gallery', name: '壁纸画廊', description: '浏览和下载 Wallhaven 精选壁纸，支持搜索、过滤和批量下载', path: '/tools/wallhaven-gallery', icon: 'image', category: 'image', status: 'available', tags: ['壁纸', 'Wallhaven', '图像', '下载'] },
 ];
 
 // Helper to find tools by a property

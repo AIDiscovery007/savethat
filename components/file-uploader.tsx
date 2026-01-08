@@ -136,8 +136,9 @@ export function FileUploader({
 
   return (
     <div className="space-y-4">
-      {!multiple && files.length > 0 && previewType !== 'none' && renderSinglePreview()}
-      {multiple && files.length > 0 && renderMultiplePreviews()}
+      {files.length > 0 && previewType !== 'none' && (
+        !multiple ? renderSinglePreview() : renderMultiplePreviews()
+      )}
 
       {(canAddMore || files.length === 0) && (
         <div

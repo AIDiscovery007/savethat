@@ -13,25 +13,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { ListIcon, InfoIcon, SparkleIcon } from '@phosphor-icons/react';
 import { getAllTools } from '@/lib/tools/registry';
+import { useIsMounted } from '@/lib/hooks/use-is-mounted';
 
 export function MobileNav() {
   const t = useTranslations('Navigation');
   const tTools = useTranslations('Tools');
   const tools = getAllTools();
-  const [mounted, setMounted] = React.useState(false);
+  const isMounted = useIsMounted();
   const [open, setOpen] = React.useState(false);
-
-  // Use client-only rendering to avoid hydration mismatch
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Use uncontrolled mode to avoid hydration mismatch
   const getToolName = (toolId: string) => {
     return tTools(`${toolId}.name`);
   };
 
-  if (!mounted) {
+  if (!isMounted) {
     return (
       <Button variant="ghost" size="icon" className="md:hidden">
         <ListIcon className="h-5 w-5" />

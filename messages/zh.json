@@ -45,6 +45,10 @@
     "xiaohongshu-analytics": {
       "name": "小红书分析",
       "description": "上传小红书笔记数据 CSV 文件，AI 智能分析笔记表现，提供优化建议"
+    },
+    "wallhaven-gallery": {
+      "name": "壁纸画廊",
+      "description": "浏览和下载 Wallhaven 高品质壁纸"
     }
   },
   "Footer": {
@@ -371,5 +375,11 @@
     "noMatchedPoints": "暂未命中",
     "allPointsMatched": "太棒了！全部命中！",
     "optimizationTip": "提示：可以尝试在 Prompt 中加入更多具体要求，如字数、格式、重点信息等。"
+  },
+  "WallhavenGallery": {
+    "title": "壁纸画廊",
+    "subtitle": "浏览和下载 Wallhaven 高品质壁纸",
+    "filters": "搜索筛选",
+    "filtersDesc": "通过关键词、分类和排序自定义搜索"
   }
 }
