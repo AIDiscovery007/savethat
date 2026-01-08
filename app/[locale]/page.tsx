@@ -2,11 +2,10 @@
 
 import {Link} from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getAllTools, type ToolStatus, type ToolIconName } from '@/lib/tools/registry';
-import { SparkleIcon, CodeIcon, TranslateIcon, ImageIcon, FileTextIcon, ArrowRightIcon } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import { SparkleIcon, CodeIcon, TranslateIcon, ImageIcon, FileTextIcon, ArrowRightIcon } from '@phosphor-icons/react';
 
 export default function HomePage() {
   const t = useTranslations('HomePage');
@@ -34,9 +33,9 @@ export default function HomePage() {
     <div className="space-y-8 md:space-y-10">
       {/* Hero 区域 */}
       <div className="text-center space-y-3 md:space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary md:px-4 md:py-1.5 md:text-sm">
-          <SparkleIcon className="h-3.5 w-3.5 md:h-4 md:w-4" />
-          {t('badge')}
+        <div className="inline-flex items-center gap-2 bg-blue-100/50 px-3 py-1.5 rounded-md border border-blue-100 shadow-sm">
+          <div className="w-2 h-2 bg-blue-500 rounded-sm" />
+          <span className="text-xs font-bold tracking-wider uppercase text-blue-700">{t('badge')}</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl">
           {t('title')}
@@ -48,10 +47,13 @@ export default function HomePage() {
 
       {/* 可用工具 */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <Badge variant="default" className="rounded-full">{t('available')}</Badge>
-          {t('availableTools')}
-        </h2>
+        <div className="flex items-center gap-3">
+          <div className="inline-flex items-center gap-2 bg-blue-100/50 px-3 py-1.5 rounded-md border border-blue-100 shadow-sm">
+            <div className="w-2 h-2 bg-blue-500 rounded-sm" />
+            <span className="text-xs font-bold tracking-wider uppercase text-blue-700">{t('available')}</span>
+          </div>
+          <h2 className="text-xl font-semibold">{t('availableTools')}</h2>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {availableTools.map(tool => (
             <ToolCard
@@ -69,10 +71,13 @@ export default function HomePage() {
       {/* Beta 工具 */}
       {betaTools.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Badge variant="secondary" className="rounded-full">{t('beta')}</Badge>
-            {t('betaTools')}
-          </h2>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-2 bg-yellow-100/50 px-3 py-1.5 rounded-md border border-yellow-100 shadow-sm">
+              <div className="w-2 h-2 bg-yellow-500 rounded-sm" />
+              <span className="text-xs font-bold tracking-wider uppercase text-yellow-700">{t('beta')}</span>
+            </div>
+            <h2 className="text-xl font-semibold">{t('betaTools')}</h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {betaTools.map(tool => (
               <ToolCard
@@ -91,10 +96,13 @@ export default function HomePage() {
       {/* 实验性工具 */}
       {experimentalTools.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full">{t('experimental')}</Badge>
-            {t('experimentalTools')}
-          </h2>
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-2 bg-gray-100/50 px-3 py-1.5 rounded-md border border-gray-100 shadow-sm">
+              <div className="w-2 h-2 bg-gray-500 rounded-sm" />
+              <span className="text-xs font-bold tracking-wider uppercase text-gray-700">{t('experimental')}</span>
+            </div>
+            <h2 className="text-xl font-semibold">{t('experimentalTools')}</h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {experimentalTools.map(tool => (
               <ToolCard
@@ -117,7 +125,7 @@ export default function HomePage() {
  * 图标渲染组件
  */
 function ToolIcon({ name }: { name: ToolIconName }) {
-  const iconClass = 'h-5 w-5';
+  const iconClass = 'h-6 w-6';
   switch (name) {
     case 'sparkle':
       return <SparkleIcon className={iconClass} />;
@@ -135,7 +143,7 @@ function ToolIcon({ name }: { name: ToolIconName }) {
 }
 
 /**
- * 工具卡片组件
+ * LEGO 风格工具卡片组件
  */
 function ToolCard({
   tool,
@@ -150,39 +158,101 @@ function ToolCard({
   statusLabels: Record<ToolStatus, string>;
   useNow: string;
 }) {
-  const statusColors: Record<ToolStatus, string> = {
-    available: 'bg-green-500/10 text-green-600',
-    beta: 'bg-yellow-500/10 text-yellow-600',
-    experimental: 'bg-gray-500/10 text-gray-600',
+  // LEGO 风格颜色变体
+  const colorVariants = {
+    available: {
+      bg: 'bg-blue-50 dark:bg-blue-950/50',
+      border: 'border-b-[6px] border-blue-400 dark:border-blue-400',
+      accent: 'bg-blue-100 dark:bg-blue-900/50',
+      stud: 'bg-blue-400',
+      icon: 'text-blue-500 dark:text-blue-400',
+      badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border-blue-300 dark:border-blue-700',
+    },
+    beta: {
+      bg: 'bg-yellow-50 dark:bg-yellow-950/50',
+      border: 'border-b-[6px] border-yellow-600 dark:border-yellow-500',
+      accent: 'bg-yellow-100 dark:bg-yellow-900/50',
+      stud: 'bg-yellow-500',
+      icon: 'text-yellow-600 dark:text-yellow-400',
+      badge: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700',
+    },
+    experimental: {
+      bg: 'bg-gray-50 dark:bg-gray-950/50',
+      border: 'border-b-[6px] border-gray-600 dark:border-gray-500',
+      accent: 'bg-gray-100 dark:bg-gray-900/50',
+      stud: 'bg-gray-500',
+      icon: 'text-gray-600 dark:text-gray-400',
+      badge: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-700',
+    },
   };
+
+  const variant = colorVariants[tool.status];
 
   return (
     <Link href={tool.path} className="block group">
-      <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md rounded-(--radius)">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2 text-primary">
+      <div
+        className={cn(
+          'relative h-full min-h-[200px] p-6 rounded-2xl',
+          'transition-all duration-300 hover:-translate-y-2 hover:shadow-xl',
+          'flex flex-col justify-between cursor-pointer overflow-hidden',
+          variant.bg,
+          variant.border
+        )}
+      >
+        {/* 顶部装饰：两个 stud */}
+        <div className="flex gap-3 mb-4 relative z-10">
+          <div className={cn('w-4 h-4 rounded-full', variant.stud)} />
+          <div className={cn('w-4 h-4 rounded-full', variant.stud)} />
+        </div>
+
+        <div className="relative z-10">
+          {/* 标题行：图标 + badge */}
+          <div className="flex items-start justify-between mb-3">
+            <div className={cn('p-2 rounded-lg', variant.accent)}>
               <ToolIcon name={tool.icon} />
             </div>
             <Badge
               variant="outline"
-              className={cn('rounded-(--radius)', statusColors[tool.status])}
+              className={cn(
+                'rounded-full text-xs font-medium border-2',
+                variant.badge
+              )}
             >
               {statusLabels[tool.status]}
             </Badge>
           </div>
-          <CardTitle className="text-lg group-hover:text-primary transition-colors duration-200">
+
+          {/* 标题和描述 */}
+          <h3 className="text-xl font-semibold leading-tight mb-2 text-foreground">
             {name}
-          </CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center text-sm text-muted-foreground group-hover:text-primary transition-colors duration-200">
-            {useNow}
-            <ArrowRightIcon className="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+          </h3>
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {description}
+          </p>
+        </div>
+
+        {/* 底部 "Use now" 箭头 */}
+        <div className="mt-6 relative z-10">
+          <div className="flex items-center text-sm font-medium text-foreground">
+            <span>{useNow}</span>
+            <div className="ml-2 w-8 h-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm border-b-2 border-gray-200 dark:border-gray-700 transition-all duration-300 group-hover:translate-x-1">
+              <ArrowRightIcon className="w-4 h-4 text-foreground" />
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Stud pattern 装饰（悬停时更明显） */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: 'radial-gradient(circle, currentColor 2px, transparent 2.5px)',
+              backgroundSize: '20px 20px',
+              backgroundPosition: '0 0, 10px 10px',
+            }}
+          />
+        </div>
+      </div>
     </Link>
   );
 }

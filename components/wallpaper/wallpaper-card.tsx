@@ -4,6 +4,7 @@ import * as React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Download, BookmarkPlus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -156,12 +157,12 @@ export function WallpaperCard({
               {/* 预览页底部操作栏 */}
               <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                 <div className="flex items-center justify-center gap-3">
-                  <Button
-                    variant="secondary"
+                  <LegoButton
+                    color="white"
                     size="sm"
                     onClick={handleDownload}
                     disabled={isDownloading}
-                    className="gap-2 bg-white/90 hover:bg-white text-gray-900 border-0 backdrop-blur-md shadow-lg"
+                    className="gap-2"
                   >
                     {isDownloading ? (
                       <>
@@ -178,7 +179,7 @@ export function WallpaperCard({
                         Download
                       </>
                     )}
-                  </Button>
+                  </LegoButton>
                 </div>
               </div>
             </div>
@@ -250,12 +251,12 @@ export function WallpaperCard({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="secondary"
+                <LegoButton
+                  color="white"
                   size="sm"
                   onClick={handleDownload}
                   disabled={isDownloading}
-                  className="gap-1.5 bg-white/90 hover:bg-white text-gray-900 border-0 backdrop-blur-md shadow-lg"
+                  className="gap-1.5"
                 >
                   {isDownloading ? (
                     <motion.div
@@ -267,7 +268,7 @@ export function WallpaperCard({
                     <Download className="h-3.5 w-3.5" />
                   )}
                   {isDownloading ? '...' : 'Download'}
-                </Button>
+                </LegoButton>
                 {onRemove ? (
                   <Button
                     variant="destructive"
@@ -290,20 +291,18 @@ export function WallpaperCard({
                         Saved!
                       </motion.div>
                     )}
-                    <Button
-                      variant="secondary"
+                    <LegoButton
+                      color={isFavorited ? 'yellow' : 'white'}
                       size="sm"
                       onClick={handleOpenCollection}
                       className={cn(
-                        'gap-1.5 border-0 backdrop-blur-md',
-                        isFavorited
-                          ? 'bg-red-500/90 hover:bg-red-500 text-white shadow-lg shadow-red-500/25'
-                          : 'bg-white/90 hover:bg-white text-gray-900'
+                        'gap-1.5',
+                        isFavorited && 'bg-red-500 text-white'
                       )}
                     >
                       <BookmarkPlus className="h-3.5 w-3.5" />
                       {isFavorited ? 'Saved' : 'Save'}
-                    </Button>
+                    </LegoButton>
                   </div>
                 )}
               </div>

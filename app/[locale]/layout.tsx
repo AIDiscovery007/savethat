@@ -3,6 +3,7 @@ import {getMessages, getTranslations} from 'next-intl/server';
 import {Link} from '@/i18n/navigation';
 import {LocaleSwitcher} from '@/components/locale-switcher';
 import {MobileNav} from '@/components/mobile-nav';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import type { ReactNode } from 'react';
 
 export default async function LocaleLayout({
@@ -28,13 +29,14 @@ export default async function LocaleLayout({
               <span className="text-base md:text-lg">{t('title')}</span>
             </Link>
           </div>
-          <nav className="flex items-center gap-4 text-sm">
+          <nav className="flex items-center gap-2 text-sm">
             <a
               href="#"
               className="hidden md:inline-flex transition-colors hover:text-foreground/80 text-foreground/60 px-3 py-1.5 rounded-(--radius) hover:bg-muted"
             >
               {t('about')}
             </a>
+            <AnimatedThemeToggler />
             <LocaleSwitcher />
           </nav>
         </div>

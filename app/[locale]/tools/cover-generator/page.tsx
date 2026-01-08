@@ -8,7 +8,7 @@
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -21,13 +21,12 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
-import { ReferenceUploader } from './components/reference-uploader';
-import { PromptInput } from '@/components/prompt-input';
+import { PromptInput, type ReferenceImage } from '@/components/prompt-input';
 import { StyleOptions } from './components/style-options';
 import { CoversGrid } from './components/covers-grid';
 import { useCoverGeneration } from '@/lib/hooks/use-cover-generation';
 import { COVER_STYLES } from './config/styles';
-import type { ReferenceImage, GeneratedCover } from './types';
+import type { GeneratedCover } from './types';
 import { ImageIcon, TrashIcon } from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,6 +37,7 @@ interface GenerationRecord {
   timestamp: number;
   prompt: string;
   optimizedPrompt: string;
+  layoutPrompt?: string;  // ASCII 版式描述
   styleId: string;
   covers: GeneratedCover[];
 }
@@ -97,7 +97,7 @@ export default function CoverGeneratorPage() {
   const t = useTranslations('CoverGenerator');
 
   // 状态管理
-  const [referenceImages, setReferenceImages] = React.useState<ReferenceImage[]>([]);
+  const [images, setImages] = React.useState<ReferenceImage[]>([]);
   const [userPrompt, setUserPrompt] = React.useState('');
   const [selectedStyleId, setSelectedStyleId] = React.useState<string>(COVER_STYLES[0].id);
   const [history, setHistory] = React.useState<GenerationRecord[]>([]);
@@ -118,17 +118,12 @@ export default function CoverGeneratorPage() {
     generate,
   } = useCoverGeneration();
 
-  // 处理参考图上传
-  const handleImagesChange = (images: ReferenceImage[]) => {
-    setReferenceImages(images);
-  };
-
   // 处理生成 - 追加到历史记录
   const handleGenerate = async () => {
     if (!userPrompt.trim()) return;
 
     const result = await generate({
-      images: referenceImages,
+      images,
       prompt: userPrompt,
       styleId: selectedStyleId,
     });
@@ -139,6 +134,7 @@ export default function CoverGeneratorPage() {
         timestamp: Date.now(),
         prompt: userPrompt,
         optimizedPrompt: result.optimizedPrompt,
+        layoutPrompt: result.layoutPrompt,
         styleId: selectedStyleId,
         covers: result.covers,
       };
@@ -182,30 +178,10 @@ export default function CoverGeneratorPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* 左侧：配置面板 */}
         <div className="lg:col-span-1 space-y-6">
-          {/* 参考图上传 */}
-          <Card className="rounded-xl">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                {t('referenceImages')}
-              </CardTitle>
-              <CardDescription>{t('referenceImagesDesc')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ReferenceUploader
-                images={referenceImages}
-                onChange={handleImagesChange}
-                maxImages={5}
-                disabled={isGenerating || isOptimizing}
-              />
-            </CardContent>
-          </Card>
-
           {/* 风格选择 */}
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{t('styleSelect')}</CardTitle>
-              <CardDescription>{t('styleSelectDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <StyleOptions
@@ -216,11 +192,10 @@ export default function CoverGeneratorPage() {
             </CardContent>
           </Card>
 
-          {/* 提示词输入 */}
+          {/* 提示词输入（集成图片上传） */}
           <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{t('promptTitle')}</CardTitle>
-              <CardDescription>{t('promptDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
               <PromptInput
@@ -231,13 +206,16 @@ export default function CoverGeneratorPage() {
                 maxLength={5000}
                 rows={6}
                 autoResize={false}
+                images={images}
+                onImagesChange={setImages}
+                maxImages={5}
               />
             </CardContent>
           </Card>
 
           {/* 操作按钮 */}
           <div className="flex gap-3">
-            <Button
+            <LegoButton
               onClick={handleGenerate}
               disabled={!canGenerate || isGenerating || isOptimizing}
               className="flex-1 rounded-xl"
@@ -250,7 +228,7 @@ export default function CoverGeneratorPage() {
               ) : (
                 t('generate')
               )}
-            </Button>
+            </LegoButton>
           </div>
 
           {/* 错误提示 */}
@@ -265,43 +243,6 @@ export default function CoverGeneratorPage() {
 
         {/* 右侧：预览区域 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 优化后的提示词 - 始终显示，有内容时带 loading 效果 */}
-          {optimizedPrompt && (
-            <Card className={cn(
-              'rounded-xl transition-all',
-              isGenerating && 'ring-2 ring-primary/30'
-            )}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2 flex-wrap">
-                  <Badge variant="secondary">{t('optimized')}</Badge>
-                  {t('optimizedPrompt')}
-                  {isGenerating && (
-                    <Badge variant="outline" className="ml-2">
-                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                      {t('generating')}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isGenerating ? (
-                  // Loading 状态 - 骨架屏
-                  <div className="space-y-3">
-                    <div className="h-4 bg-muted rounded animate-pulse" />
-                    <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-                    <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
-                    <div className="h-4 bg-muted rounded animate-pulse w-5/6" />
-                  </div>
-                ) : (
-                  // 正常状态 - 显示优化后的提示词
-                  <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                    {optimizedPrompt}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
           {/* 历史生成记录 - 只在挂载后显示 */}
           {!isMounted ? (
             // 加载中 - 不显示任何内容，避免 hydration 不匹配
@@ -313,14 +254,14 @@ export default function CoverGeneratorPage() {
                 <h3 className="text-lg font-semibold">{t('generatedCovers')}</h3>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
+                    <LegoButton
+                      color="white"
                       size="sm"
                       className="text-muted-foreground hover:text-destructive"
                     >
                       <TrashIcon className="h-4 w-4 mr-1" />
                       {t('clearAll')}
-                    </Button>
+                    </LegoButton>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>

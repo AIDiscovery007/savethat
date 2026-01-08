@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { Grid3X3, Heart, Plus, Edit2, Trash2, FolderHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   Select,
@@ -146,9 +147,8 @@ function CollectionSwitch({
           </div>
 
           {/* 新建按钮 */}
-          <Button
+          <LegoButton
             size="sm"
-            variant="default"
             onClick={() => {
               setIsCreating(true);
               setNewName('');
@@ -157,7 +157,7 @@ function CollectionSwitch({
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">{tc('create')}</span>
-          </Button>
+          </LegoButton>
 
           {/* 操作按钮 */}
           {localId && (
@@ -198,9 +198,9 @@ function CollectionSwitch({
               className="flex-1 h-8 text-sm"
               autoFocus
             />
-            <Button size="sm" onClick={handleCreate}>
+            <LegoButton size="sm" onClick={handleCreate}>
               {tc('create')}
-            </Button>
+            </LegoButton>
             <Button
               size="sm"
               variant="outline"
@@ -222,9 +222,9 @@ function CollectionSwitch({
               className="flex-1 h-8 text-sm"
               autoFocus
             />
-            <Button size="sm" onClick={handleRename}>
+            <LegoButton size="sm" onClick={handleRename}>
               {tc('rename')}
-            </Button>
+            </LegoButton>
             <Button
               size="sm"
               variant="outline"

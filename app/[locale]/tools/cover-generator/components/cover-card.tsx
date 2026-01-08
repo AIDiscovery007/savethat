@@ -9,18 +9,19 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import {
   DownloadIcon,
-  CopyIcon,
   ArrowClockwiseIcon,
   TrashIcon,
+  FileTextIcon,
 } from '@phosphor-icons/react';
-import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -46,7 +47,6 @@ interface CoverCardProps {
 
 export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: CoverCardProps) {
   const t = useTranslations('CoverGenerator');
-  const [copied, setCopied] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
   const [showPreview, setShowPreview] = React.useState(false);
 
@@ -57,28 +57,6 @@ export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: 
     link.href = cover.url;
     link.download = `cover-${Date.now()}.png`;
     link.click();
-  };
-
-  // 复制链接
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(cover.url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  // 复制提示词
-  const handleCopyPrompt = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(prompt);
-    } catch (err) {
-      console.error('Failed to copy prompt:', err);
-    }
   };
 
   return (
@@ -113,7 +91,7 @@ export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: 
         <CardContent className="p-0">
           {/* 图片预览区域 */}
           <div className={cn(
-            "relative aspect-[4/3] bg-muted overflow-hidden",
+            "relative aspect-[3/2] bg-muted overflow-hidden",
             "transition-transform duration-300 ease-out",
             "group-hover:scale-[1.02]"
           )}>
@@ -183,66 +161,61 @@ export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: 
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="secondary"
+                <LegoButton
+                  color="white"
                   size="sm"
                   onClick={handleDownload}
-                  className="gap-1 bg-white/20 hover:bg-white/30 text-white border-0"
+                  className="gap-1"
                 >
                   <DownloadIcon className="h-3.5 w-3.5" />
                   {t('download')}
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="gap-1 bg-white/20 hover:bg-white/30 text-white border-0"
-                >
-                  {copied ? (
-                    <>
-                      <CheckCircle className="h-3.5 w-3.5" />
-                      {t('copied')}
-                    </>
-                  ) : (
-                    <>
-                      <CopyIcon className="h-3.5 w-3.5" />
-                      {t('copy')}
-                    </>
-                  )}
-                </Button>
+                </LegoButton>
               </div>
             </div>
           </div>
 
           {/* 底部信息 */}
           <div className="p-3 space-y-2" onClick={(e) => e.stopPropagation()}>
-            {/* 提示词预览 */}
+            {/* 提示词预览 + 查看提示词按钮 */}
             <div className="flex items-start justify-between gap-2">
               <p className="text-xs text-muted-foreground line-clamp-2 flex-1">
                 {prompt}
               </p>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 shrink-0"
-                onClick={handleCopyPrompt}
-                title={t('copyPrompt')}
-              >
-                <CopyIcon className="h-3 w-3" />
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0"
+                    title={t('viewPrompt')}
+                  >
+                    <FileTextIcon className="h-3 w-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{t('viewPrompt')}</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4">
+                    <pre className="whitespace-pre-wrap text-sm bg-muted p-4 rounded-lg overflow-auto max-h-[60vh]">
+                      {prompt}
+                    </pre>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* 重新生成按钮 */}
             {onRegenerate && (
-              <Button
-                variant="outline"
+              <LegoButton
+                color="yellow"
                 size="sm"
                 onClick={onRegenerate}
                 className="w-full gap-1"
               >
                 <ArrowClockwiseIcon className="h-3.5 w-3.5" />
                 {t('regenerate')}
-              </Button>
+              </LegoButton>
             )}
           </div>
         </CardContent>

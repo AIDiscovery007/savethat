@@ -315,6 +315,7 @@
     "copy": "复制",
     "copied": "已复制",
     "copyPrompt": "复制提示词",
+    "viewPrompt": "提示词",
     "regenerate": "重新生成",
     "emptyState": {
       "title": "还没有生成封面",

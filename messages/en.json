@@ -315,6 +315,7 @@
     "copy": "Copy",
     "copied": "Copied",
     "copyPrompt": "Copy Prompt",
+    "viewPrompt": "Prompt",
     "regenerate": "Regenerate",
     "emptyState": {
       "title": "No covers generated yet",

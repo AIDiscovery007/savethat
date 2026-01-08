@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import { PromptInput } from '@/components/prompt-input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -385,10 +386,11 @@ export default function PromptTrainerPage() {
                 )}
 
                 <div className="flex gap-3">
-                  <Button
+                  <LegoButton
                     onClick={handleStartTraining}
                     disabled={!originalQuestion.trim() || isLoading}
                     className="flex-1"
+                    size="lg"
                   >
                     {isLoading ? (
                       <Spinner className="mr-2 h-4 w-4" />
@@ -396,7 +398,7 @@ export default function PromptTrainerPage() {
                       <SparkleIcon className="mr-2 h-4 w-4" />
                     )}
                     {t('startTraining')}
-                  </Button>
+                  </LegoButton>
                   <Button
                     variant="outline"
                     onClick={handleSkipGuidance}
@@ -546,14 +548,14 @@ export default function PromptTrainerPage() {
 
                   {/* 操作按钮 */}
                   <div className="flex gap-3 pt-2">
-                    <Button onClick={handleCompare} disabled={isLoading} className="flex-1">
+                    <LegoButton onClick={handleCompare} disabled={isLoading} className="flex-1">
                       {isLoading ? (
                         <Spinner className="mr-2 h-4 w-4" />
                       ) : (
                         <ArrowRightIcon className="mr-2 h-4 w-4" />
                       )}
                       {t('compareEffect')}
-                    </Button>
+                    </LegoButton>
                     <Button variant="outline" onClick={handleReset}>
                       <ArrowsClockwiseIcon className="mr-2 h-4 w-4" />
                       {t('tryAgain')}

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { Plus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LegoButton } from '@/components/ui/lego-button';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -85,9 +86,9 @@ export function CollectionSelectDialog({
                 className="flex-1"
                 autoFocus
               />
-              <Button size="sm" onClick={handleCreate}>
+              <LegoButton size="sm" onClick={handleCreate}>
                 {t('create')}
-              </Button>
+              </LegoButton>
               <Button
                 size="sm"
                 variant="outline"
