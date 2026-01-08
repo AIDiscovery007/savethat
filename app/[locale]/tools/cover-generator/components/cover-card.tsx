@@ -101,7 +101,7 @@ export function CoverCard({ cover, prompt, onDelete, onRegenerate, className }: 
 
       <Card
         className={cn(
-          'rounded-[var(--radius)] overflow-hidden group',
+          'rounded-xl overflow-hidden group',
           'transition-all duration-300 ease-out',
           'hover:shadow-xl hover:shadow-primary/10',
           'border border-transparent group-hover:border-primary/20',

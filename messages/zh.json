@@ -337,7 +337,10 @@
     "preview": "预览",
     "confirmDelete": "确认删除",
     "deleteImageDescription": "确定要删除这张封面图片吗？此操作无法撤销。",
-    "cancel": "取消"
+    "confirmClearAll": "清空所有生成结果",
+    "confirmClearAllDesc": "确定要清空所有生成的封面图片吗？此操作无法撤销。",
+    "cancel": "取消",
+    "confirm": "确认"
   },
   "PromptQuiz": {
     "title": "Prompt 挑战",

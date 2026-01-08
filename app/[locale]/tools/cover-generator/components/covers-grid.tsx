@@ -72,7 +72,7 @@ export function CoversGrid({ covers, prompt, onDeleteCover }: CoversGridProps) {
   return (
     <div className="space-y-4">
       {/* 3x3 网格布局 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
         {currentCovers.map((cover, idx) => (
           <BlurFade key={cover.id} delay={0.05 + idx * 0.03}>
             <div className="w-full">

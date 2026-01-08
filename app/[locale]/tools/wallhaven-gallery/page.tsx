@@ -18,6 +18,8 @@ export default function WallhavenGalleryPage() {
   const [categories, setCategories] = React.useState('110');
   const [purity, setPurity] = React.useState('100');
   const [sorting, setSorting] = React.useState('date_added');
+  const [resolution, setResolution] = React.useState('any');
+  const [atleast, setAtleast] = React.useState('any');
 
   // 数据状态
   const [wallpapers, setWallpapers] = React.useState<WallhavenWallpaper[]>([]);
@@ -41,6 +43,14 @@ export default function WallhavenGalleryPage() {
         limit: '24',
       });
 
+      // 添加尺寸筛选参数
+      if (resolution && resolution !== 'any') {
+        params.set('resolutions', resolution);
+      }
+      if (atleast && atleast !== 'any') {
+        params.set('atleast', atleast);
+      }
+
       const response = await fetch(`${API_BASE}/search?${params.toString()}`);
 
       if (!response.ok) {
@@ -57,7 +67,7 @@ export default function WallhavenGalleryPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, categories, purity, sorting, page]);
+  }, [query, categories, purity, sorting, resolution, atleast, page]);
 
   // 初始加载和筛选变化时搜索
   React.useEffect(() => {
@@ -123,6 +133,10 @@ export default function WallhavenGalleryPage() {
             onPurityChange={setPurity}
             sorting={sorting}
             onSortingChange={setSorting}
+            resolution={resolution}
+            onResolutionChange={setResolution}
+            atleast={atleast}
+            onAtleastChange={setAtleast}
             onSearch={handleSearch}
           />
         </CardContent>

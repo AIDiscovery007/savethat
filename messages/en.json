@@ -337,7 +337,10 @@
     "preview": "Preview",
     "confirmDelete": "Confirm Delete",
     "deleteImageDescription": "Are you sure you want to delete this cover image? This action cannot be undone.",
-    "cancel": "Cancel"
+    "confirmClearAll": "Clear All Generated Results",
+    "confirmClearAllDesc": "Are you sure you want to clear all generated cover images? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "PromptQuiz": {
     "title": "Prompt Challenge",

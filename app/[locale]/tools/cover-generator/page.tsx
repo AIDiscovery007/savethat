@@ -10,15 +10,26 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 import { ReferenceUploader } from './components/reference-uploader';
 import { PromptInput } from '@/components/prompt-input';
 import { StyleOptions } from './components/style-options';
-import { GenerationPreview } from './components/generation-preview';
 import { CoversGrid } from './components/covers-grid';
 import { useCoverGeneration } from '@/lib/hooks/use-cover-generation';
 import { COVER_STYLES } from './config/styles';
 import type { ReferenceImage, GeneratedCover } from './types';
-import { Spinner, ImageIcon, TrashIcon, SparkleIcon } from '@phosphor-icons/react';
+import { ImageIcon, TrashIcon } from '@phosphor-icons/react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // 单次生成记录
@@ -32,13 +43,14 @@ interface GenerationRecord {
 }
 
 /**
- * LocalStorage 工具对象
+ * SessionStorage 工具对象（使用 sessionStorage 替代 localStorage，容量更大）
+ * 图片 base64 数据较大，localStorage 5MB 限制容易溢出
  */
 const storage = {
   load<T>(key: string, fallback: T): T {
     if (typeof window === 'undefined') return fallback;
     try {
-      const saved = localStorage.getItem(key);
+      const saved = sessionStorage.getItem(key);
       return saved ? JSON.parse(saved) : fallback;
     } catch {
       return fallback;
@@ -47,23 +59,31 @@ const storage = {
   save<T>(key: string, value: T): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      sessionStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
       console.error(`Failed to save ${key}:`, e);
     }
   },
+  clear(key: string): void {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.removeItem(key);
+    } catch {
+      // ignore
+    }
+  },
 };
 
-// 从 localStorage 恢复历史记录
+// 从 sessionStorage 恢复历史记录
 const loadHistory = (): GenerationRecord[] => {
   return storage.load<GenerationRecord[]>('cover-generator-history', []);
 };
 
-// 保存历史记录到 localStorage
+// 保存历史记录到 sessionStorage
 const saveHistory = (history: GenerationRecord[]): void => {
   const serialized = JSON.stringify(history);
-  // 检查存储是否接近满（单条记录超过 200KB 时触发清理）
-  if (serialized.length > 200 * 1024) {
+  // 检查存储是否接近满（单条记录超过 5MB 时触发清理）
+  if (serialized.length > 5 * 1024 * 1024) {
     storage.save('cover-generator-history', history.slice(0, -2));
   } else {
     storage.save('cover-generator-history', history);
@@ -96,7 +116,6 @@ export default function CoverGeneratorPage() {
     optimizedPrompt,
     error,
     generate,
-    reset,
   } = useCoverGeneration();
 
   // 处理参考图上传
@@ -129,22 +148,6 @@ export default function CoverGeneratorPage() {
     }
   };
 
-  // 处理重置 - 清空所有
-  const handleReset = () => {
-    setReferenceImages([]);
-    setUserPrompt('');
-    setHistory([]);
-    saveHistory([]);
-    reset();
-  };
-
-  // 删除单条记录
-  const handleDeleteRecord = (recordId: string) => {
-    const newHistory = history.filter((r) => r.id !== recordId);
-    setHistory(newHistory);
-    saveHistory(newHistory);
-  };
-
   // 删除单个封面
   const handleDeleteCover = (coverId: string) => {
     const newHistory = history.map((record) => {
@@ -168,13 +171,11 @@ export default function CoverGeneratorPage() {
   return (
     <div className="space-y-6">
       {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground">
+          {t('subtitle')}
+        </p>
       </div>
 
       {/* 主内容区 */}
@@ -182,7 +183,7 @@ export default function CoverGeneratorPage() {
         {/* 左侧：配置面板 */}
         <div className="lg:col-span-1 space-y-6">
           {/* 参考图上传 */}
-          <Card className="rounded-(--radius)">
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <ImageIcon className="h-4 w-4" />
@@ -201,7 +202,7 @@ export default function CoverGeneratorPage() {
           </Card>
 
           {/* 风格选择 */}
-          <Card className="rounded-(--radius)">
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{t('styleSelect')}</CardTitle>
               <CardDescription>{t('styleSelectDesc')}</CardDescription>
@@ -216,7 +217,7 @@ export default function CoverGeneratorPage() {
           </Card>
 
           {/* 提示词输入 */}
-          <Card className="rounded-(--radius)">
+          <Card className="rounded-xl">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">{t('promptTitle')}</CardTitle>
               <CardDescription>{t('promptDesc')}</CardDescription>
@@ -239,30 +240,22 @@ export default function CoverGeneratorPage() {
             <Button
               onClick={handleGenerate}
               disabled={!canGenerate || isGenerating || isOptimizing}
-              className="flex-1 rounded-(--radius)"
+              className="flex-1 rounded-xl"
             >
               {isGenerating || isOptimizing ? (
                 <>
-                  <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isOptimizing ? t('optimizing') : t('generating')}
                 </>
               ) : (
                 t('generate')
               )}
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleReset}
-              disabled={!isMounted || (history.length === 0 && referenceImages.length === 0 && userPrompt.trim() === '')}
-              className="rounded-(--radius)"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* 错误提示 */}
           {error && (
-            <Card className="rounded-(--radius) border-destructive">
+            <Card className="rounded-xl border-destructive">
               <CardContent className="pt-4">
                 <p className="text-sm text-destructive">{error}</p>
               </CardContent>
@@ -275,7 +268,7 @@ export default function CoverGeneratorPage() {
           {/* 优化后的提示词 - 始终显示，有内容时带 loading 效果 */}
           {optimizedPrompt && (
             <Card className={cn(
-              'rounded-(--radius) transition-all',
+              'rounded-xl transition-all',
               isGenerating && 'ring-2 ring-primary/30'
             )}>
               <CardHeader className="pb-3">
@@ -284,7 +277,7 @@ export default function CoverGeneratorPage() {
                   {t('optimizedPrompt')}
                   {isGenerating && (
                     <Badge variant="outline" className="ml-2">
-                      <Spinner className="h-3 w-3 animate-spin mr-1" />
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
                       {t('generating')}
                     </Badge>
                   )}
@@ -318,15 +311,32 @@ export default function CoverGeneratorPage() {
               {/* 清空全部按钮 */}
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">{t('generatedCovers')}</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearAll}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  {t('clearAll')}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      {t('clearAll')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('confirmClearAll')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('confirmClearAllDesc')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearAll}>
+                        {t('confirm')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
               {/* 遍历历史记录 */}
@@ -352,10 +362,30 @@ export default function CoverGeneratorPage() {
               ))}
             </div>
           ) : isGenerating ? (
-            <GenerationPreview isGenerating />
+            // Loading skeleton - 与 wallhaven 风格一致
+            <div className="space-y-4">
+              {/* 生成中提示 */}
+              <Card className="rounded-xl">
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {isOptimizing ? t('optimizing') : t('generating')}
+                  </div>
+                </CardContent>
+              </Card>
+              {/* 封面骨架屏 */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-4/3 bg-muted rounded-xl animate-pulse"
+                  />
+                ))}
+              </div>
+            </div>
           ) : !optimizedPrompt ? (
             // 空状态 - 只有在没有优化提示词时才显示
-            <Card className="rounded-(--radius)">
+            <Card className="rounded-xl">
               <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                   <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
