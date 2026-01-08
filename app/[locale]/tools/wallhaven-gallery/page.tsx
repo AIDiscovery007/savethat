@@ -2,18 +2,410 @@
 
 import * as React from 'react';
 import { useTranslations } from 'next-intl';
+import { Grid3X3, Heart, Plus, Edit2, Trash2, FolderHeart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { SearchFilters } from '@/components/wallpaper/search-filters';
 import { WallpaperGrid } from '@/components/wallpaper/wallpaper-grid';
-import type { WallhavenWallpaper } from '@/lib/api/wallhaven/types';
+import { WallpaperEmptyState } from '@/components/wallpaper/empty-state';
+import { ToastProvider, useWallpaperToasts } from '@/components/wallpaper/toast';
+import { useWallpaperFavorites } from '@/lib/hooks/use-wallpaper-favorites';
+import { wallpaperStorage } from '@/lib/storage/wallpaper-storage';
+import type { WallhavenWallpaper, WallpaperCollection } from '@/lib/storage/wallpaper-types';
+import { cn } from '@/lib/utils';
 
 // API 基础 URL
 const API_BASE = '/api/wallhaven';
 
-export default function WallhavenGalleryPage() {
-  const t = useTranslations('WallhavenGallery');
+// Shared download function to eliminate duplication
+function createDownloadHandler(showError: (msg: string) => void) {
+  return async (wallpaper: WallhavenWallpaper) => {
+    try {
+      const downloadUrl = `/api/wallhaven/wallpaper/${wallpaper.id}/download`;
+      const ext = wallpaper.file_type.split('/')[1] ?? 'jpg';
+      const filename = `wallhaven-${wallpaper.id}.${ext}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      link.target = '_self';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Download error:', err);
+      showError('Failed to download wallpaper');
+    }
+  };
+}
 
-  // 搜索状态
+function CollectionSwitch({
+  collections,
+  selectedCollection,
+  onSelect,
+  onCreate,
+  onRename,
+  onDelete,
+}: {
+  collections: WallpaperCollection[];
+  selectedCollection: WallpaperCollection | null;
+  onSelect: (collection: WallpaperCollection | null) => void;
+  onCreate: () => void;
+  onRename: () => void;
+  onDelete: () => void;
+}) {
+  const tc = useTranslations('WallpaperCollection');
+  const [newName, setNewName] = React.useState('');
+  const [isCreating, setIsCreating] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const { showCreated, showDeleted } = useWallpaperToasts();
+
+  // Use selectedCollection.id directly as local state
+  const [localId, setLocalId] = React.useState(selectedCollection?.id ?? '');
+
+  // Keep localId in sync when selectedCollection changes
+  React.useEffect(() => {
+    if (selectedCollection?.id) {
+      setLocalId(selectedCollection.id);
+    }
+  }, [selectedCollection?.id]);
+
+  const handleCreate = async () => {
+    if (newName.trim()) {
+      await onCreate();
+      setNewName('');
+      setIsCreating(false);
+    }
+  };
+
+  const handleRename = async () => {
+    if (newName.trim() && localId) {
+      await onRename();
+      setNewName('');
+      setIsEditing(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    await onDelete();
+    setIsDeleting(false);
+    setLocalId('');
+    onSelect(null);
+  };
+
+  const handleSelectChange = React.useCallback((value: string) => {
+    setLocalId(value);
+    if (value === '') {
+      onSelect(null);
+    } else {
+      const collection = collections.find((c) => c.id === value);
+      onSelect(collection || null);
+    }
+  }, [collections, onSelect]);
+
+  return (
+    <Card className="rounded-xl">
+      <CardContent className="py-3">
+        <div className="flex items-center gap-2">
+          {/* 收藏夹选择器 */}
+          <div className="flex-1 min-w-0">
+            <Select
+              value={localId}
+              onValueChange={handleSelectChange}
+              disabled={isCreating || isEditing}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder={tc('noCollectionsYet')} />
+              </SelectTrigger>
+              <SelectContent>
+                {collections.map((collection) => (
+                  <SelectItem key={collection.id} value={collection.id}>
+                    {collection.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 新建按钮 */}
+          <Button
+            size="sm"
+            variant="default"
+            onClick={() => {
+              setIsCreating(true);
+              setNewName('');
+            }}
+            className="h-9 gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">{tc('create')}</span>
+          </Button>
+
+          {/* 操作按钮 */}
+          {localId && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(true);
+                  const collection = collections.find((c) => c.id === localId);
+                  setNewName(collection?.name || '');
+                }}
+                className="h-9 gap-1"
+              >
+                <Edit2 className="h-4 w-4" />
+                <span className="hidden sm:inline">{tc('rename')}</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => setIsDeleting(true)}
+                className="h-9 gap-1"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* 新建收藏夹输入框 */}
+        {isCreating && (
+          <div className="flex gap-2 mt-3">
+            <Input
+              placeholder={tc('newCollectionPlaceholder')}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              className="flex-1 h-8 text-sm"
+              autoFocus
+            />
+            <Button size="sm" onClick={handleCreate}>
+              {tc('create')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsCreating(false)}
+            >
+              {tc('cancel')}
+            </Button>
+          </div>
+        )}
+
+        {/* 重命名输入框 */}
+        {isEditing && localId && (
+          <div className="flex gap-2 mt-3">
+            <Input
+              placeholder={tc('newCollectionPlaceholder')}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+              className="flex-1 h-8 text-sm"
+              autoFocus
+            />
+            <Button size="sm" onClick={handleRename}>
+              {tc('rename')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+            >
+              {tc('cancel')}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+
+      {/* 删除确认对话框 */}
+      <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tc('deleteCollection')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tc('deleteCollectionConfirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tc('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {tc('delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
+
+function CollectionsView() {
+  const tc = useTranslations('WallpaperCollection');
+  const { showCreated, showDeleted, showError } = useWallpaperToasts();
+  const { collections } = useWallpaperFavorites();
+  const handleDownload = createDownloadHandler(showError);
+
+  const [selectedCollection, setSelectedCollection] = React.useState<WallpaperCollection | null>(null);
+  const [collectionWallpapers, setCollectionWallpapers] = React.useState<WallhavenWallpaper[]>([]);
+  const [loading, setLoading] = React.useState(false);
+
+  // 加载收藏夹壁纸
+  const loadCollectionWallpapers = React.useCallback(async () => {
+    if (!selectedCollection) {
+      setCollectionWallpapers([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const favorites = await wallpaperStorage.getFavoritesByCollection(selectedCollection.id);
+      setCollectionWallpapers(favorites.map((f) => f.wallpaper));
+    } catch (error) {
+      console.error('Failed to load collection wallpapers:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCollection]);
+
+  React.useEffect(() => {
+    loadCollectionWallpapers();
+  }, [loadCollectionWallpapers]);
+
+  // 创建收藏夹
+  const handleCreateCollection = async () => {
+    const name = prompt(tc('newCollectionPlaceholder'));
+    if (name && name.trim()) {
+      try {
+        const collection = await wallpaperStorage.createCollection(name.trim());
+        setSelectedCollection(collection);
+        showCreated(collection.name);
+      } catch (error) {
+        showError('Failed to create collection');
+      }
+    }
+  };
+
+  // 重命名收藏夹
+  const handleRenameCollection = async () => {
+    if (!selectedCollection) return;
+    const name = prompt(tc('newCollectionPlaceholder'), selectedCollection.name);
+    if (name && name.trim() && name !== selectedCollection.name) {
+      try {
+        await wallpaperStorage.updateCollection(selectedCollection.id, { name: name.trim() });
+        setSelectedCollection((prev) => prev ? { ...prev, name: name.trim() } : null);
+      } catch (error) {
+        showError('Failed to rename collection');
+      }
+    }
+  };
+
+  // 删除收藏夹
+  const handleDeleteCollection = async () => {
+    if (!selectedCollection) return;
+    try {
+      await wallpaperStorage.deleteCollection(selectedCollection.id);
+      showDeleted();
+    } catch (error) {
+      showError('Failed to delete collection');
+    }
+  };
+
+  // 从收藏夹移除壁纸
+  const handleRemoveFromCollection = async (wallpaperId: string) => {
+    if (!selectedCollection) return;
+    try {
+      await wallpaperStorage.removeFromCollectionByWallpaperId(selectedCollection.id, wallpaperId);
+      setCollectionWallpapers((prev) => prev.filter((w) => w.id !== wallpaperId));
+    } catch (error) {
+      showError('Failed to remove wallpaper');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 收藏夹选择器 */}
+      <CollectionSwitch
+        collections={collections}
+        selectedCollection={selectedCollection}
+        onSelect={setSelectedCollection}
+        onCreate={handleCreateCollection}
+        onRename={handleRenameCollection}
+        onDelete={handleDeleteCollection}
+      />
+
+      {/* 收藏夹内容 */}
+      {selectedCollection ? (
+        <Card className="rounded-xl">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FolderHeart className="h-4 w-4" />
+              {selectedCollection.name}
+            </CardTitle>
+            {selectedCollection.description && (
+              <CardDescription>{selectedCollection.description}</CardDescription>
+            )}
+            <p className="text-sm text-muted-foreground">
+              {tc('itemCount', { count: collectionWallpapers.length })}
+            </p>
+          </CardHeader>
+          <CardContent>
+            {collectionWallpapers.length > 0 ? (
+              <WallpaperGrid
+                wallpapers={collectionWallpapers}
+                loading={loading}
+                page={1}
+                totalPages={1}
+                onPageChange={() => {}}
+                onDownload={handleDownload}
+                onRemove={(wallpaper) => handleRemoveFromCollection(wallpaper.id)}
+              />
+            ) : (
+              <div className="py-12 text-center text-muted-foreground">
+                {tc('emptyCollection')}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <WallpaperEmptyState
+          variant="collections"
+          title={tc('noCollectionsYet')}
+          action={{
+            label: tc('createNewCollection'),
+            onClick: handleCreateCollection,
+          }}
+          className="py-12"
+        />
+      )}
+    </div>
+  );
+}
+
+function BrowseView() {
+  const t = useTranslations('WallhavenGallery');
+  const showError = (msg: string) => alert(msg);
+  const handleDownload = createDownloadHandler(showError);
   const [query, setQuery] = React.useState('');
   const [categories, setCategories] = React.useState('110');
   const [purity, setPurity] = React.useState('100');
@@ -21,7 +413,6 @@ export default function WallhavenGalleryPage() {
   const [resolution, setResolution] = React.useState('any');
   const [atleast, setAtleast] = React.useState('any');
 
-  // 数据状态
   const [wallpapers, setWallpapers] = React.useState<WallhavenWallpaper[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [page, setPage] = React.useState(1);
@@ -43,7 +434,6 @@ export default function WallhavenGalleryPage() {
         limit: '24',
       });
 
-      // 添加尺寸筛选参数
       if (resolution && resolution !== 'any') {
         params.set('resolutions', resolution);
       }
@@ -69,7 +459,7 @@ export default function WallhavenGalleryPage() {
     }
   }, [query, categories, purity, sorting, resolution, atleast, page]);
 
-  // 初始加载和筛选变化时搜索
+  // 初始加载和分页
   React.useEffect(() => {
     searchWallpapers();
   }, [page]);
@@ -86,37 +476,8 @@ export default function WallhavenGalleryPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 单张下载 - 代理下载强制浏览器保存
-  const handleDownload = async (wallpaper: WallhavenWallpaper) => {
-    try {
-      const downloadUrl = `/api/wallhaven/wallpaper/${wallpaper.id}/download`;
-      const ext = wallpaper.file_type.split('/')[1] ?? 'jpg';
-      const filename = `wallhaven-${wallpaper.id}.${ext}`;
-
-      // 创建隐藏的 a 标签触发下载
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      link.target = '_self'; // 在当前窗口触发下载
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error('Download error:', err);
-      alert('Failed to download wallpaper');
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* 页面标题 */}
-      <div>
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground">
-          {t('subtitle')}
-        </p>
-      </div>
-
       {/* 搜索筛选 */}
       <Card className="rounded-xl">
         <CardHeader className="pb-3">
@@ -161,5 +522,56 @@ export default function WallhavenGalleryPage() {
         onDownload={handleDownload}
       />
     </div>
+  );
+}
+
+export default function WallhavenGalleryPage() {
+  const t = useTranslations('WallhavenGallery');
+  const tc = useTranslations('WallpaperCollection');
+  const [activeView, setActiveView] = React.useState<'browse' | 'collections'>('browse');
+
+  return (
+    <ToastProvider>
+      <div className="space-y-6">
+        {/* 页面标题 */}
+        <div>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+          <p className="text-muted-foreground">
+            {t('subtitle')}
+          </p>
+        </div>
+
+        {/* 视图切换 */}
+        <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg w-fit">
+          <button
+            onClick={() => setActiveView('browse')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all',
+              activeView === 'browse'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Grid3X3 className="h-4 w-4" />
+            {t('browse')}
+          </button>
+          <button
+            onClick={() => setActiveView('collections')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all',
+              activeView === 'collections'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Heart className="h-4 w-4" />
+            {tc('title')}
+          </button>
+        </div>
+
+        {/* 视图内容 */}
+        {activeView === 'browse' ? <BrowseView /> : <CollectionsView />}
+      </div>
+    </ToastProvider>
   );
 }

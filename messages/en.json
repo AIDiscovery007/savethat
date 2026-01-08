@@ -383,6 +383,26 @@
     "title": "Wallpaper Gallery",
     "subtitle": "Browse and download high-quality wallpapers from Wallhaven",
     "filters": "Search Filters",
-    "filtersDesc": "Customize your search with keywords, categories, and sorting options"
+    "filtersDesc": "Customize your search with keywords, categories, and sorting options",
+    "browse": "Browse"
+  },
+  "WallpaperCollection": {
+    "title": "My Collections",
+    "newCollectionPlaceholder": "New collection name",
+    "emptyCollections": "No collections yet. Create one to get started.",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteCollection": "Delete Collection",
+    "deleteCollectionConfirm": "Are you sure you want to delete this collection? This action cannot be undone.",
+    "deleteCollectionWithItems": "Are you sure you want to delete {count} wallpapers? This action cannot be undone.",
+    "addToCollection": "Add to Collection",
+    "selectCollectionDesc": "Choose a collection to save this wallpaper",
+    "create": "Create",
+    "cancel": "Cancel",
+    "createNewCollection": "Create New Collection",
+    "noCollectionsYet": "No collections yet. Create one to save wallpapers.",
+    "selectCollection": "Select a collection to view its wallpapers",
+    "emptyCollection": "This collection is empty. Add some wallpapers!",
+    "itemCount": "{count} wallpapers"
   }
 }

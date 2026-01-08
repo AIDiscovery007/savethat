@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WallpaperCard } from './wallpaper-card';
 import { BlurFade } from '@/components/ui/blur-fade';
-import { Empty } from '@/components/ui/empty';
+import { WallpaperEmptyState } from './empty-state';
 import { cn } from '@/lib/utils';
 import type { WallhavenWallpaper } from '@/lib/api/wallhaven/types';
 
@@ -17,6 +18,7 @@ interface WallpaperGridProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   onDownload: (wallpaper: WallhavenWallpaper) => void;
+  onRemove?: (wallpaper: WallhavenWallpaper) => void;
   className?: string;
 }
 
@@ -27,6 +29,7 @@ export function WallpaperGrid({
   totalPages,
   onPageChange,
   onDownload,
+  onRemove,
   className,
 }: WallpaperGridProps) {
   // 生成分页按钮
@@ -57,10 +60,25 @@ export function WallpaperGrid({
     return (
       <div className={cn('grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4', className)}>
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="space-y-2">
-            <Skeleton className="aspect-[9/16] rounded-xl" />
-            <Skeleton className="h-3 w-20" />
-          </div>
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+            className="space-y-2"
+          >
+            <div className="aspect-[9/16] rounded-xl overflow-hidden bg-muted relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted to-muted/50 animate-pulse" />
+              {/* 模拟图片区域 */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                <Heart className="h-8 w-8" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-2.5 w-12" />
+            </div>
+          </motion.div>
         ))}
       </div>
     );
@@ -69,10 +87,11 @@ export function WallpaperGrid({
   // 空状态
   if (wallpapers.length === 0) {
     return (
-      <Empty
+      <WallpaperEmptyState
+        variant="search"
         title="No wallpapers found"
         description="Try adjusting your search or filters"
-        className="py-12"
+        className="py-16"
       />
     );
   }

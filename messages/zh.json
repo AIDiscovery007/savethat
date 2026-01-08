@@ -383,6 +383,26 @@
     "title": "壁纸画廊",
     "subtitle": "浏览和下载 Wallhaven 高品质壁纸",
     "filters": "搜索筛选",
-    "filtersDesc": "通过关键词、分类和排序自定义搜索"
+    "filtersDesc": "通过关键词、分类和排序自定义搜索",
+    "browse": "浏览"
+  },
+  "WallpaperCollection": {
+    "title": "我的收藏",
+    "newCollectionPlaceholder": "新收藏夹名称",
+    "emptyCollections": "暂无收藏夹，创建一个开始管理壁纸吧",
+    "rename": "重命名",
+    "delete": "删除",
+    "deleteCollection": "删除收藏夹",
+    "deleteCollectionConfirm": "确定要删除这个收藏夹吗？此操作无法撤销。",
+    "deleteCollectionWithItems": "确定要删除「{count}」张壁纸吗？此操作无法撤销。",
+    "addToCollection": "添加到收藏夹",
+    "selectCollectionDesc": "选择要保存此壁纸的收藏夹",
+    "create": "创建",
+    "cancel": "取消",
+    "createNewCollection": "创建新收藏夹",
+    "noCollectionsYet": "暂无收藏夹，创建一个来保存壁纸吧",
+    "selectCollection": "选择一个收藏夹来查看其中的壁纸",
+    "emptyCollection": "此收藏夹为空，添加一些壁纸吧！",
+    "itemCount": "共 {count} 张壁纸"
   }
 }
