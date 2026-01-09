@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * 封面生成 Hook
- * 处理提示词优化和图像生成的核心逻辑
- */
-
 import * as React from 'react';
 import { getStyleById } from '@/app/[locale]/tools/cover-generator/config/styles';
 import {
@@ -28,7 +23,7 @@ interface GenerateParams {
 interface GenerateResult {
   covers: GeneratedCover[];
   optimizedPrompt?: string;
-  layoutPrompt?: string;  // ASCII 版式描述
+  layoutPrompt?: string;
 }
 
 interface UseCoverGenerationReturn {
@@ -41,24 +36,27 @@ interface UseCoverGenerationReturn {
   reset: () => void;
 }
 
-/**
- * 生成 ASCII 版式描述
- * 使用低温 (0.3) 确保输出一致性
- */
+type GenerationState = Pick<UseCoverGenerationReturn, 'isOptimizing' | 'isGenerating' | 'error'> & { optimizedPrompt: string };
+
 async function generateLayoutPrompt(
   theme: string,
   userIntent: string | null,
   imageCount: number,
   styleName?: string
 ): Promise<string> {
-  const systemMsg = `You are a professional layout designer for Xiaohongshu covers.
+  const response = await fetch('/api/aihubmix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'gemini-3-flash-preview-search',
+      messages: [
+        { role: 'system', content: `You are a professional layout designer for Xiaohongshu covers.
 Generate a precise ASCII layout description using standard box-drawing characters (┌ ┐ └ ┘ │ ─).
-Output ONLY the ASCII layout, no explanations, no markdown code blocks.`;
-
-  const userMsg = `Theme: ${theme}
+Output ONLY the ASCII layout, no explanations, no markdown code blocks.` },
+        { role: 'user', content: `Theme: ${theme}
 User Intent: ${userIntent || 'auto-detect appropriate layout based on theme'}
 Style: ${styleName || 'default'}
-Reference Images: ${imageCount} image(s)
+Reference Images: ${imageCount} image(s)}
 
 Generate an ASCII layout structure that:
 1. Uses 9:16 vertical ratio (Xiaohongshu standard)
@@ -77,63 +75,30 @@ Example format:
 │                                    │
 ├────────────────────────────────────┤
 │  [Tags] #topic #brand              │
-└────────────────────────────────────┘`;
+└────────────────────────────────────┘` },
+      ],
+      temperature: 0.3,
+      max_tokens: 65536,
+      thinking: true,
+    }),
+  });
 
-  try {
-    const response = await fetch('/api/aihubmix', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'gemini-3-flash-preview-search',
-        messages: [
-          { role: 'system', content: systemMsg },
-          { role: 'user', content: userMsg },
-        ],
-        temperature: 0.3,  // 低温度确保一致性
-        max_tokens: 65536,
-        thinking: true,  // 开启思考模式，生成更精确的 ASCII 布局
-      }),
-    });
-
-    if (!response.ok) {
-      console.error('Layout prompt generation failed');
-      return '';
-    }
-
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content || '';
-
-    // 移除 thinking 标签内容
-    content = content.replace(/<thinking>[\s\S]*?<\/thinking>/gi, '').trim();
-
-    // 移除 markdown 代码块标记
-    content = content.replace(/```(?:ascii)?\n?/g, '').replace(/```/g, '').trim();
-
-    return content;
-  } catch (error) {
-    console.error('Error generating layout prompt:', error);
+  if (!response.ok) {
+    console.error('Layout prompt generation failed');
     return '';
   }
+
+  const data = await response.json();
+  let content = data.choices?.[0]?.message?.content || '';
+
+  return content
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+    .replace(/```(?:ascii)?\n?/g, '')
+    .replace(/```/g, '')
+    .trim();
 }
 
-function buildSystemPrompt(
-  styleConfig: StyleConfig | undefined,
-  styleId: string,
-  layoutPrompt?: string
-): string {
-  const basePrompt = `You are a professional Xiaohongshu (Chinese lifestyle platform) cover designer.
-Your task is to analyze reference images and user requirements, then generate optimized prompts for Gemini image generation.
-
-## KEY PRINCIPLES:
-1. Analyze reference images for style characteristics (colors, composition, layout)
-2. Generate prompts that match the specific style requirements
-3. Use English, be concise yet detailed enough for Gemini to understand
-4. Include Xiaohongshu-specific keywords: high-quality texture, atmospheric, appealing to viewers
-5. Output only the optimized English prompt, no explanations
-
-## STYLE GUIDANCE:
-`;
-
+function buildSystemPrompt(styleConfig: StyleConfig | undefined, styleId: string, layoutPrompt?: string): string {
   const styleSection = styleConfig
     ? `Target Style: ${styleConfig.name}
 Style Description: ${styleConfig.mood}
@@ -141,7 +106,8 @@ Color Scheme: ${styleConfig.colors.primary} (primary), ${styleConfig.colors.seco
 Keywords to include: ${styleConfig.keywords.join(', ')}`
     : `Custom style ID: ${styleId}`;
 
-  const compositionSection = layoutPrompt ? `
+  const compositionSection = layoutPrompt
+    ? `
 
 ## LAYOUT STRUCTURE (ASCII)
 ${layoutPrompt}
@@ -153,7 +119,8 @@ ${layoutPrompt}
 - Clear visual hierarchy with dominant headline
 - Strategic use of negative space
 - Eye-catching data points or numbers highlighted
-- Clean, modern aesthetic that works for Chinese social media` : `
+- Clean, modern aesthetic that works for Chinese social media`
+    : `
 
 ## COMPOSITION RULES:
 - Use vertical 9:16 aspect ratio (Xiaohongshu standard)
@@ -163,13 +130,22 @@ ${layoutPrompt}
 - Eye-catching data points or numbers highlighted
 - Clean, modern aesthetic that works for Chinese social media`;
 
-  const outputSection = `
+  return `You are a professional Xiaohongshu (Chinese lifestyle platform) cover designer.
+Your task is to analyze reference images and user requirements, then generate optimized prompts for Gemini image generation.
+
+## KEY PRINCIPLES:
+1. Analyze reference images for style characteristics (colors, composition, layout)
+2. Generate prompts that match the specific style requirements
+3. Use English, be concise yet detailed enough for Gemini to understand
+4. Include Xiaohongshu-specific keywords: high-quality texture, atmospheric, appealing to viewers
+5. Output only the optimized English prompt, no explanations
+
+## STYLE GUIDANCE:
+${styleSection}${compositionSection}
 
 ## OUTPUT FORMAT:
 Return ONLY the optimized English prompt text, suitable for direct use in Gemini image generation.
 The prompt should describe the overall visual, not individual elements.`;
-
-  return basePrompt + styleSection + compositionSection + outputSection;
 }
 
 function buildUserPrompt(
@@ -179,24 +155,18 @@ function buildUserPrompt(
   imageCount: number,
   layoutIntent?: string | null
 ): string {
-  const styleInfo = styleConfig
-    ? `Target Style: ${styleConfig.name}
-Mood: ${styleConfig.mood}
-Colors: ${styleConfig.colors.primary}, ${styleConfig.colors.secondary}, ${styleConfig.colors.accent}`
-    : `Style ID: ${styleId}`;
-
-  const layoutInfo = layoutIntent
-    ? `Layout Intent: ${layoutIntent} (detected from user prompt)`
-    : 'Layout Intent: Auto-detect based on theme';
-
   return `## User Requirements:
 ${userPrompt}
 
 ## Style Details:
-${styleInfo}
+${styleConfig
+  ? `Target Style: ${styleConfig.name}
+Mood: ${styleConfig.mood}
+Colors: ${styleConfig.colors.primary}, ${styleConfig.colors.secondary}, ${styleConfig.colors.accent}`
+  : `Style ID: ${styleId}`}
 
 ## Layout Intent:
-${layoutInfo}
+${layoutIntent ? `Layout Intent: ${layoutIntent} (detected from user prompt)` : 'Layout Intent: Auto-detect based on theme'}
 
 ## Reference Images:
 ${imageCount} image(s) provided as reference
@@ -211,15 +181,58 @@ Generate an optimized English prompt for Xiaohongshu cover generation that:
 6. Maintains the reference image's aesthetic qualities`;
 }
 
+async function callAihubmix(systemMsg: string, userMsg: string): Promise<string> {
+  const response = await fetch('/api/aihubmix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'gemini-3-flash-preview-search',
+      messages: [
+        { role: 'system', content: systemMsg },
+        { role: 'user', content: userMsg },
+      ],
+      temperature: 0.7,
+      max_tokens: 65536,
+      thinking: true,
+    }),
+  });
+
+  if (!response.ok) throw new Error('提示词优化失败');
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+async function callCoverGenerator(images: ReferenceImage[], prompt: string): Promise<GeneratedCover[]> {
+  const response = await fetch('/api/cover-generator', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      images: images.map((img) => ({ base64: img.base64 })),
+      prompt,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || '封面生成失败');
+  }
+
+  const data = await response.json();
+  return data.covers || [];
+}
+
 export function useCoverGeneration(): UseCoverGenerationReturn {
-  const [state, setState] = React.useState({
+  const [state, setState] = React.useState<GenerationState>({
     isOptimizing: false,
     isGenerating: false,
     optimizedPrompt: '',
-    error: null as string | null,
+    error: null,
   });
 
   const reset = () => setState({ isOptimizing: false, isGenerating: false, optimizedPrompt: '', error: null });
+
+  const setLoading = (loading: Partial<GenerationState>) =>
+    setState((prev) => ({ ...prev, ...loading, error: null }));
 
   const optimizePrompt = async (
     images: ReferenceImage[],
@@ -227,107 +240,48 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
     styleId: string
   ): Promise<{ optimized: string; layoutPrompt: string }> => {
     const styleConfig = getStyleById(styleId);
-
-    // 1. 检测用户版式意图
     const userLayoutIntent = detectLayoutFromPrompt(prompt);
 
-    // 2. 生成 ASCII 版式描述（仅当无明确意图时）
-    let layoutPrompt = '';
+    let layoutPrompt = userLayoutIntent
+      ? getLayoutAsciiForIntent(userLayoutIntent, styleConfig) || ''
+      : await generateLayoutPrompt(prompt, userLayoutIntent, images.length, styleConfig?.name);
 
-    if (!userLayoutIntent) {
-      // 无明确意图，AI 自动推断版式
-      layoutPrompt = await generateLayoutPrompt(
-        prompt,
-        userLayoutIntent,
-        images.length,
-        styleConfig?.name
-      );
-    } else {
-      // 用户有明确意图，获取对应的 ASCII 示例
-      layoutPrompt = getLayoutAsciiForIntent(userLayoutIntent, styleConfig) || '';
-    }
-
-    // 3. 构建提示词
     const systemMsg = buildSystemPrompt(styleConfig, styleId, layoutPrompt || undefined);
-    const userMsg = buildUserPrompt(
-      prompt,
-      styleConfig,
-      styleId,
-      images.length,
-      userLayoutIntent
-    );
-
-    // 4. 调用 AI 优化
-    const response = await fetch('/api/aihubmix', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'gemini-3-flash-preview-search',
-        messages: [
-          { role: 'system', content: systemMsg },
-          { role: 'user', content: userMsg },
-        ],
-        temperature: 0.7,
-        max_tokens: 65536,
-        thinking: true,
-      }),
-    });
-
-    if (!response.ok) throw new Error('提示词优化失败');
-    const data = await response.json();
-    const optimized = data.choices?.[0]?.message?.content || prompt;
+    const userMsg = buildUserPrompt(prompt, styleConfig, styleId, images.length, userLayoutIntent);
+    const optimized = await callAihubmix(systemMsg, userMsg);
 
     return { optimized, layoutPrompt };
-  };
-
-  const generateCovers = async (
-    images: ReferenceImage[],
-    prompt: string
-  ): Promise<GeneratedCover[]> => {
-    const response = await fetch('/api/cover-generator', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        images: images.map((img) => ({ base64: img.base64 })),
-        prompt,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || '封面生成失败');
-    }
-
-    const data = await response.json();
-    return data.covers || [];
   };
 
   const generate = async (params: GenerateParams): Promise<GenerateResult | undefined> => {
     const { images, prompt, styleId } = params;
 
     try {
-      setState(s => ({ ...s, isOptimizing: true, error: null }));
+      setLoading({ isOptimizing: true });
       const { optimized, layoutPrompt } = await optimizePrompt(images, prompt, styleId);
-      setState(s => ({ ...s, isOptimizing: false, optimizedPrompt: optimized }));
+      setState((prev) => ({ ...prev, isOptimizing: false, optimizedPrompt: optimized }));
 
-      setState(s => ({ ...s, isGenerating: true }));
+      setLoading({ isGenerating: true });
       const covers = await generateCovers(images, optimized);
-      setState(s => ({ ...s, isGenerating: false }));
 
       return { covers, optimizedPrompt: optimized, layoutPrompt };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '生成失败，请重试';
-      setState(s => ({ ...s, isOptimizing: false, isGenerating: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, isOptimizing: false, isGenerating: false, error: errorMessage }));
       console.error('Cover generation error:', err);
       return undefined;
     }
+  };
+
+  const generateCovers = async (images: ReferenceImage[], prompt: string): Promise<GeneratedCover[]> => {
+    return callCoverGenerator(images, prompt);
   };
 
   const generateBatch = async (params: BatchGenerationConfig): Promise<BatchGenerationResult | undefined> => {
     const { theme, content, styleId, images } = params;
 
     try {
-      setState(s => ({ ...s, isGenerating: true, error: null }));
+      setLoading({ isGenerating: true });
 
       const response = await fetch('/api/cover-generator/batch', {
         method: 'POST',
@@ -345,13 +299,11 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
         throw new Error(errorData.error || '批量生成失败');
       }
 
-      const result = await response.json();
-      setState(s => ({ ...s, isGenerating: false }));
-
-      return result;
+      setState((prev) => ({ ...prev, isGenerating: false }));
+      return await response.json();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '批量生成失败，请重试';
-      setState(s => ({ ...s, isGenerating: false, error: errorMessage }));
+      setState((prev) => ({ ...prev, isGenerating: false, error: errorMessage }));
       console.error('Batch generation error:', err);
       return undefined;
     }

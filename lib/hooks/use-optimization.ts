@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import type { OptimizationHistory, OptimizationStage } from '@/lib/storage/types';
+import type { OptimizationStage } from '@/lib/storage/types';
 import {
   STAGES,
   StageEnum,
@@ -193,58 +193,36 @@ export function useOptimization() {
 
     const apiOptions = { modelId, thinking: thinkingEnabled };
 
+    const STAGES_ORDER = [StageEnum.INTENT_ANALYSIS, StageEnum.STRUCTURING, StageEnum.REFINEMENT] as const;
+
     try {
-      // 阶段 1: 意图分析
-      const intentProgress = STAGE_PROGRESS[StageEnum.INTENT_ANALYSIS];
-      setState(s => ({ ...s, currentStage: StageEnum.INTENT_ANALYSIS, stageProgress: intentProgress.current }));
-      onStageChange?.(StageEnum.INTENT_ANALYSIS, intentProgress.current);
+      let previousOutput: string | undefined;
 
-      const intentMessage = buildStageUserMessage(StageEnum.INTENT_ANALYSIS, originalPrompt);
-      const intentResult = await callStageApi(
-        StageEnum.INTENT_ANALYSIS,
-        [{ role: 'user', content: intentMessage }],
-        apiOptions
-      );
-      stageResults.push(intentResult);
-      setState(s => ({ ...s, stages: stageResults, stageProgress: intentProgress.next }));
+      // 顺序执行三个阶段
+      for (const stage of STAGES_ORDER) {
+        const progress = STAGE_PROGRESS[stage];
 
-      // 阶段 2: 结构化
-      const structProgress = STAGE_PROGRESS[StageEnum.STRUCTURING];
-      setState(s => ({ ...s, currentStage: StageEnum.STRUCTURING, stageProgress: structProgress.current }));
-      onStageChange?.(StageEnum.STRUCTURING, structProgress.current);
+        // 更新状态：当前阶段和进度
+        setState(s => ({ ...s, currentStage: stage, stageProgress: progress.current }));
+        onStageChange?.(stage, progress.current);
 
-      const structMessage = buildStageUserMessage(
-        StageEnum.STRUCTURING,
-        originalPrompt,
-        intentResult.output
-      );
-      const structResult = await callStageApi(
-        StageEnum.STRUCTURING,
-        [{ role: 'user', content: structMessage }],
-        apiOptions
-      );
-      stageResults.push(structResult);
-      setState(s => ({ ...s, stages: stageResults, stageProgress: structProgress.next }));
+        // 构建消息：使用原始提示词和前一阶段的输出
+        const message = buildStageUserMessage(stage, originalPrompt, previousOutput);
+        const result = await callStageApi(
+          stage,
+          [{ role: 'user', content: message }],
+          apiOptions
+        );
 
-      // 阶段 3: 细节优化
-      const refineProgress = STAGE_PROGRESS[StageEnum.REFINEMENT];
-      setState(s => ({ ...s, currentStage: StageEnum.REFINEMENT, stageProgress: refineProgress.current }));
-      onStageChange?.(StageEnum.REFINEMENT, refineProgress.current);
+        stageResults.push(result);
+        previousOutput = result.output;
 
-      const refineMessage = buildStageUserMessage(
-        StageEnum.REFINEMENT,
-        originalPrompt,
-        structResult.output
-      );
-      const refineResult = await callStageApi(
-        StageEnum.REFINEMENT,
-        [{ role: 'user', content: refineMessage }],
-        apiOptions
-      );
-      stageResults.push(refineResult);
+        // 更新状态：累积结果和下一阶段进度
+        setState(s => ({ ...s, stages: stageResults, stageProgress: progress.next }));
+      }
 
       // 提取最终优化后的提示词
-      const optimizedPrompt = extractFinalPrompt(refineResult.output);
+      const optimizedPrompt = extractFinalPrompt(previousOutput!);
 
       const totalDuration = Date.now() - startTime;
 

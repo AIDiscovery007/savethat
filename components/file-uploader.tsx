@@ -17,6 +17,68 @@ interface FileUploaderProps {
   multiple?: boolean;
 }
 
+type ValidationResult = { valid: true } | { valid: false; error: string };
+
+const formatFileSize = (bytes: number): string =>
+  bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+const FilePreviewItem = ({
+  file,
+  previewType,
+  multiple,
+  disabled,
+  onRemove,
+}: {
+  file: File;
+  previewType: string;
+  multiple: boolean;
+  disabled: boolean;
+  onRemove: () => void;
+}) => {
+  const previewUrl = React.useMemo(() => URL.createObjectURL(file), [file]);
+  const cleanup = () => URL.revokeObjectURL(previewUrl);
+
+  const previewContent = React.useMemo(() => {
+    if (previewType === 'none') return null;
+    if (previewType === 'video') {
+      return <video src={previewUrl} controls className="w-full h-full object-contain" onEnded={cleanup} />;
+    }
+    return <img src={previewUrl} alt={file.name} className="w-full h-full object-cover" onLoad={cleanup} />;
+  }, [previewType, previewUrl, file.name]);
+
+  const containerClass = multiple
+    ? 'relative group aspect-square rounded-lg overflow-hidden border'
+    : 'relative aspect-video bg-black rounded-lg overflow-hidden';
+
+  return (
+    <div className={containerClass}>
+      {previewContent}
+      <div className={cn('absolute top-2 right-2', !multiple && 'inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity')}>
+        <Button
+          variant="destructive"
+          size="icon"
+          className="h-8 w-8"
+          onClick={onRemove}
+          disabled={disabled}
+        >
+          <XIcon className="h-4 w-4" />
+        </Button>
+      </div>
+      {!multiple && (
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-sm font-medium truncate max-w-[200px]">{file.name}</p>
+          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+        </div>
+      )}
+      {multiple && (
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+          <p className="text-xs text-white truncate">{formatFileSize(file.size)}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export function FileUploader({
   accept,
   maxSizeMB = 10,
@@ -35,19 +97,18 @@ export function FileUploader({
   const allowedTypes = accept?.split(',').map((t) => t.trim()) || [];
   const canAddMore = files.length < maxFiles;
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = (file: File): ValidationResult => {
     if (allowedTypes.length > 0 && !allowedTypes.some((type) => file.type.match(type.replace('*', '.*')))) {
-      return `不支持的文件类型: ${file.type}`;
+      return { valid: false, error: `不支持的文件类型: ${file.type}` };
     }
-    if (file.size > maxSizeBytes) return `文件大小不能超过 ${maxSizeMB}MB`;
-    return null;
+    if (file.size > maxSizeBytes) {
+      return { valid: false, error: `文件大小不能超过 ${maxSizeMB}MB` };
+    }
+    return { valid: true };
   };
 
-  const formatFileSize = (bytes: number): string =>
-    bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-
   const handleFileSelect = (selectedFiles: FileList | null) => {
-    if (!selectedFiles || selectedFiles.length === 0) return;
+    if (!selectedFiles) return;
 
     setError(null);
     const remainingSlots = maxFiles - files.length;
@@ -55,16 +116,20 @@ export function FileUploader({
       ? Array.from(selectedFiles).slice(0, remainingSlots)
       : [selectedFiles[0]];
 
-    const newFiles = filesToProcess.filter(file => {
-      const validationError = validateFile(file);
-      if (validationError) setError(validationError);
-      return !validationError;
-    });
+    const newFiles: File[] = [];
+    for (const file of filesToProcess) {
+      const result = validateFile(file);
+      if (!result.valid) {
+        setError(result.error);
+        break;
+      }
+      newFiles.push(file);
+    }
 
     if (newFiles.length > 0) {
       onChange(multiple ? [...files, ...newFiles] : newFiles);
     }
-    fileInputRef.current && (fileInputRef.current.value = '');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -77,68 +142,46 @@ export function FileUploader({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    e.dataTransfer.files.length > 0 && handleFileSelect(e.dataTransfer.files);
+    if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files);
   };
 
   const handleRemove = (index: number) => {
-    URL.revokeObjectURL(URL.createObjectURL(files[index]));
     onChange(files.filter((_, i) => i !== index));
     setError(null);
   };
 
-  const renderPreview = (file: File, index: number) => {
-    if (previewType === 'none') return null;
-    const previewUrl = URL.createObjectURL(file);
-    const cleanup = () => URL.revokeObjectURL(previewUrl);
-
-    if (previewType === 'video') {
-      return <video key={index} src={previewUrl} controls className="w-full h-full object-contain" onEnded={cleanup} />;
-    }
-    return <img key={index} src={previewUrl} alt={file.name} className="w-full h-full object-cover" onLoad={cleanup} />;
-  };
-
-  const renderSinglePreview = () => (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-          {renderPreview(files[0], 0)}
-          <div className="absolute top-2 right-2">
-            <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleRemove(0)} disabled={disabled}>
-              <XIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex items-center justify-between mt-3">
-          <p className="text-sm font-medium truncate max-w-[200px]">{files[0].name}</p>
-          <p className="text-xs text-muted-foreground">{formatFileSize(files[0].size)}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const renderMultiplePreviews = () => (
-    <div className="grid grid-cols-3 gap-3">
+  const previewContainer = (
+    <div className={cn(!multiple && 'grid grid-cols-3 gap-3')}>
       {files.map((file, index) => (
-        <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border">
-          {previewType !== 'none' && renderPreview(file, index)}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-            <Button variant="destructive" size="icon" className="h-8 w-8" onClick={() => handleRemove(index)} disabled={disabled}>
-              <XIcon className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-            <p className="text-xs text-white truncate">{formatFileSize(file.size)}</p>
-          </div>
-        </div>
+        <FilePreviewItem
+          key={index}
+          file={file}
+          previewType={previewType}
+          multiple={multiple}
+          disabled={disabled}
+          onRemove={() => handleRemove(index)}
+        />
       ))}
     </div>
   );
 
+  const singlePreview = files[0] && (
+    <Card>
+      <CardContent className="pt-6">
+        <FilePreviewItem
+          file={files[0]}
+          previewType={previewType}
+          multiple={false}
+          disabled={disabled}
+          onRemove={() => handleRemove(0)}
+        />
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-4">
-      {files.length > 0 && previewType !== 'none' && (
-        !multiple ? renderSinglePreview() : renderMultiplePreviews()
-      )}
+      {files.length > 0 && previewType !== 'none' && (multiple ? previewContainer : singlePreview)}
 
       {(canAddMore || files.length === 0) && (
         <div

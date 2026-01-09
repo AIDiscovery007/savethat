@@ -7,6 +7,12 @@ import type { NoteData, CSVParseResult } from '@/types/xiaohongshu';
  */
 export type SupportedFileType = 'csv' | 'xlsx' | 'xls';
 
+// 数值字段列表
+const NUMERIC_FIELDS = ['likes', 'comments', 'shares', 'views', 'collects', 'fans'] as const;
+
+// 序号列名检测
+const INDEX_COLUMN_NAMES = ['#', 'id', '序号', 'index', 'no'];
+
 // 标准化字段名映射（支持小红书导出的各种列名）
 const FIELD_MAPPINGS: Record<string, readonly string[]> = {
   title: ['标题', 'title', '笔记标题', '笔记名称', 'content_title', 'note_title'],
@@ -34,78 +40,71 @@ export function getFileType(file: File): SupportedFileType {
 }
 
 /**
+ * 标准化字段值
+ */
+function normalizeValue(value: unknown): number {
+  if (value === undefined || value === null || value === '') return 0;
+  if (typeof value === 'string') {
+    return parseFloat(value.replace(/[,，\s]/g, '')) || 0;
+  }
+  return Number(value) || 0;
+}
+
+/**
+ * 检测值是否为序号列
+ */
+function isIndexColumn(value: unknown): boolean {
+  if (typeof value === 'number') return true;
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase().trim();
+    return INDEX_COLUMN_NAMES.includes(lower) || !isNaN(Number(value));
+  }
+  return false;
+}
+
+/**
  * 清洗和标准化数据
- * 处理常见的格式问题，如第一列是序号
  */
 function cleanAndNormalizeData(rawData: Record<string, unknown>[], columns: string[]): NoteData[] {
-  // 检测第一列是否是序号列
-  const firstCol = columns[0]?.toLowerCase();
-  const isIndexColumn =
-    firstCol === '#' ||
-    firstCol === 'id' ||
-    firstCol === '序号' ||
-    firstCol === 'index' ||
-    firstCol === 'no' ||
-    !isNaN(Number(rawData[0]?.[columns[0]]));
-
-  // 如果第一列是序号，跳过它
-  const dataColumns = isIndexColumn ? columns.slice(1) : columns;
+  const firstColValue = rawData[0]?.[columns[0]];
+  const skipFirstColumn = isIndexColumn(firstColValue);
+  const dataColumns = skipFirstColumn ? columns.slice(1) : columns;
 
   return rawData.map((row, index) => {
-    const normalizedRow: Record<string, unknown> = {};
-
-    // 构建列名到原始列名的映射（加速查找）
-    const columnMap = dataColumns.reduce<Record<string, string>>((map, colName) => {
-      map[colName.toLowerCase().trim()] = colName;
-      return map;
-    }, {});
+    // 构建列名映射（支持大小写不敏感查找）
+    const columnMap = Object.fromEntries(
+      dataColumns.map((col) => [col.toLowerCase().trim(), col])
+    );
 
     // 映射原始字段到标准化字段
-    for (const [standardField, possibleNames] of Object.entries(FIELD_MAPPINGS)) {
-      const matchedName = possibleNames.find((name) => columnMap[name.toLowerCase()] !== undefined);
-      if (matchedName) {
-        normalizedRow[standardField] = row[columnMap[matchedName.toLowerCase()]];
-      }
-    }
+    const normalizedRow = Object.fromEntries(
+      Object.entries(FIELD_MAPPINGS)
+        .map(([standardField, possibleNames]) => {
+          const matchedName = possibleNames.find((name) => columnMap[name.toLowerCase()] !== undefined);
+          return matchedName ? ([standardField, row[columnMap[matchedName.toLowerCase()]]] as [string, unknown]) : null;
+        })
+        .filter((entry): entry is [string, unknown] => entry !== null)
+    );
 
     // 处理 tags 字段（可能是数组或逗号分隔的字符串）
-    if (normalizedRow.tags) {
-      if (Array.isArray(normalizedRow.tags)) {
-        // 已经是数组，保持不变
-      } else if (typeof normalizedRow.tags === 'string') {
-        // 逗号分隔的字符串，转为数组
-        normalizedRow.tags = normalizedRow.tags
-          .split(/[,，]/)
-          .map((t: string) => t.trim())
-          .filter(Boolean);
-      }
+    if (normalizedRow.tags && typeof normalizedRow.tags === 'string') {
+      normalizedRow.tags = normalizedRow.tags
+        .split(/[,，]/)
+        .map((t) => t.trim())
+        .filter(Boolean);
     }
 
     // 转换数值字段
-    const numericFields = ['likes', 'comments', 'shares', 'views', 'collects', 'fans'];
-    for (const field of numericFields) {
-      const value = normalizedRow[field];
-      if (value === undefined || value === null || value === '') {
-        normalizedRow[field] = 0;
-      } else if (typeof value === 'string') {
-        // 移除逗号和空格，转换为数字
-        normalizedRow[field] = parseFloat(value.replace(/[,，\s]/g, '')) || 0;
-      } else {
-        normalizedRow[field] = Number(value) || 0;
-      }
+    for (const field of NUMERIC_FIELDS) {
+      normalizedRow[field] = normalizeValue(normalizedRow[field]);
     }
 
-    return {
-      ...normalizedRow,
-      id: String(index + 1),
-    } as NoteData;
+    return { ...normalizedRow, id: String(index + 1) } as NoteData;
   });
 }
 
 /**
  * 解析 Excel/xlsx 文件
- * @param file - Excel 文件对象
- * @returns 解析结果
  */
 export async function parseExcel(file: File): Promise<CSVParseResult> {
   return new Promise((resolve) => {
@@ -115,12 +114,9 @@ export async function parseExcel(file: File): Promise<CSVParseResult> {
       try {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'array' });
-
-        // 获取第一个工作表
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
 
-        // 使用数组格式获取数据（header: 1）
         const rawDataAsArrays = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           defval: '',
@@ -137,9 +133,6 @@ export async function parseExcel(file: File): Promise<CSVParseResult> {
           return;
         }
 
-        console.log('[parseExcel] Total rows:', rawDataAsArrays.length);
-        console.log('[parseExcel] First row:', rawDataAsArrays[0]);
-
         const firstRow = rawDataAsArrays[0] || [];
         const secondRow = rawDataAsArrays[1] || [];
 
@@ -154,27 +147,16 @@ export async function parseExcel(file: File): Promise<CSVParseResult> {
         let dataRows: Record<string, unknown>[];
 
         if (hasMergedHeader && rawDataAsArrays.length >= 2) {
-          console.log('[parseExcel] Detected merged header format');
-
           // 使用第二行作为列名
           actualColumns = secondRow.map((cell) => String(cell || ''));
 
           // 使用第三行及之后作为数据
           const rawData = rawDataAsArrays.slice(2);
-
-          // 将数组数据转换为对象格式
-          dataRows = rawData.map((row) => {
-            const obj: Record<string, unknown> = {};
-            actualColumns.forEach((colName, index) => {
-              obj[colName] = row[index];
-            });
-            return obj;
-          });
-
-          console.log('[parseExcel] Actual columns:', actualColumns);
-          console.log('[parseExcel] Data rows count:', dataRows.length);
+          dataRows = rawData.map((row) =>
+            Object.fromEntries(actualColumns.map((colName, index) => [colName, row[index]]))
+          );
         } else {
-          // 标准格式：使用默认的 JSON 转换
+          // 标准格式
           const rawData = XLSX.utils.sheet_to_json(worksheet, {
             defval: '',
             raw: false,
@@ -187,16 +169,11 @@ export async function parseExcel(file: File): Promise<CSVParseResult> {
 
         const cleanedData = cleanAndNormalizeData(dataRows, actualColumns);
 
-        // 过滤掉标题行（如果数据中包含标题描述）
+        // 过滤掉无效数据行
         const filteredData = cleanedData.filter((row) => {
           const title = String(row.title || '');
-          if (title.includes('请了个AI') || title.includes('claude code')) {
-            return true; // 保留实际数据
-          }
-          // 如果是空数据或全是0，跳过
-          if (row.views === 0 && row.likes === 0 && !title) {
-            return false;
-          }
+          // 保留实际数据，过滤空数据或全是0的行
+          if (row.views === 0 && row.likes === 0 && !title) return false;
           return true;
         });
 
@@ -233,8 +210,6 @@ export async function parseExcel(file: File): Promise<CSVParseResult> {
 
 /**
  * 解析 CSV 文件
- * @param file - CSV 文件对象
- * @returns 解析结果
  */
 export async function parseCSV(file: File): Promise<CSVParseResult> {
   return new Promise((resolve) => {
@@ -289,8 +264,6 @@ export async function parseCSV(file: File): Promise<CSVParseResult> {
 
 /**
  * 解析 CSV 字符串
- * @param csvString - CSV 字符串
- * @returns 解析结果
  */
 export function parseCSVString(csvString: string): CSVParseResult {
   const results = Papa.parse(csvString, {
@@ -322,46 +295,28 @@ export function parseCSVString(csvString: string): CSVParseResult {
 
 /**
  * 通用文件解析函数（自动检测格式）
- * @param file - 文件对象
- * @returns 解析结果
  */
 export async function parseFile(file: File): Promise<CSVParseResult> {
   const fileType = getFileType(file);
-
-  switch (fileType) {
-    case 'xlsx':
-      return parseExcel(file);
-    default:
-      return parseCSV(file);
-  }
+  return fileType === 'xlsx' ? parseExcel(file) : parseCSV(file);
 }
 
 /**
  * 格式化数字
- * @param num - 数字
- * @returns 格式化后的字符串
  */
 export function formatNumber(num: number): string {
-  if (num >= 100000000) {
-    return (num / 100000000).toFixed(1) + '亿';
-  }
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + '万';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
-  }
+  if (num >= 100000000) return (num / 100000000).toFixed(1) + '亿';
+  if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
   return num.toString();
 }
 
 /**
  * 计算互动率
- * @param note - 笔记数据
- * @returns 互动率百分比
  */
 export function calculateEngagementRate(note: NoteData): number {
-  const interactions = (note.likes || 0) + (note.comments || 0) + (note.shares || 0) + (note.collects || 0);
   const views = note.views || 0;
   if (views === 0) return 0;
+  const interactions = (note.likes || 0) + (note.comments || 0) + (note.shares || 0) + (note.collects || 0);
   return (interactions / views) * 100;
 }
