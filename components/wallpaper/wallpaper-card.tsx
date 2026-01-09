@@ -121,11 +121,11 @@ export function WallpaperCard({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // 纯度徽章颜色
+  // 纯度徽章颜色 - 使用语义化变量
   const purityColor = {
-    sfw: 'bg-green-500/20 text-green-700 dark:text-green-400',
-    sketchy: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400',
-    nsfw: 'bg-red-500/20 text-red-700 dark:text-red-400',
+    sfw: 'bg-green-500/20 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    sketchy: 'bg-yellow-500/20 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    nsfw: 'bg-red-500/20 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
 
   return (

@@ -112,12 +112,12 @@ function SplitView({
       {/* 优化后提示词 */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-green-600">
+          <span className="text-sm font-medium text-green-600 dark:text-green-400">
             {t('optimizedPrompt')}
           </span>
           <CopyButton value={optimizedPrompt} />
         </div>
-        <div className="h-[200px] overflow-auto rounded-(--radius) border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10 transition-all duration-200">
+        <div className="h-[200px] overflow-auto rounded-(--radius) border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-950/30 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {optimizedPrompt}
           </pre>
@@ -125,7 +125,7 @@ function SplitView({
         <div className="text-xs text-muted-foreground text-right">
           {t('chars', { chars: optimizedPrompt.length })}
           {charDiff !== 0 && (
-            <span className="ml-2 text-green-600">
+            <span className="ml-2 text-green-600 dark:text-green-400">
               ({charDiff > 0 ? '+' : ''}{charDiff})
             </span>
           )}
@@ -167,12 +167,12 @@ function StackedView({
       {/* 优化后提示词 */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-green-600">
+          <span className="text-sm font-medium text-green-600 dark:text-green-400">
             {t('optimizedPrompt')}
           </span>
           <CopyButton value={optimizedPrompt} />
         </div>
-        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-(--radius) border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-900/10 transition-all duration-200">
+        <div className="min-h-[100px] max-h-[200px] overflow-auto rounded-(--radius) border border-green-500/30 bg-green-50/30 p-3 dark:bg-green-950/30 transition-all duration-200">
           <pre className="whitespace-pre-wrap text-xs font-mono">
             {optimizedPrompt}
           </pre>

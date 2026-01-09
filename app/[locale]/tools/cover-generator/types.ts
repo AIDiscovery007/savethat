@@ -63,3 +63,38 @@ export interface GeneratedCover {
   url: string;
   prompt: string;
 }
+
+/**
+ * 批量生成配置
+ */
+export interface BatchGenerationConfig {
+  theme: string;
+  content: string; // 笔记正文
+  styleId: string;
+  layoutId?: string;
+  images?: ReferenceImage[]; // 可选的参考图
+}
+
+/**
+ * 批量生成内容分析结果
+ */
+export interface ContentAnalysisResult {
+  suggestedImageCount: number; // 建议的图片数量（包含封面）
+  coverFocus: string; // 封面的重点
+  contentPages: Array<{
+    index: number; // 页码，从1开始
+    focus: string; // 该页面的重点
+    layout: string; // 建议的布局类型
+  }>;
+  reasoning: string; // AI的推理说明
+}
+
+/**
+ * 批量生成结果
+ */
+export interface BatchGenerationResult {
+  cover: GeneratedCover; // 首图封面
+  contentPages: GeneratedCover[]; // 内容页数组
+  totalImages: number;
+  analysis: ContentAnalysisResult;
+}

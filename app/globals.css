@@ -45,6 +45,14 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* 工具卡片米白色系 */
+  --color-card-beige: var(--card-beige);
+  --color-card-beige-surface: var(--card-beige-surface);
+  --color-card-beige-border: var(--card-beige-border);
+  --color-card-beige-badge: var(--card-beige-badge);
+  --color-card-beige-text: var(--card-beige-text);
+  --color-card-beige-icon: var(--card-beige-icon);
 }
 
 :root {
@@ -84,40 +92,81 @@
   --transition-fast: 150ms ease;
   --transition-normal: 200ms ease;
   --transition-slow: 300ms ease;
+
+  /* 工具卡片米白色系 */
+  --card-beige: oklch(0.985 0.005 55);
+  --card-beige-surface: oklch(0.96 0.008 52);
+  --card-beige-border: oklch(0.82 0.012 48);
+  --card-beige-badge: oklch(0.92 0.01 50);
+  --card-beige-text: oklch(0.32 0.008 45);
+  --card-beige-icon: oklch(0.42 0.015 50);
 }
 
 .dark {
-  --background: oklch(0.147 0.004 49.25);
-  --foreground: oklch(0.985 0.001 106.423);
-  --card: oklch(0.216 0.006 56.043);
-  --card-foreground: oklch(0.985 0.001 106.423);
-  --popover: oklch(0.216 0.006 56.043);
-  --popover-foreground: oklch(0.985 0.001 106.423);
+  /* 基础背景 - 暖色调深色 */
+  --background: oklch(0.11 0.004 50);
+  --foreground: oklch(0.92 0.005 55);
+
+  /* 卡片 - 略浅于背景 */
+  --card: oklch(0.15 0.005 48);
+  --card-foreground: oklch(0.92 0.005 55);
+
+  /* 弹窗 */
+  --popover: oklch(0.15 0.005 48);
+  --popover-foreground: oklch(0.92 0.005 55);
+
+  /* 主要色 - 保持紫色调 */
   --primary: oklch(0.42 0.18 266);
   --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.268 0.007 34.298);
-  --muted-foreground: oklch(0.709 0.01 56.259);
-  --accent: oklch(0.42 0.18 266);
-  --accent-foreground: oklch(0.97 0.014 254.604);
+
+  /* 次要元素 - 暖色调 */
+  --secondary: oklch(0.20 0.006 45);
+  --secondary-foreground: oklch(0.92 0.005 55);
+
+  /* 弱化内容 - 暖灰 */
+  --muted: oklch(0.18 0.006 42);
+  --muted-foreground: oklch(0.65 0.008 52);
+
+  /* 强调色 - 暖色调 */
+  --accent: oklch(0.22 0.015 48);
+  --accent-foreground: oklch(0.92 0.005 55);
+
+  /* 警告/错误色 */
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.553 0.013 58.071);
+
+  /* 边框和输入 - 暖白 */
+  --border: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / 20%);
+  --ring: oklch(0.5 0.012 50);
+
+  /* 图表颜色 - 保持原样 */
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.216 0.006 56.043);
-  --sidebar-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-primary: oklch(0.623 0.214 259.815);
+
+  /* 侧边栏 - 暖色调 */
+  --sidebar: oklch(0.15 0.005 48);
+  --sidebar-foreground: oklch(0.92 0.005 55);
+  --sidebar-primary: oklch(0.55 0.18 265);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.42 0.18 266);
-  --sidebar-accent-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.553 0.013 58.071);
+  --sidebar-accent: oklch(0.22 0.015 48);
+  --sidebar-accent-foreground: oklch(0.92 0.005 55);
+  --sidebar-border: oklch(1 0 0 / 15%);
+  --sidebar-ring: oklch(0.5 0.012 50);
+
+  /* 工具卡片专用 - 暖米色系深色 */
+  --card-beige: oklch(0.105 0.004 52);
+  --card-beige-surface: oklch(0.145 0.006 50);
+  --card-beige-border: oklch(0.28 0.012 48);
+  --card-beige-badge: oklch(0.20 0.008 50);
+  --card-beige-text: oklch(0.88 0.006 55);
+  --card-beige-icon: oklch(0.55 0.015 52);
+
+  /* 滚动条 - 暖色调 */
+  --scroll-thumb: oklch(0.35 0.008 48);
+  --scroll-thumb-hover: oklch(0.45 0.008 50);
 }
 
 @layer base {
@@ -139,12 +188,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.7 0.01 56.259);
+    background: var(--scroll-thumb, oklch(0.35 0.008 48));
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.6 0.01 56.259);
+    background: var(--scroll-thumb-hover, oklch(0.45 0.008 50));
   }
 
   /* 焦点状态优化 */

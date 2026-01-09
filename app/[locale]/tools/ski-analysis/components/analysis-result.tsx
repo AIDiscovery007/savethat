@@ -95,15 +95,15 @@ interface Keyframe {
 
 // 分数颜色
 const getScoreColor = (score: number) => {
-  if (score >= 7) return 'text-green-500';
-  if (score >= 5) return 'text-yellow-500';
-  return 'text-red-500';
+  if (score >= 7) return 'text-green-600 dark:text-green-400';
+  if (score >= 5) return 'text-amber-600 dark:text-amber-400';
+  return 'text-red-600 dark:text-red-400';
 };
 
 const getScoreBg = (score: number) => {
-  if (score >= 7) return 'bg-green-100 dark:bg-green-900';
-  if (score >= 5) return 'bg-yellow-100 dark:bg-yellow-900';
-  return 'bg-red-100 dark:bg-red-900';
+  if (score >= 7) return 'bg-green-50 dark:bg-green-950/50';
+  if (score >= 5) return 'bg-amber-50 dark:bg-amber-950/50';
+  return 'bg-red-50 dark:bg-red-950/50';
 };
 
 const getSeverityBadge = (severity?: string) => {

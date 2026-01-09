@@ -228,24 +228,24 @@ export default function SkiAnalysisPage() {
                     label: t('skillBeginner'),
                     description: t('skillBeginnerDesc'),
                     icon: <Snowflake className="h-5 w-5 text-blue-500" />,
-                    bgClass: 'bg-blue-100 dark:bg-blue-900',
-                    colorClass: 'text-blue-500',
+                    bgClass: 'bg-blue-50 dark:bg-blue-950/50',
+                    colorClass: 'text-blue-600 dark:text-blue-400',
                   },
                   {
                     value: 'intermediate',
                     label: t('skillIntermediate'),
                     description: t('skillIntermediateDesc'),
                     icon: <Mountain className="h-5 w-5 text-green-500" />,
-                    bgClass: 'bg-green-100 dark:bg-green-900',
-                    colorClass: 'text-green-500',
+                    bgClass: 'bg-green-50 dark:bg-green-950/50',
+                    colorClass: 'text-green-600 dark:text-green-400',
                   },
                   {
                     value: 'advanced',
                     label: t('skillAdvanced'),
                     description: t('skillAdvancedDesc'),
                     icon: <Zap className="h-5 w-5 text-red-500" />,
-                    bgClass: 'bg-red-100 dark:bg-red-900',
-                    colorClass: 'text-red-500',
+                    bgClass: 'bg-red-50 dark:bg-red-950/50',
+                    colorClass: 'text-red-600 dark:text-red-400',
                   },
                 ]}
               />
@@ -385,7 +385,7 @@ export default function SkiAnalysisPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                      <div className="p-2 bg-green-50 dark:bg-green-950/50 rounded-lg">
                         <SparkleIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
                       <div>

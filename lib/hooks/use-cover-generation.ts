@@ -15,6 +15,8 @@ import type {
   ReferenceImage,
   GeneratedCover,
   StyleConfig,
+  BatchGenerationConfig,
+  BatchGenerationResult,
 } from '@/app/[locale]/tools/cover-generator/types';
 
 interface GenerateParams {
@@ -35,6 +37,7 @@ interface UseCoverGenerationReturn {
   optimizedPrompt: string;
   error: string | null;
   generate: (params: GenerateParams) => Promise<GenerateResult | undefined>;
+  generateBatch: (params: BatchGenerationConfig) => Promise<BatchGenerationResult | undefined>;
   reset: () => void;
 }
 
@@ -314,11 +317,45 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
       return { covers, optimizedPrompt: optimized, layoutPrompt };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '生成失败，请重试';
-      setState({ isOptimizing: false, isGenerating: false, optimizedPrompt: '', error: errorMessage });
+      setState(s => ({ ...s, isOptimizing: false, isGenerating: false, error: errorMessage }));
       console.error('Cover generation error:', err);
       return undefined;
     }
   };
 
-  return { ...state, generate, reset };
+  const generateBatch = async (params: BatchGenerationConfig): Promise<BatchGenerationResult | undefined> => {
+    const { theme, content, styleId, images } = params;
+
+    try {
+      setState(s => ({ ...s, isGenerating: true, error: null }));
+
+      const response = await fetch('/api/cover-generator/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          theme,
+          content,
+          styleId,
+          images: images?.map((img) => ({ base64: img.base64 })) || [],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '批量生成失败');
+      }
+
+      const result = await response.json();
+      setState(s => ({ ...s, isGenerating: false }));
+
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '批量生成失败，请重试';
+      setState(s => ({ ...s, isGenerating: false, error: errorMessage }));
+      console.error('Batch generation error:', err);
+      return undefined;
+    }
+  };
+
+  return { ...state, generate, generateBatch, reset };
 }

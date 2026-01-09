@@ -39,15 +39,15 @@ const TOPICS: Array<{
   icon: React.ReactNode;
   color: string;
 }> = [
-  { id: 'person', label: '猜人物', icon: <UserIcon className="h-6 w-6" />, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' },
-  { id: 'movie', label: '猜电影', icon: <FilmReelIcon className="h-6 w-6" />, color: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400' },
-  { id: 'occupation', label: '猜职业', icon: <BriefcaseIcon className="h-6 w-6" />, color: 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' },
-  { id: 'animal', label: '猜动物', icon: <BugIcon className="h-6 w-6" />, color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400' },
-  { id: 'city', label: '猜城市', icon: <MapPinIcon className="h-6 w-6" />, color: 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400' },
-  { id: 'history', label: '猜历史', icon: <ClockIcon className="h-6 w-6" />, color: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400' },
-  { id: 'sports', label: '猜体育', icon: <TrophyIcon className="h-6 w-6" />, color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-400' },
-  { id: 'anime', label: '猜动漫', icon: <SparkleIcon className="h-6 w-6" />, color: 'bg-pink-100 text-pink-600 dark:bg-pink-900 dark:text-pink-400' },
-  { id: 'tech', label: '猜科技', icon: <GameControllerIcon className="h-6 w-6" />, color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900 dark:text-cyan-400' },
+  { id: 'person', label: '猜人物', icon: <UserIcon className="h-6 w-6" />, color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300' },
+  { id: 'movie', label: '猜电影', icon: <FilmReelIcon className="h-6 w-6" />, color: 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300' },
+  { id: 'occupation', label: '猜职业', icon: <BriefcaseIcon className="h-6 w-6" />, color: 'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300' },
+  { id: 'animal', label: '猜动物', icon: <BugIcon className="h-6 w-6" />, color: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300' },
+  { id: 'city', label: '猜城市', icon: <MapPinIcon className="h-6 w-6" />, color: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300' },
+  { id: 'history', label: '猜历史', icon: <ClockIcon className="h-6 w-6" />, color: 'bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300' },
+  { id: 'sports', label: '猜体育', icon: <TrophyIcon className="h-6 w-6" />, color: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300' },
+  { id: 'anime', label: '猜动漫', icon: <SparkleIcon className="h-6 w-6" />, color: 'bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300' },
+  { id: 'tech', label: '猜科技', icon: <GameControllerIcon className="h-6 w-6" />, color: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300' },
 ];
 
 export default function PromptQuizPage() {
@@ -155,7 +155,7 @@ export default function PromptQuizPage() {
   // 对齐度颜色
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600 dark:text-green-400';
-    if (score >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    if (score >= 50) return 'text-amber-600 dark:text-amber-400';
     return 'text-red-600 dark:text-red-400';
   };
 
@@ -366,7 +366,7 @@ export default function PromptQuizPage() {
                     {/* 关键信息对比 */}
                     <div className="grid gap-4 md:grid-cols-2">
                       {/* 命中 */}
-                      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className="p-4 bg-green-50 dark:bg-green-950/40 rounded-lg">
                         <h4 className="font-medium text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
                           <CheckCircleIcon className="h-4 w-4" />
                           {t('matchedPoints')}
@@ -374,7 +374,7 @@ export default function PromptQuizPage() {
                         <div className="flex flex-wrap gap-2">
                           {alignment.matchedPoints.length > 0 ? (
                             alignment.matchedPoints.map((point, i) => (
-                              <Badge key={i} variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400">
+                              <Badge key={i} variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">
                                 {point}
                               </Badge>
                             ))
@@ -385,7 +385,7 @@ export default function PromptQuizPage() {
                       </div>
 
                       {/* 未命中 */}
-                      <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                      <div className="p-4 bg-red-50 dark:bg-red-950/40 rounded-lg">
                         <h4 className="font-medium text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
                           <XCircleIcon className="h-4 w-4" />
                           {t('unmatchedPoints')}
@@ -393,7 +393,7 @@ export default function PromptQuizPage() {
                         <div className="flex flex-wrap gap-2">
                           {alignment.unmatchedPoints.length > 0 ? (
                             alignment.unmatchedPoints.map((point, i) => (
-                              <Badge key={i} variant="outline" className="border-red-200 text-red-600 dark:border-red-800 dark:text-red-400">
+                              <Badge key={i} variant="outline" className="border-red-200 text-red-600 dark:border-red-800 dark:text-red-300">
                                 {point}
                               </Badge>
                             ))

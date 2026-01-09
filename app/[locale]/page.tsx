@@ -124,26 +124,25 @@ export default function HomePage() {
 /**
  * 图标渲染组件
  */
-function ToolIcon({ name }: { name: ToolIconName }) {
-  const iconClass = 'h-6 w-6';
+function ToolIcon({ name, className = 'h-6 w-6' }: { name: ToolIconName; className?: string }) {
   switch (name) {
     case 'sparkle':
-      return <SparkleIcon className={iconClass} />;
+      return <SparkleIcon className={className} />;
     case 'code':
-      return <CodeIcon className={iconClass} />;
+      return <CodeIcon className={className} />;
     case 'translate':
-      return <TranslateIcon className={iconClass} />;
+      return <TranslateIcon className={className} />;
     case 'image':
-      return <ImageIcon className={iconClass} />;
+      return <ImageIcon className={className} />;
     case 'file-text':
-      return <FileTextIcon className={iconClass} />;
+      return <FileTextIcon className={className} />;
     default:
-      return <SparkleIcon className={iconClass} />;
+      return <SparkleIcon className={className} />;
   }
 }
 
 /**
- * LEGO 风格工具卡片组件
+ * 米白色调工具卡片组件
  */
 function ToolCard({
   tool,
@@ -158,31 +157,31 @@ function ToolCard({
   statusLabels: Record<ToolStatus, string>;
   useNow: string;
 }) {
-  // LEGO 风格颜色变体
+  // 米白色调统一风格
   const colorVariants = {
     available: {
-      bg: 'bg-blue-50 dark:bg-blue-950/50',
-      border: 'border-b-[6px] border-blue-400 dark:border-blue-400',
-      accent: 'bg-blue-100 dark:bg-blue-900/50',
-      stud: 'bg-blue-400',
-      icon: 'text-blue-500 dark:text-blue-400',
-      badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border-blue-300 dark:border-blue-700',
+      bg: 'bg-card-beige dark:bg-card-beige',
+      border: 'border-b-[6px] border-card-beige-border dark:border-card-beige-border',
+      accent: 'bg-card-beige-surface dark:bg-card-beige-surface',
+      stud: 'bg-card-beige-border dark:border-card-beige-border',
+      icon: 'text-card-beige-icon dark:text-card-beige-icon',
+      badge: 'bg-card-beige-badge text-card-beige-text dark:bg-card-beige-badge dark:text-card-beige-text border-transparent',
     },
     beta: {
-      bg: 'bg-yellow-50 dark:bg-yellow-950/50',
-      border: 'border-b-[6px] border-yellow-600 dark:border-yellow-500',
-      accent: 'bg-yellow-100 dark:bg-yellow-900/50',
-      stud: 'bg-yellow-500',
-      icon: 'text-yellow-600 dark:text-yellow-400',
-      badge: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700',
+      bg: 'bg-card-beige dark:bg-card-beige',
+      border: 'border-b-[6px] border-card-beige-border dark:border-card-beige-border',
+      accent: 'bg-card-beige-surface dark:bg-card-beige-surface',
+      stud: 'bg-card-beige-border dark:border-card-beige-border',
+      icon: 'text-card-beige-icon dark:text-card-beige-icon',
+      badge: 'bg-card-beige-badge text-card-beige-text dark:bg-card-beige-badge dark:text-card-beige-text border-transparent',
     },
     experimental: {
-      bg: 'bg-gray-50 dark:bg-gray-950/50',
-      border: 'border-b-[6px] border-gray-600 dark:border-gray-500',
-      accent: 'bg-gray-100 dark:bg-gray-900/50',
-      stud: 'bg-gray-500',
-      icon: 'text-gray-600 dark:text-gray-400',
-      badge: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300 border-gray-300 dark:border-gray-700',
+      bg: 'bg-card-beige dark:bg-card-beige',
+      border: 'border-b-[6px] border-card-beige-border dark:border-card-beige-border',
+      accent: 'bg-card-beige-surface dark:bg-card-beige-surface',
+      stud: 'bg-card-beige-border dark:border-card-beige-border',
+      icon: 'text-card-beige-icon dark:text-card-beige-icon',
+      badge: 'bg-card-beige-badge text-card-beige-text dark:bg-card-beige-badge dark:text-card-beige-text border-transparent',
     },
   };
 
@@ -209,7 +208,7 @@ function ToolCard({
           {/* 标题行：图标 + badge */}
           <div className="flex items-start justify-between mb-3">
             <div className={cn('p-2 rounded-lg', variant.accent)}>
-              <ToolIcon name={tool.icon} />
+              <ToolIcon name={tool.icon} className={variant.icon} />
             </div>
             <Badge
               variant="outline"

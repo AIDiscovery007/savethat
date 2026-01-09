@@ -6,22 +6,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { generateText } from 'ai';
-import type { TextPart, ImagePart } from 'ai';
+import type { ImagePart } from 'ai';
 import { getModel, isConfigured } from '@/lib/api/aihubmix/sdk-client';
+import { validateBase64Image, parseBase64Image } from '@/lib/utils/image';
 
 // API 配置
 export const runtime = 'nodejs';
 export const maxDuration = 120; // 2分钟超时
 export const dynamic = 'force-dynamic';
-
-// 图像大小限制 (4MB)
-const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
-
-// 允许的图片 MIME 类型
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-// 生成图片数量
-const DEFAULT_NUM_IMAGES = 2;
 
 // 错误类型映射
 const ERROR_PATTERNS: Array<{ pattern: RegExp; message: string; status: number }> = [
@@ -43,77 +35,9 @@ function handleApiError(error: Error): NextResponse {
   }
 
   return NextResponse.json(
-    { error: 'An unexpected error occurred. Please try again.' },
+    { error: errorMessage || 'An unexpected error occurred. Please try again.' },
     { status: 500 }
   );
-}
-
-/**
- * 验证 base64 图像数据
- */
-function validateBase64Image(base64: string): boolean {
-  if (!base64 || base64.length === 0) return false;
-
-  // 检查是否为有效的数据 URL 格式或纯 base64
-  const dataUrlPattern = /^data:image\/(jpeg|png|webp|gif);base64,/;
-  const isDataUrl = dataUrlPattern.test(base64);
-
-  // 移除前缀获取纯 base64
-  const cleanBase64 = isDataUrl ? base64.replace(dataUrlPattern, '') : base64;
-
-  // 验证 base64 字符集
-  const base64Regex = /^[A-Za-z0-9+/=]+$/;
-  if (!base64Regex.test(cleanBase64)) return false;
-
-  // 估算大小 (base64 编码会增加约 33%)
-  const estimatedBytes = (cleanBase64.length * 3) / 4;
-  return estimatedBytes <= MAX_IMAGE_SIZE;
-}
-
-/**
- * 解析 base64 图像
- */
-function parseBase64Image(base64: string): { mimeType: string; data: Buffer } {
-  const dataUrlPattern = /^data:image\/(jpeg|png|webp|gif);base64,/;
-  const match = base64.match(dataUrlPattern);
-
-  if (match) {
-    // 数据 URL 格式
-    const mimeType = match[1];
-    const data = Buffer.from(base64.replace(dataUrlPattern, ''), 'base64');
-    return { mimeType: `image/${mimeType}`, data };
-  } else {
-    // 纯 base64，默认为 JPEG
-    const data = Buffer.from(base64, 'base64');
-    // 检测实际类型
-    const mimeType = detectMimeType(data);
-    return { mimeType, data };
-  }
-}
-
-/**
- * 检测图像的 MIME 类型
- */
-function detectMimeType(buffer: Buffer): string {
-  // 检查文件头
-  if (buffer.length >= 4) {
-    const header = buffer.slice(0, 4);
-    const hex = header.toString('hex');
-
-    // JPEG: FF D8 FF
-    if (hex.startsWith('ffd8ff')) return 'image/jpeg';
-    // PNG: 89 50 4E 47
-    if (hex.startsWith('89504e47')) return 'image/png';
-    // WebP: 52 49 46 46 (RIFF) + WebP 标识
-    if (hex.startsWith('52494646') && buffer.length >= 12) {
-      const webpHeader = buffer.slice(8, 12).toString('ascii');
-      if (webpHeader === 'WEBP') return 'image/webp';
-    }
-    // GIF: 47 49 46 38
-    if (hex.startsWith('47494638')) return 'image/gif';
-  }
-
-  return 'image/jpeg'; // 默认
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -156,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const model = getModel('gemini-3-pro-image-preview');
 
     // 构建内容 - 使用 AI SDK 的多模态格式
-    const contentParts: Array<TextPart | ImagePart> = [];
+    const contentParts: Array<ImagePart | { type: 'text'; text: string }> = [];
 
     // 添加参考图片 (如果有)
     for (const img of validImages) {
@@ -168,10 +92,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // 添加提示词
+    // 添加提示词（附加小红书规范要求）
     contentParts.push({
       type: 'text',
-      text: prompt,
+      text: `${prompt}
+
+Additional requirements:
+- Aspect ratio: 3:4 (vertical)
+- Quality: 2K ultra-high definition (2048x2732px)
+- IMPORTANT: NO watermarks, NO logos, NO text labels, NO platform branding of any kind
+- Clean image without any 小红书/Xiaohongshu logo or text marks`,
     });
 
     // 调用图像生成 API

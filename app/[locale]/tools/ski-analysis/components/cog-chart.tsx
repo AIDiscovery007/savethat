@@ -184,7 +184,7 @@ export function CenterOfGravityChart({
               <p className="text-xs text-muted-foreground">平均重心</p>
               <p className="text-lg font-bold">{formattedStats.avg.toFixed(1)}%</p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <div className="text-center p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40">
               <p className="text-xs text-muted-foreground">最低重心</p>
               <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
                 {formattedStats.min.toFixed(1)}%
