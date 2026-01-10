@@ -13,6 +13,7 @@ import type {
   BatchGenerationConfig,
   BatchGenerationResult,
 } from '@/app/[locale]/tools/cover-generator/types';
+import { callAihubmix, extractContent } from './use-aihubmix';
 
 interface GenerateParams {
   images: ReferenceImage[];
@@ -36,7 +37,9 @@ interface UseCoverGenerationReturn {
   reset: () => void;
 }
 
-type GenerationState = Pick<UseCoverGenerationReturn, 'isOptimizing' | 'isGenerating' | 'error'> & { optimizedPrompt: string };
+type GenerationState = Pick<UseCoverGenerationReturn, 'isOptimizing' | 'isGenerating' | 'error'> & {
+  optimizedPrompt: string;
+};
 
 async function generateLayoutPrompt(
   theme: string,
@@ -44,16 +47,18 @@ async function generateLayoutPrompt(
   imageCount: number,
   styleName?: string
 ): Promise<string> {
-  const response = await fetch('/api/aihubmix', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gemini-3-flash-preview-search',
-      messages: [
-        { role: 'system', content: `You are a professional layout designer for Xiaohongshu covers.
+  const content = await callAihubmix({
+    model: 'gemini-3-flash-preview-search',
+    messages: [
+      {
+        role: 'system',
+        content: `You are a professional layout designer for Xiaohongshu covers.
 Generate a precise ASCII layout description using standard box-drawing characters (┌ ┐ └ ┘ │ ─).
-Output ONLY the ASCII layout, no explanations, no markdown code blocks.` },
-        { role: 'user', content: `Theme: ${theme}
+Output ONLY the ASCII layout, no explanations, no markdown code blocks.`,
+      },
+      {
+        role: 'user',
+        content: `Theme: ${theme}
 User Intent: ${userIntent || 'auto-detect appropriate layout based on theme'}
 Style: ${styleName || 'default'}
 Reference Images: ${imageCount} image(s)}
@@ -75,21 +80,13 @@ Example format:
 │                                    │
 ├────────────────────────────────────┤
 │  [Tags] #topic #brand              │
-└────────────────────────────────────┘` },
-      ],
-      temperature: 0.3,
-      max_tokens: 65536,
-      thinking: true,
-    }),
+└────────────────────────────────────┘`,
+      },
+    ],
+    temperature: 0.3,
+    maxTokens: 65536,
+    thinking: true,
   });
-
-  if (!response.ok) {
-    console.error('Layout prompt generation failed');
-    return '';
-  }
-
-  const data = await response.json();
-  let content = data.choices?.[0]?.message?.content || '';
 
   return content
     .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
@@ -113,7 +110,7 @@ Keywords to include: ${styleConfig.keywords.join(', ')}`
 ${layoutPrompt}
 
 ## COMPOSITION RULES:
-- Follow the ASCII layout structure above precisely
+- Follow the ASCII layout structure precisely
 - Maintain 9:16 Xiaohongshu vertical ratio
 - Bold, readable title text that catches attention
 - Clear visual hierarchy with dominant headline
@@ -181,39 +178,18 @@ Generate an optimized English prompt for Xiaohongshu cover generation that:
 6. Maintains the reference image's aesthetic qualities`;
 }
 
-async function callAihubmix(systemMsg: string, userMsg: string): Promise<string> {
-  const response = await fetch('/api/aihubmix', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'gemini-3-flash-preview-search',
-      messages: [
-        { role: 'system', content: systemMsg },
-        { role: 'user', content: userMsg },
-      ],
-      temperature: 0.7,
-      max_tokens: 65536,
-      thinking: true,
-    }),
-  });
-
-  if (!response.ok) throw new Error('提示词优化失败');
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
-}
-
 async function callCoverGenerator(images: ReferenceImage[], prompt: string): Promise<GeneratedCover[]> {
   const response = await fetch('/api/cover-generator', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      images: images.map((img) => ({ base64: img.base64 })),
+      images: images.map(img => ({ base64: img.base64 })),
       prompt,
     }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || '封面生成失败');
   }
 
@@ -232,7 +208,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
   const reset = () => setState({ isOptimizing: false, isGenerating: false, optimizedPrompt: '', error: null });
 
   const setLoading = (loading: Partial<GenerationState>) =>
-    setState((prev) => ({ ...prev, ...loading, error: null }));
+    setState(prev => ({ ...prev, ...loading, error: null }));
 
   const optimizePrompt = async (
     images: ReferenceImage[],
@@ -248,7 +224,16 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
 
     const systemMsg = buildSystemPrompt(styleConfig, styleId, layoutPrompt || undefined);
     const userMsg = buildUserPrompt(prompt, styleConfig, styleId, images.length, userLayoutIntent);
-    const optimized = await callAihubmix(systemMsg, userMsg);
+    const optimized = await callAihubmix({
+      model: 'gemini-3-flash-preview-search',
+      messages: [
+        { role: 'system', content: systemMsg },
+        { role: 'user', content: userMsg },
+      ],
+      temperature: 0.7,
+      maxTokens: 65536,
+      thinking: true,
+    });
 
     return { optimized, layoutPrompt };
   };
@@ -259,7 +244,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
     try {
       setLoading({ isOptimizing: true });
       const { optimized, layoutPrompt } = await optimizePrompt(images, prompt, styleId);
-      setState((prev) => ({ ...prev, isOptimizing: false, optimizedPrompt: optimized }));
+      setState(prev => ({ ...prev, isOptimizing: false, optimizedPrompt: optimized }));
 
       setLoading({ isGenerating: true });
       const covers = await generateCovers(images, optimized);
@@ -267,7 +252,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
       return { covers, optimizedPrompt: optimized, layoutPrompt };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '生成失败，请重试';
-      setState((prev) => ({ ...prev, isOptimizing: false, isGenerating: false, error: errorMessage }));
+      setState(prev => ({ ...prev, isOptimizing: false, isGenerating: false, error: errorMessage }));
       console.error('Cover generation error:', err);
       return undefined;
     }
@@ -290,20 +275,20 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
           theme,
           content,
           styleId,
-          images: images?.map((img) => ({ base64: img.base64 })) || [],
+          images: images?.map(img => ({ base64: img.base64 })) || [],
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || '批量生成失败');
       }
 
-      setState((prev) => ({ ...prev, isGenerating: false }));
+      setState(prev => ({ ...prev, isGenerating: false }));
       return await response.json();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '批量生成失败，请重试';
-      setState((prev) => ({ ...prev, isGenerating: false, error: errorMessage }));
+      setState(prev => ({ ...prev, isGenerating: false, error: errorMessage }));
       console.error('Batch generation error:', err);
       return undefined;
     }
