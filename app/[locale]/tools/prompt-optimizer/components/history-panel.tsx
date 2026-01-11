@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog, ConfirmDialogSimple } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import type { OptimizationHistory } from '@/lib/storage/types';
 import {
@@ -18,17 +19,6 @@ import {
   StarIcon,
   ListIcon,
 } from '@phosphor-icons/react';
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@/components/ui/alert-dialog';
 
 interface HistoryPanelProps {
   records: OptimizationHistory[];

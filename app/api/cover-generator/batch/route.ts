@@ -206,7 +206,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     for (const img of validImages) {
       if (!validateBase64Image(img.base64)) {
         return NextResponse.json(
-          { error: '图片过大，最大支持4MB' },
+          { error: '图片过大，最大支持10MB' },
           { status: 400 }
         );
       }

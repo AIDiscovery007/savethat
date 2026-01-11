@@ -248,6 +248,7 @@ export function useCoverGeneration(): UseCoverGenerationReturn {
 
       setLoading({ isGenerating: true });
       const covers = await generateCovers(images, optimized);
+      setState(prev => ({ ...prev, isGenerating: false }));
 
       return { covers, optimizedPrompt: optimized, layoutPrompt };
     } catch (err) {

@@ -29,7 +29,7 @@ export function ReferenceUploader({
   onChange,
   maxImages = 5,
   disabled = false,
-  maxSizeMB = 4,
+  maxSizeMB = 10,
 }: ReferenceUploaderProps) {
   const t = useTranslations('CoverGenerator');
   const [dragActive, setDragActive] = React.useState(false);

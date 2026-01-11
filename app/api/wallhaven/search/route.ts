@@ -16,8 +16,11 @@ export async function GET(request: NextRequest) {
     sorting: (searchParams.get('sorting') as WallhavenSearchParams['sorting']) || 'date_added',
     order: (searchParams.get('order') as 'desc' | 'asc') || 'desc',
     page: parseInt(searchParams.get('page') || '1', 10),
-    limit: parseInt(searchParams.get('limit') || '24', 10),
+    // limit 最大 24
+    limit: Math.min(parseInt(searchParams.get('limit') || '24', 10), 24),
   };
+
+  console.log('[Wallhaven Search] Params:', params);
 
   try {
     const response = await wallhavenClient.search(params);
@@ -26,9 +29,11 @@ export async function GET(request: NextRequest) {
     console.error('[Wallhaven Search API] Error:', error);
 
     if (error instanceof Error && error.name === 'WallhavenAPIError') {
+      const statusCode = (error as Error & { statusCode: number }).statusCode || 500;
+      console.error('[Wallhaven Search] API Error:', error.message, 'Status:', statusCode);
       return NextResponse.json(
         { error: error.message },
-        { status: (error as Error & { statusCode: number }).statusCode || 500 }
+        { status: statusCode }
       );
     }
 

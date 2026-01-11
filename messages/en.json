@@ -93,22 +93,6 @@
       "name": "One-Click Prompt Optimizer",
       "description": "Three-stage AI-powered prompt optimization tool to help you write better prompts"
     },
-    "code-generator": {
-      "name": "Code Generator",
-      "description": "Generate code from natural language descriptions, supporting multiple programming languages"
-    },
-    "text-translator": {
-      "name": "Smart Translator",
-      "description": "Intelligent translation between multiple languages while preserving the original style"
-    },
-    "image-generator": {
-      "name": "Image Generator",
-      "description": "Generate images from descriptions, supporting multiple styles"
-    },
-    "text-summarizer": {
-      "name": "Text Summarizer",
-      "description": "Quickly generate summaries of articles and documents"
-    },
     "ski-analysis": {
       "name": "Ski Technique Analysis",
       "description": "Upload your skiing video and get professional analysis with improvement suggestions"
@@ -124,6 +108,14 @@
     "wallhaven-gallery": {
       "name": "Wallpaper Gallery",
       "description": "Browse and download high-quality wallpapers from Wallhaven"
+    },
+    "hacker-news-daily": {
+      "name": "Daily Tech News",
+      "description": "Curated Hacker News stories translated to Chinese"
+    },
+    "web-translator": {
+      "name": "Web Translator",
+      "description": "Enter a URL and AI will translate the page content into fluent Chinese while preserving images"
     }
   },
   "PromptOptimizer": {
@@ -410,6 +402,47 @@
     "filtersDesc": "Customize your search with keywords, categories, and sorting options",
     "browse": "Browse"
   },
+  "HackerNewsDaily": {
+    "title": "Daily Tech News",
+    "subtitle": "Curated Hacker News stories translated to Chinese",
+    "loading": "Loading...",
+    "loadingMessage": "Fetching and translating stories...",
+    "sourceTop": "Top",
+    "sourceNew": "New",
+    "sourceBest": "Best",
+    "resultCount": "{count} stories found",
+    "cached": "Cached",
+    "points": "pts",
+    "noResults": "No stories found",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "sortHot": "Hot",
+    "sortNewest": "New",
+    "sortScore": "Score",
+    "viewNews": "News",
+    "viewFavorites": "Favorites",
+    "translated": "Translated",
+    "translateWebpage": "Translate Webpage"
+  },
+  "HNCollection": {
+    "title": "My Collections",
+    "newCollectionPlaceholder": "New collection name",
+    "emptyCollections": "No collections yet. Create one to start managing news.",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteCollection": "Delete Collection",
+    "deleteCollectionConfirm": "Are you sure you want to delete this collection? This action cannot be undone.",
+    "deleteDescription": "Are you sure you want to remove this news from the collection? This action cannot be undone.",
+    "addToCollection": "Add to Collection",
+    "selectCollectionDesc": "Choose a collection to save this news",
+    "create": "Create",
+    "cancel": "Cancel",
+    "createNewCollection": "Create New Collection",
+    "noCollectionsYet": "No collections yet. Create one to save news.",
+    "selectCollection": "Select a collection to view its news",
+    "emptyCollection": "This collection is empty. Add some news!",
+    "items": "items"
+  },
   "WallpaperCollection": {
     "title": "My Collections",
     "newCollectionPlaceholder": "New collection name",
@@ -428,5 +461,21 @@
     "selectCollection": "Select a collection to view its wallpapers",
     "emptyCollection": "This collection is empty. Add some wallpapers!",
     "itemCount": "{count} wallpapers"
+  },
+  "WebTranslator": {
+    "title": "Web Translator",
+    "subtitle": "Enter a URL and AI will translate the page content into fluent Chinese while preserving images",
+    "urlLabel": "URL",
+    "urlHint": "Enter the webpage URL you want to translate",
+    "translateBtn": "Translate",
+    "translating": "Translating...",
+    "loadingMessage": "Scraping and translating webpage...",
+    "historyTitle": "History",
+    "noHistory": "No translation history yet",
+    "untitled": "Untitled",
+    "resultTitle": "Translation Result",
+    "resultEmpty": "Translation Result",
+    "emptyState": "Enter a URL and click Translate to get started",
+    "tokens": "Tokens: {count}"
   }
 }

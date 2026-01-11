@@ -3,8 +3,8 @@
  * Shared validation and parsing for base64 images
  */
 
-// Image size limit (4MB)
-export const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
+// Image size limit (10MB)
+export const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
 // Allowed MIME types
 export const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];

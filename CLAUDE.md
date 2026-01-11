@@ -75,23 +75,188 @@ React 19 (`legacy-peer-deps`), TypeScript 5, Tailwind CSS 4, ESLint 9
 - Early returns to reduce nesting
 - Default to Server Components; only `'use client'` when needed
 
-### Component Reusability (CRITICAL)
+---
 
-| New Requirement | Reusable Component |
-|-----------------|-------------------|
-| Textarea with char count | `PromptInput` |
-| File upload (drag & drop) | `FileUploader` |
-| Option selector (grid) | `OptionSelector` |
+## Reusable Components (PRIORITY USE - Avoid Reinventing)
 
-### Custom Hooks
+**BEFORE creating a new component, check if an existing one can be used!**
+
+### High-Level UI Components
+
+| Requirement | Use This Component | Location |
+|-------------|-------------------|----------|
+| Textarea with char count + images | `PromptInput` | `components/prompt-input.tsx` |
+| Drag & drop file upload | `FileUploader` | `components/file-uploader.tsx` |
+| Grid option selector (cards) | `OptionSelector` | `components/option-selector.tsx` |
+| Copy to clipboard button | `CopyButton` | `components/copy-button.tsx` |
+| Button with loading state | `SubmitButton` | `components/submit-button.tsx` |
+| Loading placeholder | `LoadingPlaceholder` | `components/loading-placeholder.tsx` |
+| Error message display | `ErrorDisplay` | `components/error-display.tsx` |
+| Image with loading skeleton | `AsyncImage` | `components/async-image.tsx` |
+| Page header with subtitle | `PageHeader` | `components/page-header.tsx` |
+| Sidebar + content layout | `TwoColumnLayout` | `components/two-column-layout.tsx` |
+| Empty state display | `Empty` | `components/ui/empty.tsx` |
+| Fade-in animation | `BlurFade` | `components/ui/blur-fade.tsx` |
+
+### Component Usage Examples
+
+```tsx
+// Textarea with char count and image upload
+import { PromptInput } from '@/components/prompt-input'
+
+<PromptInput
+  value={prompt}
+  onChange={setPrompt}
+  onSubmit={handleSubmit}
+  placeholder="Enter prompt..."
+  maxLength={2000}
+  showCount
+  submitOnCtrlEnter
+  images={images}
+  onImagesChange={setImages}
+  maxImages={5}
+/>
+
+// File upload with drag & drop
+import { FileUploader } from '@/components/file-uploader'
+
+<FileUploader
+  accept="image/*,video/*"
+  maxSizeMB={10}
+  maxFiles={5}
+  files={files}
+  onChange={setFiles}
+  previewType="image"
+  multiple
+/>
+
+// Grid option selector
+import { OptionSelector } from '@/components/option-selector'
+
+<OptionSelector
+  value={selectedValue}
+  onChange={setSelectedValue}
+  options={[
+    { value: 'opt1', label: 'Option 1', icon: <Icon />, description: 'Description' },
+    { value: 'opt2', label: 'Option 2' },
+  ]}
+  columns={3}
+/>
+
+// Copy button
+import { CopyButton } from '@/components/copy-button'
+
+<CopyButton value={textToCopy} variant="ghost" size="icon-xs" />
+
+// Loading button
+import { SubmitButton } from '@/components/submit-button'
+
+<SubmitButton loading={isLoading} loadingText="Processing...">
+  Submit
+</SubmitButton>
+
+// Loading placeholder
+import { LoadingPlaceholder } from '@/components/loading-placeholder'
+
+<LoadingPlaceholder message="Analyzing..." icon={<Loader2 className="animate-spin" />} />
+
+// Error display
+import { ErrorDisplay } from '@/components/error-display'
+
+<ErrorDisplay error={error} className="mt-4" />
+
+// Page header
+import { PageHeader } from '@/components/page-header'
+
+<PageHeader
+  title="Tool Title"
+  subtitle="Optional description"
+  action={<Button>Action</Button>}
+/>
+
+// Two column layout
+import { TwoColumnLayout } from '@/components/two-column-layout'
+
+<TwoColumnLayout
+  sidebar={<SettingsPanel />}
+  children={<MainContent />}
+  sidebarClassName="lg:sticky lg:top-4"
+/>
+
+// Empty state
+import { Empty } from '@/components/ui/empty'
+
+<Empty
+  icon={FileIcon}
+  title="No data"
+  description="Upload files to see results"
+  action={{ label: 'Upload', onClick: handleUpload }}
+/>
+
+// Fade animation
+import { BlurFade } from '@/components/ui/blur-fade'
+
+<BlurFade delay={0.1} inView>
+  <Content />
+</BlurFade>
+```
+
+### shadcn/ui Base Components (components/ui/)
+
+Use these for basic UI needs before creating custom components:
+
+| Component | Purpose |
+|-----------|---------|
+| `Button` | Primary action buttons with variants (default, outline, ghost, etc.) |
+| `Card` | Container with header, content, footer |
+| `Input` / `Textarea` | Form inputs |
+| `Label` | Form label |
+| `Select` / `Combobox` | Dropdown selection |
+| `Dialog` / `Sheet` | Modal and side drawer |
+| `DropdownMenu` | Context menu |
+| `Tabs` | Tab navigation |
+| `Badge` | Status labels |
+| `Progress` | Progress bar |
+| `Skeleton` | Loading skeleton |
+| `Tooltip` | Hover tooltips |
+| `AlertDialog` | Confirmation dialogs |
+| `Pagination` | Page navigation |
+
+---
+
+## Custom Hooks
 
 | Hook | Purpose | Location |
 |------|---------|----------|
 | `useOptimization` | 3-stage prompt optimization flow | `lib/hooks/use-optimization.ts` |
-| `useHistory` | History CRUD + localStorage | `lib/hooks/use-history.ts` |
+| `useHistory` | History CRUD + localStorage persistence | `lib/hooks/use-history.ts` |
 | `useWallpaperFavorites` | Wallpaper collection management | `lib/hooks/use-wallpaper-favorites.ts` |
-| `useCoverGeneration` | Cover generation state | `lib/hooks/use-cover-generation.ts` |
+| `useCoverGeneration` | Cover generation state management | `lib/hooks/use-cover-generation.ts` |
 | `useIsMounted` | SSR hydration check | `lib/hooks/use-is-mounted.ts` |
+| `useLocalStorage` | Type-safe localStorage operations | `lib/hooks/use-local-storage.ts` |
+| `useAihubmix` | AIHUBMIX API calls | `lib/hooks/use-aihubmix.ts` |
+
+### Hook Usage Examples
+
+```tsx
+// SSR hydration check
+import { useIsMounted } from '@/lib/hooks/use-is-mounted'
+
+const isMounted = useIsMounted()
+// Use to prevent hydration mismatches
+
+// localStorage operations
+import { useLocalStorage } from '@/lib/hooks/use-local-storage'
+
+const [value, setValue] = useLocalStorage<string>('key', 'default')
+
+// History management
+import { useHistory } from '@/lib/hooks/use-history'
+
+const { records, saveRecord, deleteRecord, toggleFavorite } = useHistory()
+```
+
+---
 
 ## Anti-Patterns
 
@@ -100,6 +265,29 @@ React 19 (`legacy-peer-deps`), TypeScript 5, Tailwind CSS 4, ESLint 9
 | React | `'use client'` unnecessarily, `Date` in render, mutate state |
 | TypeScript | `any`, `as any`, loose equality (`==`) |
 | State | Everything in global state |
+| **Components** | **Creating new components that duplicate existing ones** |
+
+---
+
+## Development Actions
+
+| When... | Do this... |
+|---------|------------|
+| Adding new tool | 1. Register in `lib/tools/registry.ts` 2. Create `app/[locale]/tools/[tool-id]/page.tsx` 3. Add API route if needed |
+| Adding AI feature | Use `lib/api/aihubmix/sdk-client.ts` for Vercel AI SDK, or `lib/api/aihubmix/client.ts` for direct API calls |
+| Adding text input | Use `PromptInput` component - do NOT create new textarea |
+| Adding file upload | Use `FileUploader` component - do NOT create new uploader |
+| Adding option selection | Use `OptionSelector` component - do NOT create custom cards |
+| Need copy button | Use `CopyButton` component |
+| Need loading state | Use `SubmitButton` or `LoadingPlaceholder` |
+| Need error display | Use `ErrorDisplay` component |
+| Need empty state | Use `Empty` component |
+| Need animation | Use `BlurFade` component |
+| Need page layout | Use `PageHeader` + `TwoColumnLayout` |
+| Need persistent state | Use `useHistory` hook + localStorage adapter |
+| Need video processing | Add `runtime = 'nodejs'`, `maxDuration = 300` to API route |
+
+---
 
 ## Next.js 16 Patterns
 
@@ -129,10 +317,6 @@ export async function createUser(formData: FormData) {
 | prompt-quiz | 提问挑战 | game | available |
 | prompt-trainer | 提问训练 | prompt | available |
 | prompt-optimizer | 提示词优化 | prompt | available |
-| code-generator | 代码生成 | code | beta |
-| text-translator | 智能翻译 | translation | experimental |
-| image-generator | 图像生成 | image | experimental |
-| text-summarizer | 文本摘要 | text | experimental |
 | ski-analysis | 滑雪动作分析 | video | available |
 | cover-generator | 小红书封面生成器 | image | experimental |
 | xiaohongshu-analytics | 小红书分析 | analysis | experimental |
@@ -161,15 +345,3 @@ export async function createUser(formData: FormData) {
 | `ENABLE_STREAMING` | Enable streaming responses |
 | `WALLHAVEN_API_KEY` | Wallhaven API key |
 | `API_TIMEOUT_MS` | API timeout in milliseconds |
-
-## Development Actions
-
-| When... | Do this... |
-|---------|------------|
-| Adding new tool | 1. Register in `lib/tools/registry.ts` 2. Create `app/[locale]/tools/[tool-id]/page.tsx` 3. Add API route if needed |
-| Adding AI feature | Use `lib/api/aihubmix/sdk-client.ts` for Vercel AI SDK, or `lib/api/aihubmix/client.ts` for direct API calls |
-| Adding file upload | Use `FileUploader` component with `components/file-uploader.tsx` |
-| Adding textarea input | Use `PromptInput` component with `components/prompt-input.tsx` |
-| Adding option grid | Use `OptionSelector` component with `components/option-selector.tsx` |
-| Need persistent state | Use `useHistory` hook + localStorage adapter |
-| Need video processing | Add `runtime = 'nodejs'`, `maxDuration = 300` to API route |

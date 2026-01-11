@@ -70,7 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     for (const img of validImages) {
       if (!validateBase64Image(img.base64)) {
         return NextResponse.json(
-          { error: 'Image too large. Maximum size is 4MB per image.' },
+          { error: 'Image too large. Maximum size is 10MB per image.' },
           { status: 400 }
         );
       }
