@@ -35,6 +35,17 @@ import { AlertTriangle } from 'lucide-react';
 import { webTranslationStorage, createTranslationRecord } from '@/lib/storage/web-translation-storage';
 import type { WebTranslationRecord } from '@/lib/storage/web-translation-types';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { AI_CLIENTS } from '@/lib/config/ai-clients';
+import { copyToClipboard } from '@/lib/utils/clipboard';
+import { Claude, Gemini, DeepSeek, OpenAI } from '@lobehub/icons';
+import { ChatCircleIcon } from '@phosphor-icons/react';
+import { CheckCircle, XCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 // API 响应类型
 interface TranslateResponse {
@@ -93,6 +104,14 @@ export function WebTranslatorClient() {
     id: string | null;
     title: string;
   }>({ open: false, id: null, title: '' });
+
+  // Talk with AI 状态
+  const [talkWithAIOpen, setTalkWithAIOpen] = React.useState(false);
+  const [sendingToAI, setSendingToAI] = React.useState<string | null>(null);
+  const [talkWithAIResult, setTalkWithAIResult] = React.useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   // 加载历史记录
   const loadHistory = React.useCallback(async () => {
@@ -205,6 +224,56 @@ export function WebTranslatorClient() {
       handleTranslate();
     }
   };
+
+  // 打开 Talk with AI 对话框
+  const handleOpenTalkWithAI = React.useCallback(() => {
+    setTalkWithAIOpen(true);
+    setTalkWithAIResult(null);
+  }, []);
+
+  // 发送到 AI 客户端
+  const handleSendToAI = React.useCallback(async (client: typeof AI_CLIENTS[0]) => {
+    if (!result) return;
+
+    setSendingToAI(client.id);
+    setTalkWithAIResult(null);
+
+    // 生成讨论提示词
+    const prompt = generateDiscussionPrompt(result.translatedTitle, result.translatedContent);
+
+    // 复制到剪贴板
+    const copied = await copyToClipboard(prompt);
+
+    if (!copied) {
+      setTalkWithAIResult({
+        success: false,
+        message: t('copyFailed'),
+      });
+      setSendingToAI(null);
+      return;
+    }
+
+    // 打开新标签页
+    const newWindow = window.open(client.url, '_blank', 'noopener,noreferrer');
+
+    if (!newWindow) {
+      setTalkWithAIResult({
+        success: false,
+        message: t('openTabFailed'),
+      });
+      setSendingToAI(null);
+      return;
+    }
+
+    setTalkWithAIResult({
+      success: true,
+      message: t('talkWithAIInstruction'),
+    });
+    setSendingToAI(null);
+
+    // 3秒后清除结果
+    setTimeout(() => setTalkWithAIResult(null), 3000);
+  }, [result, t]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -352,6 +421,14 @@ export function WebTranslatorClient() {
                     variant="ghost"
                     size="icon-xs"
                   />
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={handleOpenTalkWithAI}
+                    title={t('talkWithAI')}
+                  >
+                    <ChatCircleIcon className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
             </div>
@@ -464,6 +541,79 @@ export function WebTranslatorClient() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Talk with AI Dialog */}
+      <Dialog open={talkWithAIOpen} onOpenChange={setTalkWithAIOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('talkWithAITitle')}</DialogTitle>
+          </DialogHeader>
+          {result && (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                {AI_CLIENTS.map((client) => {
+                  const Icon = ICON_MAP[client.iconName] || Claude;
+                  const isSending = sendingToAI === client.id;
+
+                  return (
+                    <Button
+                      key={client.id}
+                      variant="outline"
+                      disabled={isSending}
+                      onClick={() => handleSendToAI(client)}
+                      className="justify-start gap-2 h-10"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="flex-1 text-left">{client.name}</span>
+                      {isSending && (
+                        <span className="text-xs animate-pulse">{t('sending')}</span>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+              {talkWithAIResult && (
+                <div
+                  className={`flex items-center gap-2 text-sm ${
+                    talkWithAIResult.success ? 'text-green-600' : 'text-destructive'
+                  }`}
+                >
+                  {talkWithAIResult.success ? (
+                    <CheckCircle className="h-4 w-4" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  {talkWithAIResult.message}
+                </div>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+// 图标映射
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Claude,
+  OpenAI,
+  Gemini,
+  DeepSeek,
+};
+
+// 生成讨论提示词
+function generateDiscussionPrompt(title: string, content: string): string {
+  return `以下是网页翻译的内容，请帮我：
+
+1. 深入解读文章的核心观点和论证逻辑
+2. 分析作者的表达技巧和写作风格
+3. 探讨文章中提到的概念在实际场景中的应用
+4. 如果有不清楚的地方，请帮我进一步解释
+
+--- 原文标题 ---
+${title}
+
+--- 翻译内容 ---
+${content}`;
 }

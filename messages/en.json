@@ -116,6 +116,10 @@
     "web-translator": {
       "name": "Web Translator",
       "description": "Enter a URL and AI will translate the page content into fluent Chinese while preserving images"
+    },
+    "character-base-model": {
+      "name": "Character Base Model",
+      "description": "Upload a character reference image and AI will extract features to generate a T-pose character base model"
     }
   },
   "PromptOptimizer": {
@@ -476,6 +480,28 @@
     "resultTitle": "Translation Result",
     "resultEmpty": "Translation Result",
     "emptyState": "Enter a URL and click Translate to get started",
-    "tokens": "Tokens: {count}"
+    "tokens": "Tokens: {count}",
+    "talkWithAI": "Talk with AI",
+    "talkWithAITitle": "Select AI Client",
+    "talkWithAIInstruction": "Copied! Press Cmd+V / Ctrl+V to paste in the new chat",
+    "copyFailed": "Failed to copy. Please copy manually.",
+    "openTabFailed": "Failed to open new tab. Please allow popups.",
+    "sending": "Sending..."
+  },
+  "CharacterBaseModel": {
+    "title": "Character Base Model",
+    "subtitle": "Upload a character reference image and AI will extract features to generate a T-pose base model for game development",
+    "uploadTitle": "Upload Reference Image",
+    "uploadDesc": "Upload a character reference image to extract features",
+    "uploadPlaceholder": "Drag and drop image here or click to browse",
+    "generate": "Generate Base Model",
+    "generating": "Generating...",
+    "generatingMessage": "Analyzing character features and generating T-pose base model...",
+    "resultTitle": "Generated Result",
+    "resultAlt": "Character T-pose Base Model",
+    "emptyState": {
+      "title": "Waiting for Reference Image",
+      "desc": "Upload a character reference image and click Generate to create a T-pose base model"
+    }
   }
 }

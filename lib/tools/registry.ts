@@ -29,6 +29,7 @@ const TOOL_REGISTRY: ToolInfo[] = [
   { id: 'wallhaven-gallery', name: '壁纸画廊', description: '浏览和下载 Wallhaven 精选壁纸，支持搜索、过滤和批量下载', path: '/tools/wallhaven-gallery', icon: 'image', category: 'image', status: 'available', tags: ['壁纸', 'Wallhaven', '图像', '下载'] },
   { id: 'hacker-news-daily', name: '每日资讯', description: '每天基于固定主题从 Hacker News 筛选并翻译精选内容', path: '/tools/hacker-news-daily', icon: 'translate', category: 'analysis', status: 'available', tags: ['news', '翻译', 'Hacker News', '每日'] },
   { id: 'web-translator', name: '网页翻译', description: '输入网址,AI 智能翻译网页内容为地道中文,保留原文图片', path: '/tools/web-translator', icon: 'translate', category: 'translation', status: 'available', tags: ['翻译', '网页', 'AI', '外语'] },
+  { id: 'character-base-model', name: '角色建模底模', description: '上传角色参考图,AI 提取特征并生成 T-pose 姿势的角色建模底模', path: '/tools/character-base-model', icon: 'image', category: 'image', status: 'experimental', tags: ['角色', '建模', '游戏', 'T-pose', 'AI'] },
 ];
 
 // Helper to find tools by a property

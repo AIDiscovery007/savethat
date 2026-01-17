@@ -41,6 +41,10 @@
     "web-translator": {
       "name": "网页翻译",
       "description": "输入网址，AI 智能翻译网页内容为地道中文，保留原文图片"
+    },
+    "character-base-model": {
+      "name": "角色建模底模",
+      "description": "上传角色参考图，AI 提取特征并生成 T-pose 姿势的角色建模底模"
     }
   },
   "Footer": {
@@ -476,6 +480,28 @@
     "resultTitle": "翻译结果",
     "resultEmpty": "翻译结果",
     "emptyState": "输入网址后点击翻译按钮开始",
-    "tokens": "Token 消耗：{count}"
+    "tokens": "Token 消耗：{count}",
+    "talkWithAI": "与 AI 深入讨论",
+    "talkWithAITitle": "选择 AI 客户端",
+    "talkWithAIInstruction": "已复制到剪贴板，在新对话中按 Cmd+V / Ctrl+V 粘贴",
+    "copyFailed": "复制失败，请手动复制",
+    "openTabFailed": "打开新标签页失败，请允许弹窗",
+    "sending": "发送中..."
+  },
+  "CharacterBaseModel": {
+    "title": "角色建模底模",
+    "subtitle": "上传角色参考图，AI 提取特征并生成 T-pose 姿势的角色建模底模",
+    "uploadTitle": "上传参考图",
+    "uploadDesc": "上传角色参考图片，用于提取角色特征",
+    "uploadPlaceholder": "拖放图片到此处或点击选择",
+    "generate": "生成底模",
+    "generating": "生成中...",
+    "generatingMessage": "正在分析角色特征并生成 T-pose 底模...",
+    "resultTitle": "生成结果",
+    "resultAlt": "角色 T-pose 底模",
+    "emptyState": {
+      "title": "等待上传参考图",
+      "desc": "上传角色参考图片后，点击生成按钮创建 T-pose 底模"
+    }
   }
 }

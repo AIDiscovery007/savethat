@@ -98,10 +98,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       text: `${prompt}
 
 Additional requirements:
-- Aspect ratio: 3:4 (vertical)
-- Quality: 2K ultra-high definition (2048x2732px)
+- Aspect ratio: 3:4 (vertical, 1024x1366px or higher resolution)
+- Quality: 2K ultra-high definition (2048x2732px recommended)
 - IMPORTANT: NO watermarks, NO logos, NO text labels, NO platform branding of any kind
-- Clean image without any 小红书/Xiaohongshu logo or text marks`,
+- Clean image without any 小红书/Xiaohongshu logo or text marks
+- High-quality texture, atmospheric lighting, professional photography style`,
     });
 
     // 调用图像生成 API

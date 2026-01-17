@@ -61,10 +61,10 @@ Output ONLY the ASCII layout, no explanations, no markdown code blocks.`,
         content: `Theme: ${theme}
 User Intent: ${userIntent || 'auto-detect appropriate layout based on theme'}
 Style: ${styleName || 'default'}
-Reference Images: ${imageCount} image(s)}
+Reference Images: ${imageCount} image(s) - these images provide color palette, mood, and style direction
 
 Generate an ASCII layout structure that:
-1. Uses 9:16 vertical ratio (Xiaohongshu standard)
+1. Uses 3:4 vertical ratio (Xiaohongshu standard: 1024x1366px or higher resolution)
 2. Follows the user's intent or auto-selects best fit layout
 3. Clearly marks content areas with text descriptions in brackets
 4. Uses proportional border widths to show element sizes
@@ -111,7 +111,7 @@ ${layoutPrompt}
 
 ## COMPOSITION RULES:
 - Follow the ASCII layout structure precisely
-- Maintain 9:16 Xiaohongshu vertical ratio
+- Maintain 3:4 Xiaohongshu vertical ratio (1024x1366px)
 - Bold, readable title text that catches attention
 - Clear visual hierarchy with dominant headline
 - Strategic use of negative space
@@ -120,7 +120,7 @@ ${layoutPrompt}
     : `
 
 ## COMPOSITION RULES:
-- Use vertical 9:16 aspect ratio (Xiaohongshu standard)
+- Use vertical 3:4 aspect ratio (Xiaohongshu standard: 1024x1366px or higher)
 - Bold, readable title text that catches attention
 - Clear visual hierarchy with dominant headline
 - Strategic use of negative space
@@ -130,12 +130,27 @@ ${layoutPrompt}
   return `You are a professional Xiaohongshu (Chinese lifestyle platform) cover designer.
 Your task is to analyze reference images and user requirements, then generate optimized prompts for Gemini image generation.
 
-## KEY PRINCIPLES:
-1. Analyze reference images for style characteristics (colors, composition, layout)
-2. Generate prompts that match the specific style requirements
-3. Use English, be concise yet detailed enough for Gemini to understand
-4. Include Xiaohongshu-specific keywords: high-quality texture, atmospheric, appealing to viewers
-5. Output only the optimized English prompt, no explanations
+## CRITICAL REQUIREMENTS:
+1. STRICTLY FOLLOW the user's original prompt - preserve all key elements, themes, and intent
+2. ANALYZE reference images for style characteristics (colors, composition, layout, mood) and incorporate them
+3. ENHANCE but DO NOT ALTER the user's core message - only add technical details for better image generation
+4. Use English, be concise yet detailed enough for Gemini to understand
+5. Include Xiaohongshu-specific keywords: high-quality texture, atmospheric, appealing to viewers
+6. Output only the optimized English prompt, no explanations
+
+## REFERENCE IMAGE ANALYSIS (MANDATORY):
+You MUST extract and incorporate from the reference images:
+- Color palette and tone (warm/cool, vibrant/muted)
+- Lighting style (bright, soft, dramatic)
+- Composition style (centered, rule of thirds, minimalist)
+- Mood and atmosphere (energetic, calm, luxury, playful)
+- Any specific visual elements that define the style
+
+## USER PROMPT RESPECT (MANDATORY):
+- The user's prompt is the SOURCE OF TRUTH - never contradict or ignore it
+- Only add technical specifications (lighting, composition, quality) to enhance the user's vision
+- If the user's prompt is brief, expand it with style-consistent details
+- If the user's prompt is detailed, preserve all elements while optimizing for image generation
 
 ## STYLE GUIDANCE:
 ${styleSection}${compositionSection}
@@ -152,8 +167,21 @@ function buildUserPrompt(
   imageCount: number,
   layoutIntent?: string | null
 ): string {
-  return `## User Requirements:
+  const imageGuidance = imageCount > 0
+    ? `## REFERENCE IMAGES ANALYSIS GUIDANCE:
+The ${imageCount} reference image(s) you receive provide:
+- Style direction: colors, lighting, mood, atmosphere
+- Composition reference: layout, visual hierarchy, element placement
+- Quality benchmark: texture quality, detail level, overall aesthetic
+
+You MUST incorporate the visual characteristics from these reference images into your optimized prompt while keeping the user's core message intact.`
+    : `## NO REFERENCE IMAGES:
+No reference images provided - focus purely on the user's prompt and style configuration.`;
+
+  return `## User Requirements (SOURCE OF TRUTH):
 ${userPrompt}
+
+${imageGuidance}
 
 ## Style Details:
 ${styleConfig
@@ -165,17 +193,21 @@ Colors: ${styleConfig.colors.primary}, ${styleConfig.colors.secondary}, ${styleC
 ## Layout Intent:
 ${layoutIntent ? `Layout Intent: ${layoutIntent} (detected from user prompt)` : 'Layout Intent: Auto-detect based on theme'}
 
-## Reference Images:
-${imageCount} image(s) provided as reference
-
 ## Task:
 Generate an optimized English prompt for Xiaohongshu cover generation that:
-1. Incorporates the style characteristics
-2. Follows the detected or auto-selected layout structure
-3. Creates an eye-catching, scroll-stopping design
-4. Works well on mobile (9:16 vertical format)
-5. Includes text/title elements that would grab attention
-6. Maintains the reference image's aesthetic qualities`;
+1. STRICTLY PRESERVES all key elements from the user's original prompt
+2. INCORPORATES style characteristics from reference images (colors, lighting, mood, composition)
+3. FOLLOWS the detected or auto-selected layout structure
+4. Creates an eye-catching, scroll-stopping design
+5. Works well on mobile (3:4 vertical format: 1024x1366px)
+6. Includes text/title elements that would grab attention
+7. Maintains the reference image's aesthetic qualities
+8. Adds Xiaohongshu-specific quality keywords: high-quality texture, atmospheric lighting, professional photography
+
+## IMPORTANT:
+- The user's prompt is the foundation - never remove or contradict user's intent
+- Reference images are style references - adapt their aesthetic, don't copy content
+- Output only the optimized prompt, no explanations`;
 }
 
 async function callCoverGenerator(images: ReferenceImage[], prompt: string): Promise<GeneratedCover[]> {
